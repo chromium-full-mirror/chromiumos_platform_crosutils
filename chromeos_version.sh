@@ -31,7 +31,7 @@ export CHROMEOS_VERSION_BRANCH=128
 # Patch number.
 # Increment by 1 each release on a branch.
 # Reset to 0 when increasing branch number.
-export CHROMEOS_VERSION_PATCH=3
+export CHROMEOS_VERSION_PATCH=4
 
 # Codename of this version.
 export CHROMEOS_VERSION_CODENAME=""
@@ -85,7 +85,7 @@ export CHROMEOS_VERSION_STRING=\
 # URL to chrome archive
 export CHROME_BASE=http://chromeos-images/chrome-official
 # export CHROME_VERSION from incoming value or NULL and let ebuild default
-export CHROME_VERSION=8.0.552.333
+export CHROME_VERSION=8.0.552.338
 export CHROME_FILENAME=chrome-chromeos.zip
 
 # Print (and remember) version info.
