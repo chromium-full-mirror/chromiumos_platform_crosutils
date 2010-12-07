@@ -26,12 +26,12 @@ export CHROMEOS_VERSION_MINOR=9
 # Increment by 2 in trunk after making a release branch.
 # Does not reset on a major/minor change (always increases).
 # (Trunk is always odd; branches are always even).
-export CHROMEOS_VERSION_BRANCH=128
+export CHROMEOS_VERSION_BRANCH=130
 
 # Patch number.
 # Increment by 1 each release on a branch.
 # Reset to 0 when increasing branch number.
-export CHROMEOS_VERSION_PATCH=8
+export CHROMEOS_VERSION_PATCH=0
 
 # Codename of this version.
 export CHROMEOS_VERSION_CODENAME=""
@@ -85,7 +85,7 @@ export CHROMEOS_VERSION_STRING=\
 # URL to chrome archive
 export CHROME_BASE=http://chromeos-images/chrome-official
 # export CHROME_VERSION from incoming value or NULL and let ebuild default
-export CHROME_VERSION=8.0.552.341
+export CHROME_VERSION=9.0.597.10
 export CHROME_FILENAME=chrome-chromeos.zip
 
 # Print (and remember) version info.
