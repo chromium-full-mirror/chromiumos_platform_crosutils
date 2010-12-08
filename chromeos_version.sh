@@ -85,7 +85,7 @@ export CHROMEOS_VERSION_STRING=\
 # URL to chrome archive
 export CHROME_BASE=http://chromeos-images/chrome-official
 # export CHROME_VERSION from incoming value or NULL and let ebuild default
-export CHROME_VERSION=8.0.597.13
+export CHROME_VERSION=9.0.597.13
 export CHROME_FILENAME=chrome-chromeos.zip
 
 # Print (and remember) version info.
