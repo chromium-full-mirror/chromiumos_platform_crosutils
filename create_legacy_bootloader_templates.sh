@@ -126,17 +126,10 @@ include /syslinux/root.B.cfg
 EOF
   info "Emitted ${SYSLINUX_DIR}/syslinux.cfg"
 
-  if [[ ${FLAGS_enable_rootfs_verification} -eq ${FLAGS_TRUE} ]]; then
-    # To change the active target, only this file needs to change.
-    cat <<EOF | sudo dd of="${SYSLINUX_DIR}/default.cfg" 2>/dev/null
-DEFAULT chromeos-vusb.A
-EOF
-  else
     # To change the active target, only this file needs to change.
     cat <<EOF | sudo dd of="${SYSLINUX_DIR}/default.cfg" 2>/dev/null
 DEFAULT chromeos-usb.A
 EOF
-  fi
   info "Emitted ${SYSLINUX_DIR}/default.cfg"
 
   cat <<EOF | sudo dd of="${SYSLINUX_DIR}/usb.A.cfg" 2>/dev/null
@@ -222,10 +215,6 @@ menuentry "Alternate USB Boot" {
   linux (hd0,3)/boot/vmlinuz ${common_args} root=/dev/sdb3 i915.modeset=1 cros_efi
 }
 EOF
-  if [[ ${FLAGS_enable_rootfs_verification} -eq ${FLAGS_TRUE} ]]; then
-    sudo sed -i -e 's/^set default=.*/set default=2/' \
-       "${FLAGS_to}/efi/boot/grub.cfg"
-  fi
   info "Emitted ${FLAGS_to}/efi/boot/grub.cfg"
   exit 0
 fi
