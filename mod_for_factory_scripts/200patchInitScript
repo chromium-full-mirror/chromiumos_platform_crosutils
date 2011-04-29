@@ -39,7 +39,9 @@ stop on starting halt or starting reboot
 
 script
 /sbin/modprobe i2c-dev
-/usr/sbin/mosys -l memory spd print geometry 1>/tmp/mosys.log 2>/tmp/mosys.err
+if crossystem hwid >/dev/null; then
+  /usr/sbin/mosys -l memory spd print geometry 1>/tmp/mosys.log 2>/tmp/mosys.err
+fi
 cd /usr/local/autotest
 eval \$(./site_tests/suite_Factory/startx.sh)
 date >>/var/log/factory.log
