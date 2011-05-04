@@ -1,1 +1,2 @@
 chromeos-base/pam_offline
+sys-boot/grub
