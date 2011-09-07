@@ -39,7 +39,7 @@ find_common_sh
   die "Unable to load /usr/lib/installer/chromeos-common.sh"
 
 # Load functions designed for image processing
-. "${SCRIPT_ROOT}/lib/cros_image_common.sh" ||
+. "$(dirname $(readlink -f $0))/lib/cros_image_common.sh" ||
   die "Cannot load required library: lib/cros_image_common.sh; Abort."
 
 SCRIPT="$0"
