@@ -45,6 +45,16 @@ image_has_part_tools() {
   image_has_command cgpt || image_has_command parted
 }
 
+# Finds if specified tool can be found by current path; updates system path if
+# the tool is available in given folder.
+image_find_tool() {
+  local tool="$1"
+  local alternative_folder="$(readlink -f "$2")"
+  if ! image_has_command "$tool" && [ -x "$alternative_folder/$tool" ]; then
+    PATH="$alternative_folder:$PATH"; export PATH
+  fi
+}
+
 # Finds the best partition tool and print partition offset
 image_part_offset() {
   local file="$1"
@@ -55,6 +65,8 @@ image_part_offset() {
   if image_has_command cgpt; then
     cgpt show -b -i "$partno" "$file"
   elif image_has_command parted; then
+    # First trial-run to make sure image is valid (because awk always return 0)
+    parted -m "$file" unit s print | grep -qs "^$partno:" || exit 1
     parted -m "$file" unit s print | awk -F ':' "/^$partno:/ { print int(\$2) }"
   elif [ -f "$unpack_file" ]; then
     awk "/ $partno  *Label:/ { print \$2 }" "$unpack_file"
@@ -73,6 +85,8 @@ image_part_size() {
   if image_has_command cgpt; then
     cgpt show -s -i "$partno" "$file"
   elif image_has_command parted; then
+    # First trial-run to make sure image is valid (because awk always return 0)
+    parted -m "$file" unit s print | grep -qs "^$partno:" || exit 1
     parted -m "$file" unit s print | awk -F ':' "/^$partno:/ { print int(\$4) }"
   elif [ -s "$unpack_file" ]; then
     awk "/ $partno  *Label:/ { print \$3 }" "$unpack_file"
@@ -88,15 +102,13 @@ image_dump_partial_file() {
   local sectors="$3"
   local bs=512
 
-  # Try to use larger buffer if offset/size can be re-aligned.
-  # 2M / 512 = 4096
-  local buffer_ratio=4096
-  if [ $((offset % buffer_ratio)) -eq 0 -a \
-       $((sectors % buffer_ratio)) -eq 0 ]; then
-    offset=$((offset / buffer_ratio))
-    sectors=$((sectors / buffer_ratio))
-    bs=$((bs * buffer_ratio))
-  fi
+  # Increase buffer size as much as possible until 8M
+  while [ $((bs < (8 * 1024 * 1024) && sectors > 0 &&
+             offset % 2 == 0 && sectors % 2 == 0)) = "1" ]; do
+    bs=$((bs * 2))
+    offset=$((offset / 2))
+    sectors=$((sectors / 2))
+  done
 
   if image_has_command pv; then
     dd if="$file" bs=$bs skip="$offset" count="$sectors" \
@@ -120,6 +132,47 @@ image_dump_partition() {
   image_dump_partial_file "$file" "$offset" "$size"
 }
 
+# Updates a file (from stdin) by given offset and size (in sectors)
+image_update_partial_file() {
+  local file="$1"
+  local offset="$2"
+  local sectors="$3"
+  local bs=512
+  local oflag="oflag=dsync"
+
+  # Improve performance if we're not updating block (Ex, USB) devices
+  [ -b "$file" ] || oflag=""
+
+  # Increase buffer size as much as possible until 8M
+  while [ $((bs < (8 * 1024 * 1024) && sectors > 0 &&
+             offset % 2 == 0 && sectors % 2 == 0)) = "1" ]; do
+    bs=$((bs * 2))
+    offset=$((offset / 2))
+    sectors=$((sectors / 2))
+  done
+
+  if image_has_command pv; then
+    pv -ptreb -B $bs -s $((sectors * bs)) |
+      dd of="$file" bs=$bs seek="$offset" count="$sectors" \
+        iflag=fullblock $oflag conv=notrunc status=noxfer 2>/dev/null
+  else
+    dd of="$file" bs=$bs seek="$offset" count="$sectors" \
+      iflag=fullblock $oflag conv=notrunc status=noxfer 2>/dev/null
+  fi
+}
+
+# Updates a specific partition in given image file (from stdin)
+image_update_partition() {
+  local file="$1"
+  local part_num="$2"
+  local offset="$(image_part_offset "$file" "$part_num")" ||
+    image_die "failed to find partition #$part_num from: $file"
+  local size="$(image_part_size "$file" "$part_num")" ||
+    image_die "failed to find partition #$part_num from: $file"
+
+  image_update_partial_file "$file" "$offset" "$size"
+}
+
 # Maps a specific partition from given image file to a loop device
 image_map_partition() {
   local file="$1"
@@ -129,7 +182,7 @@ image_map_partition() {
   local size="$(image_part_size "$file" "$part_num")" ||
     image_die "failed to find partition #$part_num from: $file"
 
-  losetup --offset $((offset * 512)) --sizelimit=$((size * 512)) \
+  sudo losetup --offset $((offset * 512)) --sizelimit=$((size * 512)) \
     -f --show "$file"
 }
 
@@ -137,7 +190,7 @@ image_map_partition() {
 image_unmap_partition() {
   local map_point="$1"
 
-  losetup -d "$map_point"
+  sudo losetup -d "$map_point"
 }
 
 # Mounts a specific partition inside a given image file
@@ -156,7 +209,7 @@ image_mount_partition() {
     mount_opt=",ro"
   fi
 
-  mount \
+  sudo mount \
     -o "loop,offset=$((offset * 512)),sizelimit=$((size * 512)),$mount_opt" \
     "$file" \
     "$mount_point"
@@ -166,35 +219,116 @@ image_mount_partition() {
 image_umount_partition() {
   local mount_point="$1"
 
-  umount -d "$mount_point"
+  sudo umount -d "$mount_point"
 }
 
-# Copy a partition from one image to another.
+# Copy a partition from one image to another (size must be equal)
 image_partition_copy() {
-  local src="$1"
-  local srcpart="$2"
-  local dst="$3"
-  local dstpart="$4"
-
-  local srcoffset=$(image_part_offset "${src}" "${srcpart}")
-  local dstoffset=$(image_part_offset "${dst}" "${dstpart}")
-  local length=$(image_part_size "${src}" "${srcpart}")
-  local dstlength=$(image_part_size "${dst}" "${dstpart}")
-
-  if [ "${length}" -gt  "${dstlength}" ]; then
-    exit 1
+  local src="$1" src_part="$2" dst="$3" dst_part="$4"
+  local size1="$(image_part_size "$src" "$src_part")"
+  local size2="$(image_part_size "$dst" "$dst_part")"
+  if [ "$size1" != "$size2" ]; then
+    die "Partition size different: ($size1 != $size2)"
   fi
+  image_dump_partition "$src" "$src_part" 2>/dev/null |
+    image_update_partition "$dst" "$dst_part"
+}
 
-  # Try to use larger buffer if offset/size can be re-aligned.
-  # 2M / 512 = 4096
-  local buffer_ratio=4096
-  local bs=512
-  if [ $((dstoffset % buffer_ratio)) -eq 0 -a \
-       $((length % buffer_ratio)) -eq 0 ]; then
-    dstoffset=$((dstoffset / buffer_ratio))
-    bs=$((bs * buffer_ratio))
+# Copy a partition from one image to another (source <= dest)
+image_partition_overwrite() {
+  local src="$1" src_part="$2" dst="$3" dst_part="$4"
+  local size1="$(image_part_size "$src" "$src_part")"
+  local size2="$(image_part_size "$dst" "$dst_part")"
+  if [ "$size1" -gt "$size2" ]; then
+    die "Destination is too small: ($size1 > $size2)"
   fi
+  image_dump_partition "$src" "$src_part" 2>/dev/null |
+    image_update_partition "$dst" "$dst_part"
+}
 
-  image_dump_partition "${src}" "${srcpart}" |
-      dd of="${dst}" bs="${bs}" seek="${dstoffset}" conv=notrunc oflag=dsync
+# Copy a partition image from file to a full disk image.
+image_partition_copy_from_file() {
+  local src="$1" dst="$2" dst_part="$3"
+  local size1="$(($(stat -c"%s" "$src") / 512))"
+  local size2="$(image_part_size "$dst" "$dst_part")"
+  if [ "$size1" != "$size2" ]; then
+    die "Partition size different: ($size1 != $size2)"
+  fi
+  image_update_partition "$dst" "$dst_part" <"$src"
+}
+
+# Temporary object management
+_IMAGE_TEMP_OBJECTS=""
+
+# Add a temporary object (by mktemp) into list for image_clean_temp to clean
+image_add_temp() {
+  _IMAGE_TEMP_OBJECTS="$_IMAGE_TEMP_OBJECTS $*"
+}
+
+# Cleans objects tracked by image_add_temp.
+image_clean_temp() {
+  local temp_list="$_IMAGE_TEMP_OBJECTS"
+  local object
+  _IMAGE_TEMP_OBJECTS=""
+
+  for object in $temp_list; do
+    if [ -d "$object" ]; then
+      sudo umount -d "$object" >/dev/null 2>&1 || true
+      sudo rmdir "$object" >/dev/null 2>&1 || true
+    else
+      rm -f "$object" >/dev/null 2>&1 || true
+    fi
+  done
+}
+
+# Determines the boot type of a ChromeOS kernel partition.
+# Prints "recovery", "ssd", "usb", "factory_install", "invalid", or "unknown".
+image_cros_kernel_boot_type() {
+  local keyblock="$1"
+  local magic flag skip kernel_config
+
+  # TODO(hungte) use vbutil_keyblock if available
+
+  # Reference: firmware/include/vboot_struct.h
+  local KEY_BLOCK_FLAG_DEVELOPER_0=1  # Developer switch off
+  local KEY_BLOCK_FLAG_DEVELOPER_1=2  # Developer switch on
+  local KEY_BLOCK_FLAG_RECOVERY_0=4  # Not recovery mode
+  local KEY_BLOCK_FLAG_RECOVERY_1=8  # Recovery mode
+  local KEY_BLOCK_MAGIC="CHROMEOS"
+  local KEY_BLOCK_MAGIC_SIZE=8
+  local KEY_BLOCK_FLAG_OFFSET=72  # magic:8 major:4 minor:4 size:8 2*(sig:8*3)
+
+  magic="$(dd if="$keyblock" bs=$KEY_BLOCK_MAGIC_SIZE count=1 2>/dev/null)"
+  if [ "$magic" != "$KEY_BLOCK_MAGIC" ]; then
+    echo "invalid"
+    return
+  fi
+  skip="$KEY_BLOCK_FLAG_OFFSET"
+  flag="$(dd if="$keyblock" bs=1 count=1 skip="$skip" 2>/dev/null |
+          od -t u1 -A n)"
+  if [ "$((flag & KEY_BLOCK_FLAG_RECOVERY_0))" != 0 ]; then
+    echo "ssd"
+  elif [ "$((flag & KEY_BLOCK_FLAG_RECOVERY_1))" != 0 ]; then
+    if [ "$((flag & KEY_BLOCK_FLAG_DEVELOPER_0))" = 0 ]; then
+      echo "factory_install"
+    else
+      # Recovery or USB. Check "cros_recovery" in kernel config.
+      if image_has_command dump_kernel_config; then
+        kernel_config="$(dump_kernel_config "$keyblock")"
+      else
+        # strings is less secure than dump_kernel_config, so let's try more
+        # keywords
+        kernel_config="$(strings "$keyblock" |
+                         grep -w "root=" | grep -w "cros_recovery")"
+      fi
+      if (echo "$kernel_config" | grep -qw "cros_recovery") &&
+         (echo "$kernel_config" | grep -qw "kern_b_hash"); then
+        echo "recovery"
+      else
+        echo "usb"
+      fi
+    fi
+  else
+    echo "unknown"
+  fi
 }
