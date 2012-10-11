@@ -171,7 +171,7 @@
         "num": 5,
         "label":"ROOT-B",
         "type":"rootfs",
-        "blocks":"1"
+        "blocks":"4096"
       }
     ],
     "pgo": [
