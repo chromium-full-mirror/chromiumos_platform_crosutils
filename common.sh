@@ -366,6 +366,12 @@ DEFAULT_INSTALL_MASK="
   /lib/modules/*/source
   "
 
+# Hack for factory-3004.B (see crosbug.com/p/14652)
+DEFAULT_INSTALL_MASK="
+  $DEFAULT_INSTALL_MASK
+  /usr/share/oem
+  "
+
 # Mask for factory test image (build_image --factory)
 FACTORY_TEST_INSTALL_MASK="
   $COMMON_INSTALL_MASK
