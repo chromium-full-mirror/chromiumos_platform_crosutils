@@ -454,6 +454,7 @@ FACTORY_TEST_INSTALL_MASK="
 # Mask for factory install shim (build_image factory_install)
 FACTORY_SHIM_INSTALL_MASK="
   ${DEFAULT_INSTALL_MASK}
+  /lib/modules/3.4.0/kernel/drivers/net/usb/cdc_ether.ko
   /opt/[^g]*
   /opt/google/chrome
   /opt/google/o3d
