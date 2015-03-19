@@ -60,7 +60,8 @@ mod_image_for_test () {
     # Now make it bootable with the flags from build_image.
     if should_build_image ${image_name}; then
       "${SCRIPTS_DIR}/bin/cros_make_image_bootable" "${BUILD_DIR}" \
-         ${image_name} --force_developer_mode
+         ${image_name} --force_developer_mode \
+         --boot_args "lsm.module_locking=0"
     fi
   fi
 }
