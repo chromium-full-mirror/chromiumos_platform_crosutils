@@ -27,7 +27,7 @@ DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
   "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "default" \
   "The disk layout type to use for this image."
-DEFINE_string enable_serial "ttyMSM0" \
+DEFINE_string enable_serial "" \
   "Enable serial port for printks. Example values: ttyS0"
 DEFINE_integer loglevel 7 \
   "The loglevel to add to the kernel command line."
@@ -133,10 +133,16 @@ if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
   export USE="${USE} fbconsole vtconsole factory_shim_ramfs tpm i2cdev vfat"
 fi
 
-if should_build_image ${CHROMEOS_FACTORY_TEST_IMAGE_NAME}; then
+if should_build_image ${CHROMEOS_TEST_IMAGE_NAME}; then
   # Disable module restrictions on factory test image to allow for
   # external third party drivers in /usr/local.
   FLAGS_boot_args="${FLAGS_boot_args} lsm.module_locking=0"
+fi
+
+if should_build_image "${CHROMEOS_FACTORY_SHIM_NAME}" ||
+   should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
+  # Enable serial if not specified.
+  [ -n "${FLAGS_enable_serial}" ] || FLAGS_enable_serial="ttyMSM0"
 fi
 
 # TODO: </prebuild hook>
