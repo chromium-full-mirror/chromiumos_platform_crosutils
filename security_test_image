@@ -112,7 +112,6 @@ run_check() {
 sec_checks=(
   no_nonrelease_files
   sane_lsb-release
-  secure_kernelparams
 )
 for check in "${sec_checks[@]}"; do
   run_check "${check}" "${check}"
