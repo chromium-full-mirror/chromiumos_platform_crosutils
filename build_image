@@ -139,10 +139,23 @@ if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
   export USE="${USE} fbconsole vtconsole factory_shim_ramfs tpm i2cdev vfat"
 fi
 
-if should_build_image ${CHROMEOS_FACTORY_TEST_IMAGE_NAME}; then
+if should_build_image ${CHROMEOS_TEST_IMAGE_NAME}; then
   # Disable module restrictions on factory test image to allow for
   # external third party drivers in /usr/local.
   FLAGS_boot_args="${FLAGS_boot_args} lsm.module_locking=0"
+fi
+
+if should_build_image "${CHROMEOS_FACTORY_SHIM_NAME}" ||
+   should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
+  # Enable serial if not specified.
+  [ -n "${FLAGS_enable_serial}" ] || FLAGS_enable_serial="ttyMSM0"
+fi
+
+if should_build_image ${CHROMEOS_TEST_IMAGE_NAME}; then
+  # Based on the comment on http://crosbug.com/p/44601, enabling the kernel
+  # console output might solve some racing condition. Further investigation
+  # is still needed.
+  FLAGS_boot_args="${FLAGS_boot_args} earlyprintk=ttyMSM0,115200n8"
 fi
 
 # TODO: </prebuild hook>
