@@ -34,10 +34,6 @@ mod_image_for_test () {
     BOARD_ROOT="${BOARD_ROOT}" \
     "${mod_test_script}"
 
-  # Enable serial if not specified.
-  local enable_serial="${FLAGS_enable_serial}"
-  [ -n "${enable_serial}" ] || enable_serial="ttyMSM0"
-
   # Legacy parameter (used by mod_image_for_test.sh --factory)
   [ -n "${FLAGS_factory}" ] || FLAGS_factory=${FLAGS_FALSE}
 
@@ -65,7 +61,6 @@ mod_image_for_test () {
     if should_build_image ${image_name}; then
       "${SCRIPTS_DIR}/bin/cros_make_image_bootable" "${BUILD_DIR}" ${image_name} \
         --force_developer_mode \
-        --enable_serial="${enable_serial}" \
         --boot_args="${FLAGS_boot_args} lsm.module_locking=0"
     fi
   fi
