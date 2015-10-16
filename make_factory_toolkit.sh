@@ -62,7 +62,8 @@ main() {
 
   export INSTALL_MASK="${FACTORY_TEST_INSTALL_MASK}"
   emerge-${FLAGS_board} --root="${temp_pack_root}" --nodeps --usepkgonly -v \
-    chromeos-factory chromeos-factory-board autotest-factory-install
+    chromeos-factory chromeos-factory-board autotest-factory-install \
+    memento_softwareupdate
 
   local factory_repo="${CHROOT_TRUNK_DIR}/src/platform/factory"
   local repo_status_script="${factory_repo}/py/toolkit/print_repo_status.py"
