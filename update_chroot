@@ -97,7 +97,6 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   # process only takes place when the chromiumos sdk builder finishes
   # a successful build.
   EMERGE_FLAGS+=(
-    --useoldpkg-atoms=dev-lang/go
     --useoldpkg-atoms=sys-devel/binutils
     --useoldpkg-atoms=sys-devel/clang
     --useoldpkg-atoms=sys-devel/gcc
