@@ -34,15 +34,16 @@ install_dev_packages() {
   # Install developer packages.
   emerge_to_image --root="${root_dev_dir}" virtual/target-os-dev
 
+  # WORKAROUND crbug.com/940696: Remove debug info so build_image won't fail.
   # Copy over the libc debug info so that gdb
   # works with threads and also for a better debugging experience.
-  sudo mkdir -p "${root_fs_dir}/usr/local/usr/lib/debug"
-  pbzip2 -dc --ignore-trailing-garbage=1 "${LIBC_PATH}" | \
-    sudo tar xpf - -C "${root_fs_dir}/usr/local/usr/lib/debug" \
-      ./usr/lib/debug/usr/${CHOST} --strip-components=6
+  # sudo mkdir -p "${root_fs_dir}/usr/local/usr/lib/debug"
+  # pbzip2 -dc --ignore-trailing-garbage=1 "${LIBC_PATH}" | \
+  #  sudo tar xpf - -C "${root_fs_dir}/usr/local/usr/lib/debug" \
+  #    ./usr/lib/debug/usr/${CHOST} --strip-components=6
   # Since gdb only looks in /usr/lib/debug, symlink the /usr/local
   # path so that it is found automatically.
-  sudo ln -s /usr/local/usr/lib/debug "${root_fs_dir}/usr/lib/debug"
+  # sudo ln -s /usr/local/usr/lib/debug "${root_fs_dir}/usr/lib/debug"
 
   # Install the bare necessary files so that the "emerge" command works
   local portage_make_globals_path="/usr/share/portage/config/make.globals"
