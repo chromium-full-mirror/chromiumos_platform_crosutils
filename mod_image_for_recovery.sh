@@ -133,7 +133,7 @@ create_recovery_kernel_image() {
   if [ $FLAGS_sync_keys -eq $FLAGS_TRUE ]; then
     dd if="$INSTALL_VBLOCK" of="$kern_tmp" conv=notrunc 1>&2
   fi
-  local kern_hash=$(sha1sum "$kern_tmp" | cut -f1 -d' ')
+  local kern_hash=$(sha256sum "$kern_tmp" | cut -f1 -d' ')
   rm "$kern_tmp"
 
   # TODO(wad) add FLAGS_boot_args support too.
