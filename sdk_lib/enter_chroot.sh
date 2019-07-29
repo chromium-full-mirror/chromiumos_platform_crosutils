@@ -103,10 +103,6 @@ FUSE_DEVICE="/dev/fuse"
 LOCKFILE="${FLAGS_chroot}/.enter_chroot.lock"
 MOUNTED_PATH=$(readlink -f "$FLAGS_chroot")
 
-# Reset the depot tools/internal trunk pathways to what they'll
-# be w/in the chroot.
-set_chroot_trunk_dir "${FLAGS_chroot}"
-
 # Writes stdin to the given file name as the sudo user in overwrite mode.
 #
 # $@ - The output file names.
