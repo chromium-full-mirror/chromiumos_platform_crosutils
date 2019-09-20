@@ -24,6 +24,10 @@ DEFINE_boolean showoutput "${FLAGS_FALSE}" \
   "Show all output from parallel_emerge."
 DEFINE_boolean withautotest "${FLAGS_TRUE}" \
   "Build autotest client code."
+# Add this flag to be compatible with master chromite (but not being used in
+# branch).
+DEFINE_boolean withdebugsymbols "${FLAGS_FALSE}" \
+  "Install the debug symbols for all packages"
 DEFINE_boolean fetchonly "${FLAGS_FALSE}" \
   "Don't build anything, instead only fetch what is needed."
 DEFINE_boolean unpackonly "${FLAGS_FALSE}" \
@@ -265,6 +269,12 @@ rm "${tmpfile}"
 trap - EXIT
 
 echo "Builds complete"
+
+if [[ ${FLAGS_withdebugsymbols} -eq ${FLAGS_TRUE} ]]; then
+  info "fetching the debug symbols"
+  # Do nothing as keeping this flag for backward compatibility.
+fi
+
 EXTRA_COMMAND_STATS[package_count]=${package_count}
 command_completed
 echo "Done"
