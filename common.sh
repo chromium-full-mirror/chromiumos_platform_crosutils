@@ -774,10 +774,26 @@ loopback_partscan() {
   local lb_dev image="$1"
   shift
   lb_dev=$(au_generator_sudo losetup --show -f "$@" "${image}")
+
   # Ignore problems deleting existing partitions. There shouldn't be any
   # which will upset partx, but that's actually ok.
   au_generator_sudo partx -d "${lb_dev}" 2>/dev/null || true
-  au_generator_sudo partx -a "${lb_dev}"
+
+  # Initial sync to hopefully reduce chances of read failure.
+  sync
+
+  # First try to add missing partitions.
+  if ! au_generator_sudo partx -a "${lb_dev}"; then
+    warn "Adding partitions with 'partx -a ${lb_dev}' failed."
+    warn "Dumping full kernel buffer"
+    dmesg >&2 || true
+    sync
+    sleep 1
+
+    # Try a partition update to recover.
+    # https://crbug.com/999596
+    au_generator_sudo partx -u "${lb_dev}"
+  fi
 
   echo "${lb_dev}"
 }
