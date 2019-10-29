@@ -773,11 +773,42 @@ au_generator_sudo() {
 loopback_partscan() {
   local lb_dev image="$1"
   shift
-  lb_dev=$(au_generator_sudo losetup --show -f "$@" "${image}")
-  # Ignore problems deleting existing partitions. There shouldn't be any
-  # which will upset partx, but that's actually ok.
-  au_generator_sudo partx -d "${lb_dev}" 2>/dev/null || true
-  au_generator_sudo partx -a "${lb_dev}"
+
+  # We set up a binary backoff for adding the partitions. We give 10 attempts
+  # each time nth time we fail, backing off by 1<<n. The maximum time then
+  # spent sleeping will be sum(2^n) from [0...10] which is 1023 seconds,
+  # or ~37 minutes.
+  local i partx_out partx_d_out sleep_seconds=1
+  for (( i = 0; i <= 10; i++ )); do
+    # Flush any dirty pages in the image before we do partx commands.
+    info "Running sync -f ${image}"
+    sync -f "${image}"
+
+    # This (perhaps) mounts the partitions as well.
+    lb_dev=$(sudo losetup --show -f "$@" "${image}")
+
+    # Try to clean the slate by removing any existing parts (best effort).
+    partx_d_out=$(sudo partx -v -d "${lb_dev}") || true
+
+    # Try to add the partitions back.
+    if ! partx_out=$(sudo partx -v -a "${lb_dev}"); then
+      local proc_parts
+      warn "Adding partitions with 'partx -v -a ${lb_dev}' failed."
+      warn "partx -d output:\n${partx_d_out}"
+      warn "partx -a output:\n${partx_out}"
+      proc_parts=$(cat /proc/partitions)
+      warn "/proc/partitions before detaching loopback:\n ${proc_parts}"
+      # Detach the image.
+      sudo losetup -d "${lb_dev}" || true
+      proc_parts=$(cat /proc/partitions)
+      warn "/proc/partitions after detaching loopback:\n ${proc_parts}"
+      warn "Sleeping ${sleep_seconds} before trying again."
+      sleep "${sleep_seconds}"
+      : $(( sleep_seconds <<= 1 ))
+    else
+      break
+    fi
+  done
 
   echo "${lb_dev}"
 }
