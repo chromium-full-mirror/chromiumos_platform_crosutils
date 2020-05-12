@@ -32,7 +32,7 @@ DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
 DEFINE_boolean autosetgov "${FLAGS_FALSE}" \
   "Automatically set cpu governor to 'performance'."
-DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
+DEFINE_boolean use_any_chrome "${FLAGS_FALSE}" \
   "Use any Chrome prebuilt available, even if the prebuilt doesn't match exactly."
 
 # The --board_root flag specifies the environment variables ROOT and PKGDIR.
