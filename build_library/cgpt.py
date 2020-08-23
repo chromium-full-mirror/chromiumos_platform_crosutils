@@ -741,12 +741,12 @@ def GetFullPartitionSize(partition, metadata):
   return size
 
 
-def WriteLayoutFunction(options, sfile, func, image_type, config):
+def WriteLayoutFunction(options, slines, func, image_type, config):
   """Writes a shell script function to write out a given partition table.
 
   Args:
     options: Flags passed to the script
-    sfile: File handle we're writing to
+    slines: lines to write to the script
     func: function of the layout:
        for removable storage device: 'partition',
        for the fixed storage device: 'base'
@@ -917,26 +917,33 @@ def WriteLayoutFunction(options, sfile, func, image_type, config):
   if _HasExternalGpt(partitions):
     lines += ['flashrom -w -iRW_GPT:${gptfile} --noverify-all']
 
-  sfile.write('%s\n}\n' % '\n  '.join(lines))
+  slines += '%s\n}\n\n' % '\n  '.join(lines)
 
 
-def WritePartitionSizesFunction(options, sfile, func, image_type, config):
+def WritePartitionSizesFunction(options, slines, func, image_type, config,
+                                data):
   """Writes out the partition size variable that can be extracted by a caller.
 
   Args:
     options: Flags passed to the script
-    sfile: File handle we're writing to
+    slines: lines to write to the script file
     func: function of the layout:
        for removable storage device: 'partition',
        for the fixed storage device: 'base'
     image_type: Type of image eg base/test/dev/factory_install
     config: Partition configuration file object
+    data: data dict we will write to a json file
   """
   func_name = 'load_%s_vars' % func
   lines = [
       '%s() {' % func_name,
       'DEFAULT_ROOTDEV="%s"' % config['metadata'].get('rootdev_%s' % func, ''),
   ]
+
+  data[func_name] = {}
+  data[func_name]['DEFAULT_ROOTDEV'] = (
+      '%s' % config['metadata'].get('rootdev_%s' % func, '')
+  )
 
   partitions = GetPartitionTable(options, config, image_type)
   for partition in partitions:
@@ -952,17 +959,22 @@ def WritePartitionSizesFunction(options, sfile, func, image_type, config):
         fs_format = partition.get('fs_format', '')
         fs_options = partition.get('fs_options', '')
         partition_num = partition.get('num', '')
-        lines += [
-            'PARTITION_SIZE_%s=%s' % (shell_label, part_bytes),
-            '  RESERVED_EBS_%s=%s' % (shell_label, reserved_ebs),
-            '     DATA_SIZE_%s=%s' % (shell_label, fs_bytes),
-            '        FORMAT_%s=%s' % (shell_label, part_format),
-            '     FS_FORMAT_%s=%s' % (shell_label, fs_format),
-            '    FS_OPTIONS_%s="%s"' % (shell_label, fs_options),
-            ' PARTITION_NUM_%s="%s"' % (shell_label, partition_num),
-        ]
-
-  sfile.write('%s\n}\n' % '\n  '.join(lines))
+        args = [('PARTITION_SIZE_', part_bytes),
+                ('RESERVED_EBS_', reserved_ebs),
+                ('DATA_SIZE_', fs_bytes),
+                ('FORMAT_', part_format),
+                ('FS_FORMAT_', fs_format)]
+        sargs = [('FS_OPTIONS_', fs_options),
+                ('PARTITION_NUM_', partition_num)]
+        for arg, value in args:
+          label = arg + shell_label
+          lines += ['%s=%s' % (label, value),]
+          data[func_name][label] = '%s' % value
+        for arg, value in sargs:
+          label = arg + shell_label
+          lines += ['%s="%s"' % (label, value),]
+          data[func_name][label] = '"%s"' % value
+  slines += '%s\n}\n\n' % '\n  '.join(lines)
 
 
 def GetPartitionByNumber(partitions, num):
@@ -1036,7 +1048,8 @@ def GetPartitionByLabel(partitions, label):
   raise PartitionNotFound('Partition "%s" not found' % label)
 
 
-def WritePartitionScript(options, image_type, layout_filename, sfilename):
+def WritePartitionScript(options, image_type, layout_filename, sfilename,
+                         vfilename):
   """Writes a shell script with functions for the base and requested layouts.
 
   Args:
@@ -1044,16 +1057,22 @@ def WritePartitionScript(options, image_type, layout_filename, sfilename):
     image_type: Type of image eg base/test/dev/factory_install
     layout_filename: Path to partition configuration file
     sfilename: Filename to write the finished script to
+    vfilename: Filename to write the partition variables json data to
   """
   config = LoadPartitionConfig(layout_filename)
 
-  with open(sfilename, 'w') as f:
+  with open(sfilename, 'w') as f, open(vfilename, 'w') as jFile:
     script_shell = GetScriptShell()
     f.write(script_shell)
 
+    data = {}
+    slines = []
     for func, layout in (('base', BASE_LAYOUT), ('partition', image_type)):
-      WriteLayoutFunction(options, f, func, layout, config)
-      WritePartitionSizesFunction(options, f, func, layout, config)
+      WriteLayoutFunction(options, slines, func, layout, config)
+      WritePartitionSizesFunction(options, slines, func, layout, config, data)
+
+    f.write(''.join(slines))
+    json.dump(data, jFile)
 
     # TODO: Backwards compat.  Should be killed off once we update
     #       cros_generate_update_payload to use the new code.

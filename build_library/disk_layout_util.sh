@@ -43,14 +43,22 @@ write_partition_script() {
   local adjust_part="$3"
   get_disk_layout_path
 
-  local temp_script_file=$(mktemp)
+  local part_vars
+  part_vars="$(dirname "${partition_script_path}")/partition_vars.json"
+
+  local temp_script_file
+  local temp_vars_file
+  temp_script_file=$(mktemp)
+  temp_vars_file=$(mktemp)
 
   sudo mkdir -p "$(dirname "${partition_script_path}")"
   cgpt_py ${adjust_part:+--adjust_part "${adjust_part}"} \
           write "${image_type}" "${DISK_LAYOUT_PATH}" \
-          "${temp_script_file}"
+          "${temp_script_file}" "${temp_vars_file}"
   sudo mv "${temp_script_file}" "${partition_script_path}"
+  sudo mv "${temp_vars_file}" "${part_vars}"
   sudo chmod a+r "${partition_script_path}"
+  sudo chmod a+r "${part_vars}"
 }
 
 run_partition_script() {
