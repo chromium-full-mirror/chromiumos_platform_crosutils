@@ -80,6 +80,8 @@ DEFINE_string toolset "cros" \
   "Toolset that this script is being used with."
 DEFINE_string version "" \
   "Overrides version number in name to this version."
+DEFINE_boolean eclean ${FLAGS_TRUE} \
+  "Noop to sink the argument instead of going FATAL: crbug.com/1044411"
 
 # Parse command line.
 FLAGS "$@" || exit 1
