@@ -12,6 +12,8 @@
 : "${RESTRICT:=}"
 : "${WORKDIR:=}"
 
+DOC_URL="https://issuetracker.google.com/201531268"
+
 # Lists gleaned from headers and this doc:
 # http://people.redhat.com/berrange/notes/largefile.html
 # http://opengroup.org/platform/lfs.html
@@ -122,7 +124,7 @@ check_lfs()
   if [[ -n "${files}" ]]; then
     echo
     eqawarn "QA Notice: The following files were not built with LFS support:"
-    eqawarn "  Please see http://crbug.com/464024 for details."
+    eqawarn "  Please see ${DOC_URL} for details."
     eqawarn "${files}"
     echo
   fi
@@ -132,7 +134,7 @@ check_lfs()
 # should be good enough for our needs so far.
 case "${ARCH}" in
 arm|mips|ppc|sh|x86)
-  if [[ " ${RESTRICT} " == *" binchecks "* ]] ; then
+  if [[ " ${RESTRICT} " != *" binchecks "* ]]; then
     check_lfs "${D}"
   fi
   ;;
