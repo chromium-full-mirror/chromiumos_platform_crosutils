@@ -400,12 +400,11 @@ create_base_image() {
     "/usr/lib/python-exec"
     "/usr/lib/portage"
     "/usr/bin/python"
-    "/usr/bin/python2"
     "/usr/bin/python3"
     # Querying versions is a bit fun.  We don't know precisely what will be
     # installed in /usr/local, so just query what is available in the sysroot.
-    # The qlist output is: dev-lang/python:2.7
-    $("qlist-${BOARD}" -ICSe dev-lang/python | \
+    # The qlist output is: dev-lang/python:3.6
+    $("qlist-${BOARD}" -ICSe '>=dev-lang/python-3' | \
         tr -d ':' | sed 's:dev-lang:/usr/bin:')
   )
   for path in "${python_paths[@]}"; do
