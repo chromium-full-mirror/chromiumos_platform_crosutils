@@ -70,7 +70,6 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
 
   if [[ -n ${FLAGS_toolchain_boards} ]]; then
     TOOLCHAIN_FLAGS+=(
-      "--targets=boards"
       "--include-boards=${FLAGS_toolchain_boards}"
     )
   fi
