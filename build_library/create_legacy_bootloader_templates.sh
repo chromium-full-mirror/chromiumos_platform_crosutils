@@ -213,6 +213,8 @@ EOF
     -p /efi/boot
     part_gpt gptpriority test fat ext2 hfs hfsplus normal boot chain
     efi_gop configfile linux
+  # For more context on SBAT, see chromiumos-overlay/sys-boot/grub/README.md
+    -s "${SRC_ROOT}/third_party/chromiumos-overlay/sys-boot/grub/files/sbat.csv"
   )
   sudo grub-mkimage -O x86_64-efi \
     -o "${FLAGS_to}/efi/boot/bootx64.efi" "${grub_args[@]}"
