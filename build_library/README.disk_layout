@@ -269,6 +269,9 @@ http://www.chromium.org/chromium-os/chromiumos-design-docs/disk-format
     Has feature 'last_partition' which ensures that it is placed at the
     end of the disk.
 
+  Partition 11 - Powerwash data
+    The powerwash partition preserves rollback data. It does not
+    have a filesystem.
 
 Inheritance Rules:
 

@@ -98,6 +98,14 @@
         "size": "4096 MiB"
       },
       {
+        # Powerwash data, including rollback data.
+        "num": 11,
+        "label": "POWERWASH-DATA",
+        "type": "data",
+        "size": "4 MiB",
+        "uuid": "random"
+      },
+      {
         # User data, fills all remaining space on drive.
         "num": 1,
         "label": "STATE",
