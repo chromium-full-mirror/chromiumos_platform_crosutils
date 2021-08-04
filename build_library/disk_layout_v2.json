@@ -90,6 +90,9 @@
         # Note that updates will fail if the rootfs size
         # shrinks. (crbug.com/192136)
         #
+        # Note: fs_size is intentionally much lower than partition size. See
+        # note under "Rootfs size limitations" in README.disk_layout
+        #
         # Changes to the offset of this partition may require
         # changes in cros-signing/security_test_baselines/
         # ensure_secure_kernelparams.config to allow secure boot.

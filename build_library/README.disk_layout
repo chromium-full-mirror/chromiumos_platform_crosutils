@@ -316,6 +316,27 @@ If a local usb if usb isn't actually defined will be:
                     local common --                     -- parent common
 
 
+Rootfs size limitations:
+
+In newer disk layouts (4gb and greater), the fs_size is much smaller than the
+partition size. There are two reasons for this:
+
+1. We store verity hash and a boot cache in this partition too.
+2. We intentionally keep the filesystem size low to catch bloat.
+
+If you are an on-call trying to quickly fix an issue when rootfs size is greater
+than fs_size, you can override the board specific disk_layout.json (example CL:
+crrev.com/c/3067827).
+
+Along with bumping up the fs_size, you should also flag this regression with
+chromeos-image-size@google.com. Include the following breakdown:
+
+* Find the regressing build version and the last live version from Goldeneye.
+  * The last live version will have a "Live" label. Prefer to take the canary
+    version for the closest comparison.
+* Run `cros analyze-image --board=$BOARD --version=$VERSION --spreadsheet` for
+  both the regressing build and the one before it.
+
 FAQ
 
 I want to update a package and I used to use the --rootfs_size and
