@@ -10,7 +10,7 @@ there is a board specific layout.
 To create a board specific layout that modifies this:
   Create:
     overlay-<board>/scripts/disk_layout.json
-    list <current_year>_disk_layout.json as a parent in disk_layout.json for
+    list disk_layout_v<N>.json as a parent in disk_layout.json for
     modern images, or legacy_disk_layout.json for old boards.
 
 A layout file consists of layouts. Common types of layouts would be "base",
@@ -193,6 +193,7 @@ Legal partition types:
   nand
   ubi
   reserved
+  minios
 
 Legal fs_format values:
   ext2
