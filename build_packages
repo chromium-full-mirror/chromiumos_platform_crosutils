@@ -173,6 +173,15 @@ if [[ -z "${FLAGS_board}" ]]; then
   exit 1
 fi
 
+BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
+
+# Skip revdeps when we don't already have a built sysroot.
+if [[ "${FLAGS_cleanbuild}" -eq "${FLAGS_TRUE}" || ! -d "${BOARD_ROOT}" ]]; then
+  SKIP_REVDEPS="${FLAGS_TRUE}"
+else
+  SKIP_REVDEPS="${FLAGS_FALSE}"
+fi
+
 if [[ "${FLAGS_skip_setup_board}" -eq "${FLAGS_FALSE}" ]]; then
   # Before we can run any tools, we need to update chroot or setup_board.
   UPDATE_ARGS=()
@@ -209,7 +218,7 @@ if [[ "${FLAGS_skip_setup_board}" -eq "${FLAGS_FALSE}" ]]; then
   setup_board --quiet --board=${FLAGS_board} "${UPDATE_ARGS[@]}"
 fi
 
-sudo_clear_shadow_locks "/build/${FLAGS_board}"
+sudo_clear_shadow_locks "${BOARD_ROOT}"
 PORTAGE_BINHOST=$(portageq-${FLAGS_board} envvar 'PORTAGE_BINHOST')
 info "PORTAGE_BINHOST: ${PORTAGE_BINHOST}"
 
@@ -361,7 +370,8 @@ fi
 
 # Temporarily modify the emerge flags so we can calculate the revdeps
 # on the modified packages.
-if [[ "${FLAGS_withrevdeps}" -eq "${FLAGS_TRUE}" ]]; then
+if [[ "${FLAGS_withrevdeps}" -eq "${FLAGS_TRUE}" &&
+      "${SKIP_REVDEPS}" -eq "${FLAGS_FALSE}" ]]; then
   info "starting reverse dependency calculations ..."
   SIM_EMERGE_FLAGS=( "${EMERGE_FLAGS[@]}" --pretend --columns )
 
