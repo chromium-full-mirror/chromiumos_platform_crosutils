@@ -411,6 +411,13 @@ create_base_image() {
     --patch_number="${CHROMEOS_PATCH}" \
     "${arc_flags[@]}"
 
+  # Copy the full lsb-release into the initramfs build root.
+  if has "minios" "$(portageq-${FLAGS_board} envvar USE)"; then
+    sudo mkdir -p "${BOARD_ROOT}/build/initramfs/etc"
+    sudo cp "${root_fs_dir}/etc/lsb-release" \
+      "${BOARD_ROOT}/build/initramfs/etc/"
+  fi
+
   # Set /etc/os-release on the image.
   # Note: fields in /etc/os-release can come from different places:
   # * /etc/os-release itself with docrashid
