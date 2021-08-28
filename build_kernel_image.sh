@@ -293,7 +293,6 @@ EOF
   WORK="${WORK} ${FLAGS_working_dir}/config.txt"
 
   bootloader_path="/lib64/bootstub/bootstub.efi"
-  kernel_image="${FLAGS_vmlinuz}"
 elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips"  || "${FLAGS_arch}" = "arm64" ]]; then
   WORK="${WORK} ${FLAGS_working_dir}/config.txt"
 
@@ -302,10 +301,10 @@ elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips"  || "${FLAGS_arch}" 
   WORK="${WORK} ${FLAGS_working_dir}/bootloader.bin"
 
   bootloader_path="${FLAGS_working_dir}/bootloader.bin"
-  kernel_image="${FLAGS_vmlinuz/vmlinuz/vmlinux.uimg}"
 else
   error "Unknown arch: ${FLAGS_arch}"
 fi
+kernel_image="${FLAGS_vmlinuz}"
 
 # Save the kernel as a .bin to allow it to be automatically extracted as
 # an artifact by cbuildbot.  Non .bin's need to be explicitly specified

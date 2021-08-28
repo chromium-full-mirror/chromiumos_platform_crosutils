@@ -175,6 +175,7 @@ make_kernelimage() {
   else
     boot_path+="/boot"
   fi
+  kernel_image="${boot_path}/vmlinuz"
   if [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "arm64" ]]; then
     name="bootloader.bin"
     bootloader_path="${SRC_ROOT}/build/images/${FLAGS_board}/latest/${name}"
@@ -186,10 +187,8 @@ make_kernelimage() {
       bootloader_path="${TMP}/${name}"
       truncate -s 512 "${bootloader_path}"
     fi
-    kernel_image="${boot_path}/vmlinux.uimg"
   else
     bootloader_path="/lib64/bootstub/bootstub.efi"
-    kernel_image="${boot_path}/vmlinuz"
   fi
   get_bootargs > "${config_path}"
   vbutil_kernel --pack $TMP/new_kern.bin \

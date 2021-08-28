@@ -544,9 +544,6 @@ create_base_image() {
     sudo "${cpmv}" "${boot_dir}"/vmlinuz-* "${BUILD_DIR}/boot_images"
   [ -L "${boot_dir}"/vmlinuz ] && \
     sudo "${cpmv}" "${boot_dir}"/vmlinuz "${BUILD_DIR}/boot_images"
-  [ -L "${boot_dir}"/vmlinux.uimg ] && \
-    sudo "${cpmv}" "${boot_dir}"/vmlinux.uimg \
-        "${BUILD_DIR}/boot_images"
 
   # Calculate package sizes within the built rootfs for reporting purposes.
   # Use sudo to access some paths that are unreadable as non-root.
