@@ -194,7 +194,7 @@ delete_prompt() {
 # Arguments to this command are passed as addition options/arguments
 # to the basic emerge command.
 emerge_to_image() {
-  set -- ${EMERGE_BOARD_CMD} --root-deps=rdeps --usepkgonly -v \
+  set -- ${EMERGE_BOARD_CMD} --root-deps=rdeps --usepkgonly -v --with-bdeps=n \
     "$@" ${EMERGE_JOBS}
   info "$*"
   sudo -E "$@"
