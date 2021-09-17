@@ -83,7 +83,16 @@ fs_mount() {
   case ${fs_format} in
   ext[234]|fat12|fat16|fat32|fat|vfat|btrfs|"")
     local extra_flags=()
-    [[ -n "${fs_format}" ]] && extra_flags=( -t "${fs_format}" )
+    if [[ -n "${fs_format}" ]]; then
+      case ${fs_format} in
+      fat12|fat16|fat32|fat|vfat)
+        extra_flags=( -t "vfat" )
+        ;;
+      *)
+        extra_flags=( -t "${fs_format}" )
+        ;;
+      esac
+    fi
     sudo mount "${part_dev}" "${mount_point}" -o "${all_options}" \
         "${extra_flags[@]}"
     ;;
