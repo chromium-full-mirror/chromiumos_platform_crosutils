@@ -267,9 +267,7 @@ fi
 
 # Figure out which packages we should be building.
 PACKAGES=( "$@" )
-# Force rebuild chromeos-config because it is extremely cheap, and we do not
-# want to reuse stale configs.
-FORCE_LOCAL_BUILD_PKGS=( chromeos-base/chromeos-config )
+FORCE_LOCAL_BUILD_PKGS=()
 if [[ $# -eq 0 ]]; then
   PACKAGES=( virtual/target-os )
   if [[ "${FLAGS_withdev}" -eq "${FLAGS_TRUE}" ]]; then
@@ -403,7 +401,7 @@ if [[ "${FLAGS_withrevdeps}" -eq "${FLAGS_TRUE}" ]]; then
     sudo -E "${EMERGE_CMD[@]}" "${SIM_EMERGE_FLAGS[@]}" "${PACKAGES[@]}" | \
     grep -e 'to /build/' | \
     sed -n -E '/^\[ebuild /{s:^[^]]+\] +::;s: .*::;p}' | \
-    grep -E '/(chromeos-config.*|coreboot-private-files.*|tast-build-deps)$' | \
+    grep -E '/(coreboot-private-files.*|tast-build-deps)$' | \
     sort -u ) )
 
   MOD_PKGS=()
