@@ -301,8 +301,7 @@ generate_locales() {
     # Force PATH to the right value inside the SDK in case the host distro has
     # its own incompatible setup.
     chroot "${FLAGS_chroot}" env LC_ALL=C PATH='/bin:/sbin:/usr/bin:/usr/sbin' \
-      locale-gen -q -u -j 1 -G "$(printf '%s\n' "${gen_locales[@]}")" \
-      > /dev/null
+      locale-gen -q -u -j 1 -G "$(printf '%s\n' "${gen_locales[@]}")"
   fi
 }
 
