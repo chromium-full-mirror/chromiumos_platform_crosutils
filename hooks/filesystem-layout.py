@@ -10,7 +10,7 @@ from __future__ import print_function
 
 import argparse
 import fnmatch
-import logging  # pylint: disable=cros-logging-import
+import logging
 import os
 import sys
 
@@ -66,10 +66,13 @@ NOSUBDIRS_USR = {
 # Valid toolchain targets.  We don't want to add any more non-standard ones.
 # targets that use *-cros-* as the vendor are OK to add more.
 KNOWN_TARGETS = {
+    # These are historical names that we want to change to *-cros-* someday.
     'arm-none-eabi',
     'i686-pc-linux-gnu',
+    # This is the host SDK name.
     'x86_64-pc-linux-gnu',
-    'arm*-cros-eabi',
+    '*-cros-eabi',
+    '*-cros-elf',
     '*-cros-linux-gnu*',
 }
 
