@@ -151,10 +151,24 @@ STATEFUL_SIZE_MEGABYTES=$(( STATEFUL_SIZE_BYTES / 1024 / 1024 ))
 original_image_size=$(bd_safe_size "${SRC_STATE}")
 if [ "${original_image_size}" -gt "${STATEFUL_SIZE_BYTES}" ]; then
   if [ $(( original_image_size - STATEFUL_SIZE_BYTES )) -lt \
-      $(( 1024 * 1024 )) ]; then
-    # cgpt.py sometimes makes the stateful a tiny bit larger to
-    # counteract alignment losses.
-    # This is fine -- just keep using the slightly larger partition as it is.
+      $(( 10 * 1024 * 1024 )) ]; then
+    # cgpt.py adds makeup padding to paritions to counteract alignment losses.
+    # Each partition gets expanded by an additional `fs_block_size` bytes, and
+    # in the case where `fs_align` is defined, rootfs and data partitions get
+    # expanded by `fs_align` bytes:
+    #
+    # https://chromium.googlesource.com/chromiumos/platform/crosutils/+/HEAD/build_library/cgpt.py#554
+    #
+    # The original legacy_disk_layout.json does not specify `fs_align`, which
+    # results in an image size that is only slightly larger than is specified
+    # in the disk layout. disk_layout_v2.json sets `fs_align` to 2MiB, which
+    # results in a significantly larger delta. Therefore:
+    #
+    # max_delta = fs_align * (# in use data and rootfs partitions + 1)
+    #
+    # With that in mind, set the maximum delta to 10MiB for now: this should be
+    # sufficient to support both disk_layout_v2.json and disk_layout_v3.json
+    # based layouts.
     TEMP_STATE="${SRC_STATE}"
   else
     die "Cannot resize stateful image to smaller than original. Exiting."
