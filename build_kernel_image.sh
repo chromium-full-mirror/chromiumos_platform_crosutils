@@ -261,8 +261,16 @@ if [[ -n ${FLAGS_enable_serial} ]]; then
   if [[ ${console} != *,* ]]; then
     console+=",115200n8"
   fi
-  cat <<EOF > "${config}"
+  if [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "arm64" ]]; then
+    cat <<EOF > "${config}"
+earlycon
+EOF
+  else
+    cat <<EOF > "${config}"
 earlyprintk=${console}
+EOF
+  fi
+  cat <<EOF >> "${config}"
 console=tty1
 console=${console}
 EOF
