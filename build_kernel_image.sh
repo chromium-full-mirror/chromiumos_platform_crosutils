@@ -287,7 +287,7 @@ cros_secure
 drm.trace=0x106
 EOF
 
-if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
+if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
   # Legacy BIOS will use the kernel in the rootfs (via syslinux), as will
   # standard EFI BIOS (via grub, from the EFI System Partition). Chrome OS
   # BIOS will use a separate signed kernel partition, which we'll create now.
@@ -301,7 +301,7 @@ EOF
   WORK="${WORK} ${FLAGS_working_dir}/config.txt"
 
   bootloader_path="/lib64/bootstub/bootstub.efi"
-elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips"  || "${FLAGS_arch}" = "arm64" ]]; then
+elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips"  || "${FLAGS_arch}" == "arm64" ]]; then
   WORK="${WORK} ${FLAGS_working_dir}/config.txt"
 
   # arm does not need/have a bootloader in kernel partition
