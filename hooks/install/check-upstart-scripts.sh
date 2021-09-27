@@ -79,6 +79,7 @@ known_bad_oom() {
   chromeos-base/chromeos-bsp-mistral|\
   chromeos-base/chromeos-bsp-mobbase|\
   chromeos-base/chromeos-bsp-nocturne|\
+  chromeos-base/chromeos-bsp-rialto-private|\
   chromeos-base/chromeos-bsp-veyron|\
   chromeos-base/chromeos-bsp-veyron-private|\
   chromeos-base/chromeos-bsp-wilco|\
