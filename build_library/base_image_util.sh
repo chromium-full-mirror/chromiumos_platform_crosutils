@@ -504,9 +504,10 @@ create_base_image() {
     create_dev_install_lists "${root_fs_dir}"
   fi
 
-  # Generate DLCs and copy their metadata to the rootfs.
+  # Generate DLCs and copy their metadata to the rootfs + factory install DLC
+  # images into stateful partition.
   build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
-    --board="${BOARD}"
+    --stateful="${stateful_fs_dir}" --board="${BOARD}" --factory-install
 
   restore_fs_contexts "${BOARD_ROOT}" "${root_fs_dir}" "${stateful_fs_dir}"
 
