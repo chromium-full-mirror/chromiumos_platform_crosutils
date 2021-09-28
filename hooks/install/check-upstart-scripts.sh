@@ -27,6 +27,7 @@ known_bad_oom() {
   chromeos-base/ap-scm|\
   chromeos-base/ap-security|\
   chromeos-base/ap-wireless|\
+  chromeos-base/apollo-ptp|\
   chromeos-base/arc-adbd|\
   chromeos-base/arc-apk-cache|\
   chromeos-base/arc-appfuse|\
@@ -212,6 +213,7 @@ known_bad_oom() {
   sys-apps/upstart|\
   sys-apps/ureadahead|\
   sys-apps/usbguard|\
+  sys-apps/viking-cleanup-logs|\
   sys-firmware/viking-firmware|\
   sys-power/dptf|\
   sys-process/audit|\
