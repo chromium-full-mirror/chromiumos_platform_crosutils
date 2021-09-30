@@ -60,8 +60,9 @@ handle_no_space() {
 
 learn_device() {
   [ -n "${FLAGS_device}" ] && return
-  remote_sh df /mnt/stateful_partition
-  FLAGS_device=$(echo "${REMOTE_OUT}" | awk '/dev/ {print $1}' | sed s/1\$//)
+  remote_sh rootdev -s
+  # shellcheck disable=SC2001
+  FLAGS_device=$(echo "${REMOTE_OUT}" | sed -E 's/[0-9]+$//')
   info "Target reports root device is ${FLAGS_device}"
 }
 
