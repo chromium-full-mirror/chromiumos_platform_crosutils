@@ -411,6 +411,12 @@ setup_env() {
       chmod 1777 "${run_shm}"
     fi
 
+    local run_lock="${FLAGS_chroot}/run/lock"
+    if [[ ! -d "${run_lock}" ]]; then
+      mkdir -p "${run_lock}"
+      chmod 1777 "${run_lock}"
+    fi
+
     # Do this early as it's slow and only needs basic mounts (above).
     generate_locales &
 
