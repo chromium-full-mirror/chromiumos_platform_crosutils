@@ -76,7 +76,11 @@ EMERGE_BOARD_CMD="emerge-$BOARD"
 
 # Files to preserve from original stateful, if minimize_image is true.
 # If minimize_image is false, everything is always preserved.
-WHITELIST="vmlinuz_hd.vblock unencrypted/import_extensions"
+ALLOWLIST=(
+  "vmlinuz_hd.vblock"
+  "unencrypted/import_extensions"
+  "unencrypted/dlc-factory-images"
+)
 
 get_install_vblock() {
   # If it exists, we need to copy the vblock over to stateful
@@ -324,7 +328,7 @@ copy_stateful() {
   sudo mkdir --mode=755 "${new_stateful_mnt}/unencrypted"
 
   # Copy over any files that need to be preserved.
-  for name in ${WHITELIST}; do
+  for name in "${ALLOWLIST[@]}"; do
     if [ -e "${old_stateful_mnt}/${name}" ]; then
       sudo cp -a "${old_stateful_mnt}/${name}" "${new_stateful_mnt}/${name}"
     fi
@@ -367,7 +371,7 @@ calculate_stateful_blocks() {
   sudo mount "${IMAGE_DEV}p${partition_num_state}" "${old_stateful_mnt}"
 
   # Print the minimum number of sectors needed.
-  find_sectors_needed "${old_stateful_mnt}" "${WHITELIST}"
+  find_sectors_needed "${old_stateful_mnt}" "${ALLOWLIST[*]}"
 
   # Cleanup everything.
   safe_umount "${old_stateful_mnt}"
