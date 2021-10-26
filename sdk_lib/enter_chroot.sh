@@ -205,8 +205,18 @@ copy_ssh_config() {
     fi
   done
 
-  sed "/^.*\(${filter}\).*$/d" "${chroot_ssh_dir}/config.orig" | \
-    user_clobber "${chroot_ssh_dir}/config"
+  (
+  cat <<EOF
+### DO NOT EDIT ###
+# File is imported & synced from the copy outside of the SDK.
+# Modifications to this version will be lost!
+#
+# If you want directives to change behavior between inside & outside of the SDK:
+#   Match Exec "test -f /etc/cros_chroot_version"
+
+EOF
+  sed "/^.*\(${filter}\).*$/d" "${chroot_ssh_dir}/config.orig"
+  ) | user_clobber "${chroot_ssh_dir}/config"
 }
 
 copy_into_chroot_if_exists() {
