@@ -76,9 +76,8 @@ cmds=(
 for d in "${SCRIPTS_DIR}"/hooks/*; do
   cmds+=( "ln -sfT '${d}' '${BOARD_ROOT}/etc/portage/hooks/${d##*/}'" )
 done
-sudo_multi "${cmds[@]}"
 
-cmds=(
+cmds+=(
   "ln -sf '${CHROMIUMOS_CONFIG}/make.conf.${BOARD}' \
     '${BOARD_ETC}/make.conf'"
   "cp -f '/etc/make.conf.host_setup' '${BOARD_ETC}/'"
