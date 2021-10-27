@@ -80,16 +80,16 @@ sudo_multi "${cmds[@]}"
 
 # Generating the standard configuration file (make.conf.board_setup) for the
 # sysroot.
-cros_sysroot_utils generate-config --sysroot="${BOARD_ROOT}" \
+info_run cros_sysroot_utils generate-config --sysroot="${BOARD_ROOT}" \
   --board="${BOARD}" --out-file="${BOARD_SETUP}"
 
 # Generate wrappers for portage helpers (equery, portageq, emerge, etc...).
 # Those are used to generate make.conf.board.
-cros_sysroot_utils create-wrappers --sysroot="${BOARD_ROOT}" \
+info_run cros_sysroot_utils create-wrappers --sysroot="${BOARD_ROOT}" \
   --friendlyname="${BOARD}"
 
 # Choose the default profile.
-if ! cros_choose_profile --profile "" \
+if ! info_run cros_choose_profile --profile "" \
       --board-root "${BOARD_ROOT}" --board "${BOARD}"; then
   sudo rm -rf --one-file-system "${BOARD_ROOT}"
   die "Selecting profile failed, removing incomplete board directory!"
@@ -140,7 +140,7 @@ run_emerge "${TOOLCHAIN_PACKAGES[@]}"
 run_emerge --emptytree --with-bdeps=y \
   --exclude --verbose "${TOOLCHAIN_PACKAGES[*]}" \
   "${PACKAGES[@]}" virtual/target-sdk-nobdeps
-sudo eclean -d packages
+info_run sudo eclean -d packages
 
 # Next, install our rebuilt packages into our separate root.
 HOST_FLAGS="--root=$BOARD_ROOT --update --verbose --deep --root-deps"
@@ -152,7 +152,7 @@ run_emerge $HOST_FLAGS --with-bdeps=y "${PACKAGES[@]}"
 # build deps.
 run_emerge $HOST_FLAGS --with-bdeps=n --oneshot \
   virtual/target-sdk-nobdeps
-sudo cp -a "${PKGDIR}" $BOARD_ROOT/packages
+info_run sudo cp -a "${PKGDIR}" $BOARD_ROOT/packages
 
 # Copy our chroot version into the newly packaged chroot.
 sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
