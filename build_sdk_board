@@ -78,6 +78,26 @@ for d in "${SCRIPTS_DIR}"/hooks/*; do
 done
 sudo_multi "${cmds[@]}"
 
+cmds=(
+  "ln -sf '${CHROMIUMOS_CONFIG}/make.conf.${BOARD}' \
+    '${BOARD_ETC}/make.conf'"
+  "cp -f '/etc/make.conf.host_setup' '${BOARD_ETC}/'"
+
+  # Setting up symlinks for bootstrapping multilib.
+  # See http://crosbug.com/14498
+  "mkdir -p '${BOARD_ROOT}'{/usr,}/lib64"
+  "ln -sfT lib64 '${BOARD_ROOT}/lib'"
+  "rm -rf '${BOARD_ROOT}/usr/lib'"
+  "ln -sfT lib64 '${BOARD_ROOT}/usr/lib'"
+
+  # Copying some files for bootstrapping empty chroot.
+  # See http://crosbug.com/14499
+  "mkdir -p '${BOARD_ETC}'/{init.d,xml}"
+  "cp /etc/xml/catalog '${BOARD_ETC}'/xml/"
+  "cp /etc/init.d/functions.sh '${BOARD_ETC}'/init.d/"
+)
+sudo_multi "${cmds[@]}"
+
 # Generating the standard configuration file (make.conf.board_setup) for the
 # sysroot.
 info_run cros_sysroot_utils generate-config --sysroot="${BOARD_ROOT}" \
@@ -94,26 +114,6 @@ if ! info_run cros_choose_profile --profile "" \
   sudo rm -rf --one-file-system "${BOARD_ROOT}"
   die "Selecting profile failed, removing incomplete board directory!"
 fi
-
-cmds=(
-  "ln -sf '${CHROMIUMOS_CONFIG}/make.conf.${BOARD}' \
-    '${BOARD_ETC}/make.conf'"
-  "cp -f '/etc/make.conf.host_setup' '${BOARD_ETC}/'"
-
-  # Setting up symlinks for bootstrapping multilib.
-  # See http://crosbug.com/14498
-  "mkdir -p '${BOARD_ROOT}'{/usr,}/lib64"
-  "ln -sfT lib64 '${BOARD_ROOT}/lib'"
-  "rm -r '${BOARD_ROOT}/usr/lib'"
-  "ln -sfT lib64 '${BOARD_ROOT}/usr/lib'"
-
-  # Copying some files for bootstrapping empty chroot.
-  # See http://crosbug.com/14499
-  "mkdir -p '${BOARD_ETC}'/{init.d,xml}"
-  "cp /etc/xml/catalog '${BOARD_ETC}'/xml/"
-  "cp /etc/init.d/functions.sh '${BOARD_ETC}'/init.d/"
-)
-sudo_multi "${cmds[@]}"
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
 TOOLCHAIN_PACKAGES=(
