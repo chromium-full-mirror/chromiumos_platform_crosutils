@@ -701,20 +701,6 @@ setup_env() {
   ) 200>>"$LOCKFILE" || die "setup_env failed"
 }
 
-# Translate C.UTF-8 into something we support. Remove this when our glibc
-# starts supporting C.UTF-8. https://bugzilla.redhat.com/show_bug.cgi?id=902094
-for var in LANG \
-  LC_{ADDRESS,ALL,COLLATE,CTYPE,IDENTIFICATION,MEASUREMENT,MESSAGES} \
-  LC_{MONETARY,NAME,NUMERIC,PAPER,TELEPHONE,TIME}; do
-  if [[ ${!var} =~ C\.[Uu][Tt][Ff]-?8 ]]; then
-    if [[ ${var} == LC_COLLATE ]]; then
-      export LC_COLLATE=C
-    else
-      export ${var}=en_US.UTF-8
-    fi
-  fi
-done
-
 check_locale
 setup_env
 
