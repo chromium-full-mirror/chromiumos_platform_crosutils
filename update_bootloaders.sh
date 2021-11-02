@@ -222,7 +222,7 @@ elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips" ]]; then
     sudo mkdir -p "${ESP_FS_DIR}/u-boot"
     sudo cp "${FLAGS_from}/boot-A.scr.uimg" \
       "${ESP_FS_DIR}/u-boot/boot.scr.uimg"
-    sudo cp -f "${FLAGS_vmlinuz}" "${ESP_FS_DIR}"/vmlinuz.uimg.A
+    sudo cp -f "${FLAGS_vmlinuz}" "${ESP_FS_DIR}"/vmlinuz.A
     if [ -r "${FLAGS_zimage}" ]; then
       sudo cp -f "${FLAGS_zimage}" "${ESP_FS_DIR}"/vmlinuz.A
     fi
