@@ -527,6 +527,10 @@ create_base_image() {
   if has "manatee" "$(portageq-"${FLAGS_board}" envvar USE)"; then
     boot_dir="${BOARD_ROOT}/build/manatee/boot"
     cpmv="cp"
+    # The CrOS VM (guest) kernel goes into initramfs, so we should drop it
+    # from rootfs to save space.
+    sudo rm "${root_fs_dir}"/boot/vmlinuz-*
+    sudo rm "${root_fs_dir}"/boot/vmlinuz
   else
     boot_dir="${root_fs_dir}/boot"
     if has "include_vmlinuz" "$(portageq-"${FLAGS_board}" envvar USE)"; then
