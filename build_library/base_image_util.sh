@@ -412,7 +412,7 @@ create_base_image() {
     "${arc_flags[@]}"
 
   # Copy the full lsb-release into the initramfs build root.
-  if has "minios" "$(portageq-${FLAGS_board} envvar USE)"; then
+  if has "minios" "$(portageq-"${FLAGS_board}" envvar USE)"; then
     sudo mkdir -p "${BOARD_ROOT}/build/initramfs/etc"
     sudo cp "${root_fs_dir}/etc/lsb-release" \
       "${BOARD_ROOT}/build/initramfs/etc/"
@@ -516,25 +516,24 @@ create_base_image() {
   # the bootable partitions later.
   mkdir -p "${BUILD_DIR}/boot_images"
 
-  # We either copy or move vmlinuz depending on whether it should be included
-  # in the final built image.  Boards that boot with legacy bioses
-  # need the kernel on the boot image, boards with coreboot/depthcharge
-  # boot from a boot partition.
-  if has "include_vmlinuz" "$(portageq-${FLAGS_board} envvar USE)"; then
+  # Bootable kernel image for ManaTEE enabled targets is located at directory
+  # ${BOARD_ROOT}/build/manatee/boot and included only in bootable partition.
+  # If no manatee USE flag is specified the standard /boot location is used,
+  # optionally including kernel image in final build image:
+  # - boards that boot with legacy bioses need the kernel on the boot image
+  # - boards with coreboot/depthcharge boot from a boot partition.
+  local boot_dir
+  local cpmv
+  if has "manatee" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+    boot_dir="${BOARD_ROOT}/build/manatee/boot"
     cpmv="cp"
   else
-    cpmv="mv"
-  fi
-
-  # Bootable kernel image for ManaTEE enabled targets is located at
-  # directory /build/manatee/boot and included only in bootable partition.
-  # If no manatee USE flag is specified the standard /boot location
-  # is used, optionally including kernel image in final build image.
-  local boot_dir
-  if has "manatee" "$(portageq-${FLAGS_board} envvar USE)"; then
-    boot_dir="${root_fs_dir}/build/manatee/boot"
-  else
     boot_dir="${root_fs_dir}/boot"
+    if has "include_vmlinuz" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+      cpmv="cp"
+    else
+      cpmv="mv"
+    fi
   fi
 
   [ -e "${boot_dir}"/Image-* ] && \
@@ -578,7 +577,7 @@ create_base_image() {
   fi
 
   # Build minios kernel and put it in the MINIOS-A partition of the image.
-  if has "minios" "$(portageq-${FLAGS_board} envvar USE)"; then
+  if has "minios" "$(portageq-"${FLAGS_board}" envvar USE)"; then
     build_minios --board "${BOARD}" --image "${BUILD_DIR}/${image_name}" \
       --version "${CHROMEOS_VERSION_STRING}"
   fi
