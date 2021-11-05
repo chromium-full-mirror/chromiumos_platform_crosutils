@@ -242,8 +242,8 @@ check_oom() {
       eqawarn "${msg}"
     else
       eerror "${msg}"
-      return 1
     fi
+    return 1
   else
     if grep -q '^oom score *-1000' "${config}"; then
       eerror "${relconfig}: Use 'oom score never' instead."
@@ -267,13 +267,14 @@ check() {
     : $(( ret_oom += $? ))
   done
 
-  if [[ ${ret_oom} -eq 0 ]] && known_bad_oom; then
-    eqawarn "Please remove ${CATEGORY}/${PN} from known_bad_oom in $0."
-  fi
-
-  local ret=$(( ret_oom ))
-  if [[ ${ret} -ne 0 ]]; then
-    die "Init scripts have errors."
+  if [[ ${ret_oom} -eq 0 ]]; then
+    if known_bad_oom; then
+      eqawarn "Please remove ${CATEGORY}/${PN} from known_bad_oom in $0."
+    fi
+  else
+    if ! known_bad_oom; then
+      die "Init scripts have errors."
+    fi
   fi
 }
 
