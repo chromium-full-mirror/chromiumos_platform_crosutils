@@ -412,7 +412,7 @@ create_base_image() {
     "${arc_flags[@]}"
 
   # Copy the full lsb-release into the initramfs build root.
-  if has "minios" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+  if has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
     sudo mkdir -p "${BOARD_ROOT}/build/initramfs/etc"
     sudo cp "${root_fs_dir}/etc/lsb-release" \
       "${BOARD_ROOT}/build/initramfs/etc/"
@@ -524,7 +524,7 @@ create_base_image() {
   # - boards with coreboot/depthcharge boot from a boot partition.
   local boot_dir
   local cpmv
-  if has "manatee" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+  if has "manatee" "$(portageq-"${BOARD}" envvar USE)"; then
     boot_dir="${BOARD_ROOT}/build/manatee/boot"
     cpmv="cp"
     # The CrOS VM (guest) kernel goes into initramfs, so we should drop it
@@ -533,7 +533,7 @@ create_base_image() {
     sudo rm "${root_fs_dir}"/boot/vmlinuz
   else
     boot_dir="${root_fs_dir}/boot"
-    if has "include_vmlinuz" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+    if has "include_vmlinuz" "$(portageq-"${BOARD}" envvar USE)"; then
       cpmv="cp"
     else
       cpmv="mv"
@@ -581,7 +581,7 @@ create_base_image() {
   fi
 
   # Build minios kernel and put it in the MINIOS-A partition of the image.
-  if has "minios" "$(portageq-"${FLAGS_board}" envvar USE)"; then
+  if has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
     build_minios --board "${BOARD}" --image "${BUILD_DIR}/${image_name}" \
       --version "${CHROMEOS_VERSION_STRING}"
   fi
