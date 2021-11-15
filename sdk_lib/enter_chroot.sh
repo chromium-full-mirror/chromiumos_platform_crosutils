@@ -28,6 +28,8 @@ DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
 DEFINE_string cache_dir "" "Directory to use for caching."
 DEFINE_string goma_dir "" "Goma installed directory."
 DEFINE_string goma_client_json "" "Service account json file for goma."
+DEFINE_string reclient_dir "" "Reclient binaries installed directory."
+DEFINE_string reproxy_cfg_file "" "Config file for re-client's reproxy."
 DEFINE_string working_dir "" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
@@ -532,6 +534,16 @@ setup_env() {
     if [ -n "${DEPOT_TOOLS}" ]; then
       debug "Mounting depot_tools"
       setup_mount "${DEPOT_TOOLS}" --bind "${DEPOT_TOOLS_DIR}"
+    fi
+
+    if [[ -n "${FLAGS_reclient_dir}" ]]; then
+      debug "Mounting re-client"
+      setup_mount "${FLAGS_reclient_dir}" --bind "/home/${SUDO_USER}/reclient"
+    fi
+
+    if [[ -n "${FLAGS_reproxy_cfg_file}" ]]; then
+      debug "Mounting reproxy config file."
+      setup_mount "${FLAGS_reproxy_cfg_file}" --bind "/home/${SUDO_USER}/reclient_cfgs/reproxy_chroot.cfg"
     fi
 
     if [[ -n "${FLAGS_goma_dir}" ]]; then

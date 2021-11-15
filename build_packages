@@ -120,6 +120,13 @@ DEFINE_boolean reuse_pkgs_from_local_boards "${FLAGS_FALSE}" \
 DEFINE_boolean run_goma "${FLAGS_FALSE}" \
   "If set to true, (re)starts goma, builds packages, and then stops goma."
 
+# This option is for building chrome remotely.
+#1) starts reproxy 2) builds chrome with reproxy and 3) stops reproxy so
+# logs/stats can be collected.
+# Note: RECLIENT_DIR and REPROXY_CFG are expected to be passed via env var.
+DEFINE_boolean run_remoteexec "${FLAGS_FALSE}" \
+  "If set to true, starts RBE reproxy, builds packages, and then stops reproxy."
+
 # Parse command line
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
@@ -465,9 +472,17 @@ CRITICAL_SDK_PACKAGES=(
 
 info "Merging board packages now"
 (
+
+  # Start reproxy for remote execution of building chrome.
+  if [[ "${FLAGS_run_remoteexec}" -eq "${FLAGS_TRUE}" ]]; then
+    info "Starting RBE reproxy."
+    bootstrap="'${RECLIENT_DIR}/boostrap' --cfg='${REPROXY_CFG}' \
+      --re_proxy='${RECLIENT_DIR}/reproxy'"
+    "${boostrap}"
+    trap "'${boostrap}' --shutdown" EXIT
   # Support goma on bots. This has to run in subshell, otherwise EXIT trap
   # handler is overwritten.
-  if [[ "${FLAGS_run_goma}" -eq "${FLAGS_TRUE}" ]]; then
+  elif [[ "${FLAGS_run_goma}" -eq "${FLAGS_TRUE}" ]]; then
     info "Starting goma compiler_proxy."
     goma_ctl="${GOMA_DIR:-${HOME}/goma}/goma_ctl.py"
     "${goma_ctl}" restart
