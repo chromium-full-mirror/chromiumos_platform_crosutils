@@ -456,16 +456,27 @@ create_base_image() {
     enable_bootcache="--enable_bootcache"
   fi
 
-  ${BUILD_LIBRARY_DIR}/create_legacy_bootloader_templates.sh \
-    --arch=${ARCH} \
-    --board=${BOARD} \
-    --image_type="${image_type}" \
-    --to="${root_fs_dir}"/boot \
-    --boot_args="${FLAGS_boot_args}" \
-    --enable_serial="${FLAGS_enable_serial}" \
-    --loglevel="${FLAGS_loglevel}" \
+  # If the KERN-A partition is of type "reserved", there is no kernel.
+  # Skip the preparation of a bootable kernel partition.
+  local has_bootable_kernel=1
+  local kernel_part_num="$(get_layout_partition_number "${image_type}" KERN-A)"
+  local kernel_part_type="$(get_type "${image_type}" "${kernel_part_num}")"
+  if [[ "${kernel_part_type}" == "reserved" ]]; then
+    has_bootable_kernel=0
+  fi
+
+  if [[ "${has_bootable_kernel}" -eq 1 ]]; then
+    ${BUILD_LIBRARY_DIR}/create_legacy_bootloader_templates.sh \
+      --arch=${ARCH} \
+      --board=${BOARD} \
+      --image_type="${image_type}" \
+      --to="${root_fs_dir}"/boot \
+      --boot_args="${FLAGS_boot_args}" \
+      --enable_serial="${FLAGS_enable_serial}" \
+      --loglevel="${FLAGS_loglevel}" \
       ${enable_rootfs_verification} \
       ${enable_bootcache}
+  fi
 
   # Run board-specific build image function, if available.
   if type board_finalize_base_image &>/dev/null; then
@@ -574,7 +585,8 @@ create_base_image() {
     USE_DEV_KEYS="--use_dev_keys"
   fi
 
-  if [[ ${skip_kernelblock_install} -ne 1 ]]; then
+  if [[ "${skip_kernelblock_install}" -ne 1 \
+    && "${has_bootable_kernel}" -eq 1 ]]; then
     # Place flags before positional args.
     ${SCRIPTS_DIR}/bin/cros_make_image_bootable "${BUILD_DIR}" \
       ${image_name} ${USE_DEV_KEYS} --adjust_part="${FLAGS_adjust_part}"
