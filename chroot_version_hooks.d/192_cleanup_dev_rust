@@ -4,8 +4,10 @@
 
 # Clean up rust packages which no longer have corresponding ebuilds
 #
-# This is approxmiated by removing versions with no binary package since
-# eclean will remove binary packages without a corresponding ebuild.
+# This is achieved by:
+# * Running `eclean` to remove binary packages without a corresponding ebuild
+# * Running `equery l -b` to find ebuilds with no binary package
+# * Running `emerge -C` to remove those revisions.
 
 export CLEAN_DELAY=0
 
@@ -16,6 +18,10 @@ do_clean() {
 
   if [[ -z "${suffix}" ]]; then
     emerge_cmd+=( sudo )
+
+    qlist -IC ^cross- | sudo eclean -e /dev/stdin packages
+  else
+    "eclean${suffix}" packages
   fi
   emerge_cmd+=( "emerge${suffix}" )
 
