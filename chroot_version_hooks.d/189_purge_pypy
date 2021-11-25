@@ -4,4 +4,4 @@
 
 # Force rebuild of pypy3 to ensure portage picks up changes that cause byte
 # compilation of pypy3 libs.
-sudo emerge --rage-clean pypy3
+sudo emerge --rage-clean pypy3 || :
