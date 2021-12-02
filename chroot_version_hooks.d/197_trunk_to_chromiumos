@@ -1,0 +1,11 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# We renamed the symlink.
+for old_link in /home/*/trunk; do
+  new_link="${old_link%/*}/chromiumos"
+  if [[ -L "${old_link}" && ! -L "${new_link}" ]]; then
+    ln -s /mnt/host/source "${new_link}"
+  fi
+done
