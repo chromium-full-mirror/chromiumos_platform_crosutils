@@ -94,7 +94,7 @@ workpath=$(\
 workpath="/build/${BOARD}/tmp/portage/${workpath}"
 
 # Export vars that the ebuild env needs from us.
-export SANDBOX_WRITE=~/trunk
+export SANDBOX_WRITE=~/chromiumos
 export CROS_WORKON_INPLACE=1
 export CROS_WORKON_MAKE_COMPILE_ARGS="$*"
 
