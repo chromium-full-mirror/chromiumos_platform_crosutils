@@ -229,4 +229,8 @@ elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips" ]]; then
   fi
 fi
 
+if type board_update_bootloaders >&/dev/null; then
+  board_update_bootloaders "${BOARD_ROOT}" "${ESP_FS_DIR}"
+fi
+
 set +e
