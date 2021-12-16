@@ -1,0 +1,15 @@
+# Copyright 2021 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Force all boards to re-emerge llvm-libunwind
+# b/210927982
+
+for board_root in /build/*; do
+  board_name=${board_root##*/}
+  if [[ -d "${board_root}/var/db/pkg" ]]; then
+    emerge-${board_name} -gq sys-libs/gcc-libs sys-libs/llvm-libunwind --nodeps
+  fi
+done
+
+echo "Completed installation of sys-libs/llvm-libunwind in board sysroots"
