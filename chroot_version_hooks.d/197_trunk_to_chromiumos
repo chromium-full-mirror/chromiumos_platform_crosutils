@@ -6,6 +6,17 @@
 for old_link in /home/*/trunk; do
   new_link="${old_link%/*}/chromiumos"
   if [[ -L "${old_link}" && ! -L "${new_link}" ]]; then
+    if [[ -f "${new_link}" ]]; then
+      rm -f "${new_link}"
+    elif [[ -d "${new_link}" ]]; then
+      # Some devs have a little .cache state for unknown reason.  Delete the
+      # few known safe paths, but don't try to delete the whole tree.
+      rm -rf "${new_link}/.cache/common"
+      rmdir "${new_link}/.cache" 2>/dev/null
+      if ! rmdir "${new_link}"; then
+        echo "ERROR: ~/chromiumos exists inside your SDK when it should not."
+      fi
+    fi
     ln -s /mnt/host/source "${new_link}"
   fi
 done
