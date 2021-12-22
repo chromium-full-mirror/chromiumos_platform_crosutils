@@ -569,7 +569,7 @@ setup_env() {
     # Mount additional directories as specified in .local_mounts file.
     local local_mounts="${FLAGS_trunk}/src/scripts/.local_mounts"
     if [[ -f ${local_mounts} ]]; then
-      info "Mounting local folders"
+      debug "Mounting local folders"
       # format: mount_source
       #      or mount_source mount_point
       #      or # comments
