@@ -582,7 +582,7 @@ setup_env() {
         : ${mount_point:=${mount_source}}
         debug "  mounting ${mount_source} on ${mount_point}"
         setup_mount "${mount_source}" "--bind" "${mount_point}"
-      done < <(sed -e 's:#.*::' "${local_mounts}")
+      done < <(sed -e 's:#.*::' "${local_mounts}" | xargs -0)
     fi
 
     if [[ -n "${FLAGS_chrome_root}" ]]; then
