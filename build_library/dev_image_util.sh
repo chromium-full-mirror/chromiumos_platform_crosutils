@@ -85,4 +85,12 @@ install_dev_packages() {
         ${image_name} --force_developer_mode
     fi
   fi
+
+  # Update MINIOS-A partition with developer mode image. This does not rebuild
+  # the MiniOS image. It only enables/adds dev-mode flags.
+  if has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
+    build_minios --mod-for-dev --board "${BOARD}" \
+      --image "${BUILD_DIR}/${image_name}" \
+      --version "${CHROMEOS_VERSION_STRING}"
+  fi
 }
