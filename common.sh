@@ -191,7 +191,7 @@ has() { [[ " ${*:2} " == *" $1 "* ]]; }
 # happen.
 _user="${USER}"
 [[ ${USER} == "root" ]] && _user="${SUDO_USER}"
-_CHROOT_TRUNK_DIRS=( "/home/${_user}/trunk" /mnt/host/source )
+_CHROOT_TRUNK_DIRS=( "/home/${_user}/chromiumos" /mnt/host/source )
 _DEPOT_TOOLS_DIRS=( "/home/${_user}/depot_tools" /mnt/host/depot_tools )
 unset _user
 

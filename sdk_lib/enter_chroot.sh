@@ -48,8 +48,8 @@ the chroot environment.  For example:
    $0 FOO=bar BAZ=bel
 
 If [-- command] is present, runs the command inside the chroot,
-after changing directory to /${SUDO_USER}/trunk/src/scripts.  Note that neither
-the command nor args should include single quotes.  For example:
+after changing directory to /${SUDO_USER}/chromiumos/src/scripts.  Note that
+neither the command nor args should include single quotes.  For example:
 
     $0 -- ./build_platform_packages.sh
 
@@ -710,7 +710,7 @@ CHROOT_PASSTHRU=(
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
 
   # The default ~/.bash_profile in chroot will cd to $CHROOT_CWD instead of
-  # ~/trunk/src/script if that environment variable is set.
+  # ~/chromiumos/src/script if that environment variable is set.
   "CHROOT_CWD=${FLAGS_working_dir}"
 
   # We don't want to auto-update depot_tools inside of the SDK as we manage it.
