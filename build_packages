@@ -26,8 +26,6 @@ DEFINE_boolean withautotest "${FLAGS_TRUE}" \
   "Build autotest client code."
 DEFINE_boolean withdebugsymbols "${FLAGS_FALSE}" \
   "Install the debug symbols for all packages"
-DEFINE_string eventfile "${DEFAULT_EVENT_FILE}" \
-  "Define the file that event logs will be written."
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
 DEFINE_boolean autosetgov "${FLAGS_FALSE}" \
