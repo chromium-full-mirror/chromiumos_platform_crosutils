@@ -517,8 +517,12 @@ create_base_image() {
 
   # Generate DLCs and copy their metadata to the rootfs + factory install DLC
   # images into stateful partition.
-  build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
-    --stateful="${stateful_fs_dir}" --board="${BOARD}" --factory-install
+  if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+    info "Skipping DLC copying for factory shim images."
+  else
+    build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
+      --stateful="${stateful_fs_dir}" --board="${BOARD}" --factory-install
+  fi
 
   restore_fs_contexts "${BOARD_ROOT}" "${root_fs_dir}" "${stateful_fs_dir}"
 
