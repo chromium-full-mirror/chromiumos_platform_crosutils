@@ -149,16 +149,20 @@ fi
 
 # On some systems, powersave can take a long time to ramp up.  Inform the user
 # so they can get faster builds.  https://crbug.com/1008932
-if grep -qs powersave \
-     /sys/devices/system/cpu/cpufreq/policy*/scaling_governor; then
-  # Make sure we can actually support "performance".
-  if grep -qs performance \
-      /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors; then
+# Make sure we can actually support "performance".
+if grep -qs performance \
+     /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors; then
+  curr_gov=$(sort -u /sys/devices/system/cpu/cpufreq/policy*/scaling_governor)
+  if [[ "${curr_gov}" != "performance" ]]; then
     if [[ "${FLAGS_autosetgov}" -eq "${FLAGS_TRUE}" ]]; then
-      info "Temporarily setting cpu governor to 'performance'"
-      trap "sudo cpupower -c all frequency-set -g powersave >&/dev/null" EXIT
-      sudo cpupower -c all frequency-set -g performance >&/dev/null
-    else
+      if [[ $(echo "${curr_gov}" | wc -l) -gt 1 ]]; then
+        warn "Too many active CPU governors; refusing to use 'performance'."
+      else
+        info "Temporarily setting cpu governor to 'performance'"
+        trap "sudo cpupower -c all frequency-set -g powersave >&/dev/null" EXIT
+        sudo cpupower -c all frequency-set -g performance >&/dev/null
+      fi
+    elif [[ "${curr_gov}" == "powersave" ]]; then
       warn "Current CPU governor set to 'powersave' which can slow down builds."
       warn "Use --autosetgov to automatically (and temporarily) switch to" \
         "'performance'."
