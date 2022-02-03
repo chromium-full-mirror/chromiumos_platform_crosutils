@@ -360,7 +360,8 @@ main() {
     info "Skipping update of vboot (per request)"
   fi
 
-  if [ ${FLAGS_bootonce} -eq ${FLAGS_TRUE} ]; then
+  if [[ "${FLAGS_bootonce}" -eq "${FLAGS_TRUE}" || \
+        "${FLAGS_ab_update}" -eq "${FLAGS_TRUE}" ]]; then
     info "Marking kernel partition ${FLAGS_partition} as boot once"
     mark_boot_once
   fi
