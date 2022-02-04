@@ -518,10 +518,10 @@ info "Merging board packages now"
   # Start reproxy for remote execution of building chrome.
   if [[ "${FLAGS_run_remoteexec}" -eq "${FLAGS_TRUE}" ]]; then
     info "Starting RBE reproxy."
-    bootstrap="'${RECLIENT_DIR}/boostrap' --cfg='${REPROXY_CFG}' \
-      --re_proxy='${RECLIENT_DIR}/reproxy'"
-    ${boostrap}
-    trap "${boostrap} --shutdown" EXIT
+    bootstrap="${RECLIENT_DIR}/bootstrap --cfg=${REPROXY_CFG} \
+      --re_proxy=${RECLIENT_DIR}/reproxy"
+    ${bootstrap}
+    trap "${bootstrap} --shutdown" EXIT
   # Support goma on bots. This has to run in subshell, otherwise EXIT trap
   # handler is overwritten.
   elif [[ "${FLAGS_run_goma}" -eq "${FLAGS_TRUE}" ]]; then
