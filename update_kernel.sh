@@ -203,6 +203,36 @@ make_kernelimage() {
   rm "${config_path}"
 }
 
+check_buildid() {
+  local vmlinux
+  local boot_path="/build/${FLAGS_board}"
+  if [[ ${FLAGS_hv} -eq ${FLAGS_TRUE} && \
+        -d "${boot_path}/build/manatee/boot" ]]; then
+    boot_path+="/build/manatee"
+  fi
+  boot_path+="/usr/lib/debug/boot"
+  vmlinux="${boot_path}/vmlinux"
+  if [[ ! -f "${vmlinux}" ]]; then
+    warn "Can't find vmlinux. Skipping buildid check."
+    return
+  fi
+
+  llvm-objcopy -j.notes "${vmlinux}" -O binary "${TMP}/new_kern.notes"
+  if [[ ! -f "${TMP}/new_kern.notes" ]]; then
+    warn "Can't parse notes from vmlinux. Skipping buildid check."
+    return
+  fi
+  echo "/sys/kernel/notes" >> "${TMP}/copy_notes"
+  remote_rsync_from "${TMP}/copy_notes" "${TMP}/remote_kern.notes"
+  if [[ ! -f "${TMP}/remote_kern.notes" ]]; then
+    warn "Can't read notes from remote. Skipping buildid check."
+    return
+  fi
+
+  cmp "${TMP}/new_kern.notes" "${TMP}/remote_kern.notes" >/dev/null ||
+  error "BuildID differs. Update kernel failed."
+}
+
 copy_kernelmodules() {
   local basedir="$1" # rootfs directory (could be in /tmp) or empty string
   local modules_dir=/build/"${FLAGS_board}"/lib/modules/
@@ -378,6 +408,10 @@ main() {
     info "new kernel: ${REMOTE_OUT}"
   else
     info "Not rebooting (per request)"
+  fi
+
+  if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
+    check_buildid
   fi
 
   if [ -n "${FLAGS_boot_command}" ]; then
