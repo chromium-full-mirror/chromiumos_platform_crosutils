@@ -8,6 +8,10 @@ if [[ ! -f ${ROOT_FS_DIR}/etc/fwupd/daemon.conf ]]; then
   exit 0
 fi
 
+echo "Enabling verbose debug output for fwupd."
+
+sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
+
 echo "Enabling dummy fwupd remote for tests."
 
 sed -e '/^DisabledPlugins=/s/^/#/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
