@@ -25,6 +25,8 @@ assert_not_root_user
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
+DEFINE_boolean chrome "${FLAGS_FALSE}" \
+  "Ensure chrome instead of chromium. Alias for --internal --nouse_any_chrome."
 DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap when possible."
 DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
@@ -152,6 +154,12 @@ CHROME_PACKAGES=(
   "chromeos-base/chromeos-chrome"
   "chromeos-base/chrome-icu"
 )
+
+# Alias/implied flag translations.
+if [[ "${FLAGS_chrome}" -eq "${FLAGS_TRUE}" ]]; then
+  FLAGS_internal="${FLAGS_TRUE}"
+  FLAGS_use_any_chrome="${FLAGS_FALSE}"
+fi
 
 if [[ "${FLAGS_internal}" -eq "${FLAGS_TRUE}" ]]; then
   export USE="${USE} chrome_internal"
