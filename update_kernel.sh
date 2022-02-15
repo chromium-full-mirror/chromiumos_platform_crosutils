@@ -204,14 +204,7 @@ make_kernelimage() {
 }
 
 check_buildid() {
-  local vmlinux
-  local boot_path="/build/${FLAGS_board}"
-  if [[ ${FLAGS_hv} -eq ${FLAGS_TRUE} && \
-        -d "${boot_path}/build/manatee/boot" ]]; then
-    boot_path+="/build/manatee"
-  fi
-  boot_path+="/usr/lib/debug/boot"
-  vmlinux="${boot_path}/vmlinux"
+  local vmlinux="/build/${FLAGS_board}/usr/lib/debug/boot/vmlinux"
   if [[ ! -f "${vmlinux}" ]]; then
     warn "Can't find vmlinux. Skipping buildid check."
     return
