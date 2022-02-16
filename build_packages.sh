@@ -514,6 +514,7 @@ fi
 # to `emerge` below once we figure out how to exclude toolchain packages from
 # being upgraded transitively via BDEPEND relations.
 CRITICAL_SDK_PACKAGES=(
+  "dev-embedded/hps-sdk"
   "dev-lang/rust"
   "dev-lang/go"
   "sys-libs/glibc"
