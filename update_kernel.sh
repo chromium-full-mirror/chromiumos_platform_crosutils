@@ -399,12 +399,12 @@ main() {
     remote_sh uname -r -v
     info "old kernel: ${old_kernel}"
     info "new kernel: ${REMOTE_OUT}"
+
+    if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
+      check_buildid
+    fi
   else
     info "Not rebooting (per request)"
-  fi
-
-  if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
-    check_buildid
   fi
 
   if [ -n "${FLAGS_boot_command}" ]; then
