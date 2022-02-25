@@ -6,7 +6,7 @@
 
 # Script to update the kernel on a live running ChromiumOS instance.
 
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 . "${SCRIPT_ROOT}/remote_access.sh" || exit 1
 
@@ -19,19 +19,23 @@ DEFINE_string partition "" "Override kernel partition reported by target"
 DEFINE_string rootoff "" "Override root offset"
 DEFINE_string rootfs "" "Override rootfs partition reported by target"
 DEFINE_string arch "" "Override architecture reported by target"
-DEFINE_boolean clean $FLAGS_FALSE "Remove old files before sending new files"
-DEFINE_boolean hv $FLAGS_TRUE "Use hypervisor kernel if available."
-DEFINE_boolean ignore_verity $FLAGS_FALSE "Update kernel even if system is using verity \
-(WARNING: likely to make the system unable to boot)"
-DEFINE_boolean reboot $FLAGS_TRUE "Reboot system after update"
-DEFINE_boolean vboot $FLAGS_TRUE "Update the vboot kernel"
-DEFINE_boolean syslinux $FLAGS_TRUE "Update the syslinux kernel (including /boot)"
-DEFINE_boolean bootonce $FLAGS_FALSE "Mark kernel partition as boot once"
-DEFINE_boolean remote_bootargs $FLAGS_FALSE "Use bootargs from running kernel on target"
-DEFINE_boolean firmware $FLAGS_FALSE "Also update firmwares (/lib/firmware)"
-DEFINE_boolean ab_update $FLAGS_FALSE "Update the kernel in the non-booting \
-kernel slot, similar to an AB update"
-DEFINE_string boot_command "" "Command to run on remote after update (after reboot if applicable)"
+DEFINE_boolean clean "${FLAGS_FALSE}" \
+  "Remove old files before sending new files"
+DEFINE_boolean hv "${FLAGS_TRUE}" "Use hypervisor kernel if available."
+DEFINE_boolean ignore_verity "${FLAGS_FALSE}" "Update kernel even if system \
+is using verity (WARNING: likely to make the system unable to boot)"
+DEFINE_boolean reboot "${FLAGS_TRUE}" "Reboot system after update"
+DEFINE_boolean vboot "${FLAGS_TRUE}" "Update the vboot kernel"
+DEFINE_boolean syslinux "${FLAGS_TRUE}" \
+  "Update the syslinux kernel (including /boot)"
+DEFINE_boolean bootonce "${FLAGS_FALSE}" "Mark kernel partition as boot once"
+DEFINE_boolean remote_bootargs "${FLAGS_FALSE}" \
+  "Use bootargs from running kernel on target"
+DEFINE_boolean firmware "${FLAGS_FALSE}" "Also update firmwares (/lib/firmware)"
+DEFINE_boolean ab_update "${FLAGS_FALSE}" \
+  "Update the kernel in the non-booting kernel slot, similar to an AB update"
+DEFINE_string boot_command "" \
+  "Command to run on remote after update (after reboot if applicable)"
 
 ORIG_ARGS=("$@")
 
@@ -77,11 +81,11 @@ load_default_partition_numbers() {
 
 # Ask the target what the kernel partition is
 learn_partition_and_ro() {
-  ! remote_sh rootdev
+  remote_sh rootdev || die_notrace
   if [ "${REMOTE_OUT%%-*}" == "/dev/dm" ]; then
     remote_sh rootdev -s
     REMOTE_VERITY=${FLAGS_TRUE}
-    if [[ ${FLAGS_ignore_verity} -eq ${FLAGS_TRUE} ]]; then
+    if [[ "${FLAGS_ignore_verity}" -eq "${FLAGS_TRUE}" ]]; then
         warn "System is using verity: not updating firmware/modules"
     else
         warn "System is using verity: First remove rootfs verification using"
@@ -93,7 +97,7 @@ learn_partition_and_ro() {
     REMOTE_VERITY=${FLAGS_FALSE}
     info "System is not using verity: updating firmware and modules"
   fi
-  if [[ ${FLAGS_ab_update} -eq ${FLAGS_TRUE} ]]; then
+  if [[ "${FLAGS_ab_update}" -eq "${FLAGS_TRUE}" ]]; then
     if [[ "${REMOTE_OUT}" == "${FLAGS_device}${PARTITION_NUM_ROOT_A}" ]]; then
       FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_B}"
       FLAGS_rootfs="${FLAGS_device}${PARTITION_NUM_ROOT_B}"
@@ -120,9 +124,9 @@ learn_partition_and_ro() {
   if [ -z "${FLAGS_partition}" ]; then
     die_notrace "Partition required"
   fi
-  if [ ${REMOTE_VERITY} -eq ${FLAGS_TRUE} ]; then
+  if [[ "${REMOTE_VERITY}" -eq "${FLAGS_TRUE}" ]]; then
     info "Target reports kernel partition is ${FLAGS_partition}"
-    if [ ${FLAGS_vboot} -eq ${FLAGS_FALSE} ]; then
+    if [[ "${FLAGS_vboot}" -eq "${FLAGS_FALSE}" ]]; then
       die_notrace "Must update vboot when target is using verity"
     fi
   fi
@@ -140,7 +144,7 @@ get_bootargs() {
     FLAGS_remote_bootargs=${FLAGS_TRUE}
   fi
 
-  if [ ${FLAGS_remote_bootargs} -eq ${FLAGS_TRUE} ] ; then
+  if [[ "${FLAGS_remote_bootargs}" -eq "${FLAGS_TRUE}" ]]; then
     info "Using remote bootargs"
     remote_sh dump_kernel_config "${FLAGS_partition}"
     printf '%s' "${REMOTE_OUT}"
@@ -169,8 +173,9 @@ make_kernelimage() {
   local bootloader_path
   local kernel_image
   local boot_path="/build/${FLAGS_board}"
-  local config_path="$(mktemp /tmp/config.txt.XXXXX)"
-  if [[ ${FLAGS_hv} -eq ${FLAGS_TRUE} && \
+  local config_path
+  config_path="$(mktemp /tmp/config.txt.XXXXX)"
+  if [[ "${FLAGS_hv}" -eq "${FLAGS_TRUE}" && \
         -d "${boot_path}/build/manatee/boot" ]]; then
     boot_path+="/build/manatee/boot"
   else
@@ -192,11 +197,11 @@ make_kernelimage() {
     bootloader_path="/lib64/bootstub/bootstub.efi"
   fi
   get_bootargs > "${config_path}"
-  vbutil_kernel --pack $TMP/new_kern.bin \
+  vbutil_kernel --pack "${TMP}"/new_kern.bin \
     --keyblock /usr/share/vboot/devkeys/kernel.keyblock \
     --signprivate /usr/share/vboot/devkeys/kernel_data_key.vbprivk \
     --version 1 \
-    --config ${config_path} \
+    --config "${config_path}" \
     --bootloader "${bootloader_path}" \
     --vmlinuz "${kernel_image}" \
     --arch "${FLAGS_arch}"
@@ -246,8 +251,10 @@ copy_kernelimage() {
 }
 
 check_kernelbuildtime() {
-  local version=$(readlink "/build/${FLAGS_board}/boot/vmlinuz" | cut -d- -f2-)
-  local build_dir="/build/${FLAGS_board}/lib/modules/${version}/build"
+  local version
+  local build_dir
+  version=$(readlink "/build/${FLAGS_board}/boot/vmlinuz" | cut -d- -f2-)
+  build_dir="/build/${FLAGS_board}/lib/modules/${version}/build"
   if [ "${build_dir}/Makefile" -nt "/build/${FLAGS_board}/boot/vmlinuz" ]; then
     warn "Your build directory has been built more recently than"
     warn "the installed kernel being updated to.  Did you forget to"
@@ -257,7 +264,7 @@ check_kernelbuildtime() {
 
 mark_boot_once() {
   local idx=${FLAGS_partition##*[^0-9]}
-  remote_sh cgpt add -i ${idx} -S 0 -T 1 -P 15 ${FLAGS_device%p}
+  remote_sh cgpt add -i "${idx}" -S 0 -T 1 -P 15 "${FLAGS_device%p}"
 }
 
 update_syslinux_kernel() {
@@ -265,13 +272,16 @@ update_syslinux_kernel() {
   # ARM does not have the syslinux directory, so skip it when the
   # partition is missing, the file system fails to mount, or the syslinux
   # vmlinuz target is missing.
-  remote_sh grep $(echo ${FLAGS_device}${PARTITION_NUM_EFI_SYSTEM} | cut -d/ -f3) /proc/partitions
-  if [ $(echo "$REMOTE_OUT" | wc -l) -eq 1 ]; then
-    remote_sh mkdir -p /tmp/${PARTITION_NUM_EFI_SYSTEM}
-    if remote_sh mount ${FLAGS_device}${PARTITION_NUM_EFI_SYSTEM} \
-                       /tmp/${PARTITION_NUM_EFI_SYSTEM}; then
+  remote_sh grep \
+    "$(echo "${FLAGS_device}${PARTITION_NUM_EFI_SYSTEM}" | cut -d/ -f3)" \
+    /proc/partitions
+  if [[ "$(echo "${REMOTE_OUT}" | wc -l)" -eq 1 ]]; then
+    remote_sh mkdir -p "/tmp/${PARTITION_NUM_EFI_SYSTEM}"
+    if remote_sh mount "${FLAGS_device}${PARTITION_NUM_EFI_SYSTEM}" \
+                       "/tmp/${PARTITION_NUM_EFI_SYSTEM}"; then
 
-      if [ "$FLAGS_partition" = "${FLAGS_device}${PARTITION_NUM_KERN_A}" ]; then
+      if [[ "${FLAGS_partition}" = \
+            "${FLAGS_device}${PARTITION_NUM_KERN_A}" ]]; then
         target="/tmp/${PARTITION_NUM_EFI_SYSTEM}/syslinux/vmlinuz.A"
       else
         target="/tmp/${PARTITION_NUM_EFI_SYSTEM}/syslinux/vmlinuz.B"
@@ -279,9 +289,9 @@ update_syslinux_kernel() {
       remote_sh "test ! -f ${target} || \
                  cp ${basedir}/boot/vmlinuz ${target}"
 
-      remote_sh umount /tmp/${PARTITION_NUM_EFI_SYSTEM}
+      remote_sh umount "/tmp/${PARTITION_NUM_EFI_SYSTEM}"
     fi
-    remote_sh rmdir /tmp/${PARTITION_NUM_EFI_SYSTEM}
+    remote_sh rmdir "/tmp/${PARTITION_NUM_EFI_SYSTEM}"
   fi
 }
 
@@ -333,13 +343,13 @@ main() {
 
   check_kernelbuildtime
 
-  if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
+  if [[ "${FLAGS_vboot}" -eq "${FLAGS_TRUE}" ]]; then
     make_kernelimage
   fi
 
-  if [[ ${REMOTE_VERITY} -eq ${FLAGS_FALSE} ]]; then
+  if [[ "${REMOTE_VERITY}" -eq "${FLAGS_FALSE}" ]]; then
     local remote_basedir
-    if [[ ${REMOTE_NEEDS_ROOTFS_MOUNTED} -eq ${FLAGS_TRUE} ]]; then
+    if [[ "${REMOTE_NEEDS_ROOTFS_MOUNTED}" -eq "${FLAGS_TRUE}" ]]; then
       remote_sh mktemp -d /tmp/rootfs_mounted.XXXXXX
       remote_basedir="${REMOTE_OUT}"
       remote_sh mount "${FLAGS_rootfs}" "${remote_basedir}"
@@ -376,7 +386,7 @@ main() {
     fi
   fi
 
-  if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
+  if [[ "${FLAGS_vboot}" -eq "${FLAGS_TRUE}" ]]; then
     info "Copying vboot kernel image"
     copy_kernelimage
   else
@@ -393,14 +403,14 @@ main() {
   # sync for safety to avoid random file system corruption.
   remote_sh sync
 
-  if [ ${FLAGS_reboot} -eq ${FLAGS_TRUE} ]; then
+  if [[ "${FLAGS_reboot}" -eq "${FLAGS_TRUE}" ]]; then
     remote_reboot
 
     remote_sh uname -r -v
     info "old kernel: ${old_kernel}"
     info "new kernel: ${REMOTE_OUT}"
 
-    if [ ${FLAGS_vboot} -eq ${FLAGS_TRUE} ]; then
+    if [[ "${FLAGS_vboot}" -eq "${FLAGS_TRUE}" ]]; then
       check_buildid
     fi
   else
