@@ -482,6 +482,8 @@ setup_env() {
     user_mkdir "${FLAGS_cache_dir}"/distfiles
     user_mkdir "${FLAGS_chroot}/${chroot_cache}"
     setup_mount "${FLAGS_cache_dir}" "--bind" "${chroot_cache}"
+    # Create /var/log/asan directory (b/222311476).
+    user_mkdir "${FLAGS_chroot}/var/log/asan"
     # TODO(build): remove this as of 12/01/12.
     # Because of how distfiles -> cache_dir was deployed, if this isn't
     # a symlink, we *know* the ondisk pathways aren't compatible- thus
