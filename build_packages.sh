@@ -17,16 +17,11 @@ fi
 # Discard the magic marker flag.
 shift
 
-# Script must run inside the chroot
-restart_in_chroot_if_needed "$@"
-
 assert_not_root_user
 
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_boolean chrome "${FLAGS_FALSE}" \
-  "Ensure chrome instead of chromium. Alias for --internal --nouse_any_chrome."
 DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap when possible."
 DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
@@ -155,12 +150,6 @@ CHROME_PACKAGES=(
   "chromeos-base/chrome-icu"
 )
 
-# Alias/implied flag translations.
-if [[ "${FLAGS_chrome}" -eq "${FLAGS_TRUE}" ]]; then
-  FLAGS_internal="${FLAGS_TRUE}"
-  FLAGS_use_any_chrome="${FLAGS_FALSE}"
-fi
-
 if [[ "${FLAGS_internal}" -eq "${FLAGS_TRUE}" ]]; then
   export USE="${USE} chrome_internal"
 fi
@@ -206,11 +195,6 @@ if grep -qs performance \
         "'performance'."
     fi
   fi
-fi
-
-if [[ -z "${FLAGS_board}" ]]; then
-  echo "Error: --board is required."
-  exit 1
 fi
 
 BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
