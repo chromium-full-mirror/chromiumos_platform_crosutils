@@ -6,7 +6,6 @@
 # Various upstart init script checks.
 
 DOC_RESOURCE_URL="https://dev.chromium.org/chromium-os/chromiumos-design-docs/boot-design#TOC-Runtime-Resource-Limits"
-CROS_COMMAND="/mnt/host/source/chromite/bin/cros"
 
 # Default portage vars to make shellcheck happy.
 : "${CATEGORY:=}"
@@ -257,7 +256,7 @@ check_oom() {
 
 # Main entry point for this hook.
 check() {
-  local arg ret_oom=0 ret_lint=0
+  local arg ret_oom=0
 
   for arg in "$@"; do
     if [[ -L "${arg}" ]]; then
@@ -268,9 +267,6 @@ check() {
     : $(( ret_oom += $? ))
   done
 
-  "${CROS_COMMAND}" lint --relaxed "$@"
-  : $(( ret_lint += $? ))
-
   if [[ ${ret_oom} -eq 0 ]]; then
     if known_bad_oom; then
       eqawarn "Please remove ${CATEGORY}/${PN} from known_bad_oom in $0."
@@ -279,10 +275,6 @@ check() {
     if ! known_bad_oom; then
       die "Init scripts have errors."
     fi
-  fi
-
-  if [[ ${ret_lint} -ne 0 ]]; then
-    die "Init scripts have lint errors."
   fi
 }
 
