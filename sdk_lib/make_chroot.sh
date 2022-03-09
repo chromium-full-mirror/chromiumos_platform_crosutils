@@ -301,6 +301,11 @@ early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
 # is often designed to work with older compilers.
 early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
   sys-kernel/linux-headers sys-libs/glibc
+
+# Next libcxx. This is required due to the migration to LLVM runtime builds.
+early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
+  sys-libs/libcxxabi sys-libs/libcxx
+
 # Now we can let the rest of the compiler packages build in parallel as they
 # don't generally rely on each other.
 # Note: early_enter_chroot executes as root.

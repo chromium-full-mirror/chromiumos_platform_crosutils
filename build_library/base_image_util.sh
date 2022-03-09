@@ -208,8 +208,8 @@ install_libc_for_abi() {
     # So we'll install glibc and C++ libraries here using prebuilts for host
     # cross-<abi>/<library> packages and not rely on ebuilds.
     # This is a bit hacky but is only for a "short" while.
-    pkgs+=( "llvm-libunwind" "libcxxabi" "libcxx" )
-    pkg_ver_str+=("LIBGCC_VERSION" "LIBCXXABI_VERSION" "LIBCXX_VERSION")
+    pkgs+=( "llvm-libunwind" "libcxx" )
+    pkg_ver_str+=("LIBGCC_VERSION" "LIBCXX_VERSION")
     # gconv_strip.py does not like two set of gconv files but for
     # arm32 + aarch64 multilib for NaCl, we have two set of files.
     # As long as the second set for extra ABI is not needed for NaCl, we can

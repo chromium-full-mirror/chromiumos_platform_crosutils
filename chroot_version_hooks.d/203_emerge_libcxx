@@ -1,0 +1,14 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Force all boards to re-emerge sys-libs/libcxxabi sys-libs/libcxx.
+# This is required for switch to runtimes builds (b/204093890).
+
+sudo emerge -gqu --nodeps sys-libs/libcxxabi sys-libs/libcxx
+for board_root in /build/*; do
+  board_name=${board_root##*/}
+  if [[ -d "${board_root}/var/db/pkg" ]]; then
+    emerge-${board_name} -gqu --nodeps sys-libs/libcxxabi sys-libs/libcxx
+  fi
+done
