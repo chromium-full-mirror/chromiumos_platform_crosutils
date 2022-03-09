@@ -147,8 +147,11 @@ create_dev_install_lists() {
   sudo mkdir -p "${BOARD_ROOT}/build/dev-install"
   sudo mv "${pkgs_out}/package.installable" "${BOARD_ROOT}/build/dev-install/"
 
+  local package_provided_dir="${root_fs_dir}/usr/share/dev-install/"
+  package_provided_dir+="portage/make.profile/package.provided"
+
   sudo mkdir -p \
-    "${root_fs_dir}/usr/share/dev-install/portage/make.profile/package.provided" \
+    "${package_provided_dir}" \
     "${root_fs_dir}/usr/share/dev-install/rootfs.provided"
   sudo cp "${pkgs_out}/bootstrap.packages" \
     "${root_fs_dir}/usr/share/dev-install/"
@@ -157,13 +160,13 @@ create_dev_install_lists() {
 
   # Copy the toolchain settings which are fixed at build_image time.
   sudo cp "${BOARD_ROOT}/etc/portage/profile/package.provided" \
-    "${root_fs_dir}/usr/share/dev-install/portage/make.profile/package.provided/"
+    "${package_provided_dir}/toolchain.conf"
 
   # Copy the profile stubbed packages which are always disabled for the board.
   # TODO(vapier): This doesn't currently respect the profile or its parents.
   sudo cp \
     "/usr/local/portage/chromiumos/profiles/targets/chromeos/package.provided" \
-    "${root_fs_dir}/usr/share/dev-install/portage/make.profile/package.provided/"
+    "${package_provided_dir}/board-profile.conf"
 
   rm -r "${pkgs_out}"
 }
