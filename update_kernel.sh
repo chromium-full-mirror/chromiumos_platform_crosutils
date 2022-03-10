@@ -360,7 +360,8 @@ main() {
     if [[ ${FLAGS_syslinux} -eq ${FLAGS_TRUE} ]]; then
       if [[ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]]; then
         info "Cleaning /boot"
-        remote_sh rm -rf "${remote_basedir}"/boot/{System,config,vmlinuz}'*'
+        remote_sh rm -rf \
+                  "${remote_basedir}"/boot/{Image,System,config,vmlinuz}'*'
       fi
       info "Copying syslinux and /boot"
       remote_send_to /build/"${FLAGS_board}"/boot/ "${remote_basedir}"/boot/
