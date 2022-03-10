@@ -312,9 +312,6 @@ early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
 early_enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/cros_setup_toolchains" \
     --hostonly "${TOOLCHAIN_ARGS[@]}"
 
-# If we're creating a new chroot, we also want to set it to the latest version.
-enter_chroot run_chroot_version_hooks --init-latest
-
 # Update chroot.
 # Skip toolchain update because it already happened above, and the chroot is
 # not ready to emerge all cross toolchains.
