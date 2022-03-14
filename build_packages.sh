@@ -59,37 +59,15 @@ DEFINE_boolean pretend "${FLAGS_FALSE}" \
 DEFINE_string board_root "" \
   "Emerge packages to board_root."
 
-FLAGS_HELP="usage: $(basename $0) [flags] [packages]
-
-build_packages updates the set of binary packages needed by Chrome OS. It will
-cross compile all packages that have been updated into the given target's root
-and build binary packages as a side-effect. The output packages will be picked
-up by the build_image script to put together a bootable Chrome OS image.
-
-If [packages] are specified, only build those specific packages (and any
-dependencies they might need).
-
-For the fastest builds, use --nowithautotest --noworkon.
-"
-
 # The following options are advanced options, only available to those willing
 # to read the source code. They are not shown in help output, since they are
 # not needed for the typical developer workflow.
-DEFINE_string accept_licenses "" \
-  "Licenses to append to the accept list."
 DEFINE_boolean eclean "${FLAGS_TRUE}" \
   "Run eclean to delete old binpkgs."
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
 DEFINE_boolean norebuild "${FLAGS_FALSE}" \
   "Don't automatically rebuild dependencies."
-DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
-  "Don't run the chroot upgrade automatically; use with care."
-DEFINE_boolean skip_setup_board "${FLAGS_FALSE}" \
-  "Don't run setup_board. Implies skip_chroot_upgrade and" \
-  "skip_toolchain_update."
-DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
-  "Don't update toolchain automatically."
 DEFINE_boolean withdev "${FLAGS_TRUE}" \
   "Build useful developer friendly utilities."
 DEFINE_boolean withdebug "${FLAGS_TRUE}" \
@@ -98,8 +76,6 @@ DEFINE_boolean withfactory "${FLAGS_TRUE}" \
   "Build factory installer."
 DEFINE_boolean withtest "${FLAGS_TRUE}" \
   "Build packages required for testing."
-DEFINE_boolean expandedbinhosts "${FLAGS_TRUE}" \
-  "Allow expanded binhost inheritance."
 
 # The --reuse_pkgs_from_local_boards flag tells Portage to share binary
 # packages between boards that are built locally, so that the total time
@@ -204,42 +180,6 @@ if [[ "${FLAGS_cleanbuild}" -eq "${FLAGS_TRUE}" || ! -d "${BOARD_ROOT}" ]]; then
   SKIP_REVDEPS="${FLAGS_TRUE}"
 else
   SKIP_REVDEPS="${FLAGS_FALSE}"
-fi
-
-if [[ "${FLAGS_skip_setup_board}" -eq "${FLAGS_FALSE}" ]]; then
-  # Before we can run any tools, we need to update chroot or setup_board.
-  UPDATE_ARGS=()
-  if [[ -n ${FLAGS_accept_licenses} ]]; then
-    UPDATE_ARGS+=( --accept-licenses "${FLAGS_accept_licenses}" )
-  fi
-  if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
-    UPDATE_ARGS+=( --usepkg )
-  else
-    UPDATE_ARGS+=( --nousepkg )
-  fi
-  if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-    UPDATE_ARGS+=( --jobs=${FLAGS_jobs} )
-  fi
-  if [ "${FLAGS_reuse_pkgs_from_local_boards}" -eq "${FLAGS_TRUE}" ]; then
-    UPDATE_ARGS+=( --reuse-pkgs-from-local-boards )
-  fi
-  if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_TRUE}" ]; then
-    UPDATE_ARGS+=( --skip-toolchain-update )
-  fi
-  if [ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_TRUE}" ]; then
-    UPDATE_ARGS+=( --skip-chroot-upgrade )
-  fi
-  if [[ -n ${FLAGS_board_root} ]]; then
-    UPDATE_ARGS+=( --board-root "${FLAGS_board_root}" )
-  fi
-  if [ "${FLAGS_cleanbuild}" -eq "${FLAGS_TRUE}" ]; then
-    UPDATE_ARGS+=( --force )
-  fi
-  if [[ "${FLAGS_expandedbinhosts}" -eq "${FLAGS_FALSE}" ]]; then
-    UPDATE_ARGS+=( --fewer-binhosts )
-  fi
-
-  setup_board --quiet --board=${FLAGS_board} "${UPDATE_ARGS[@]}"
 fi
 
 sudo_clear_shadow_locks "${BOARD_ROOT}"
