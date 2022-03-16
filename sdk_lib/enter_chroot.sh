@@ -161,10 +161,14 @@ setup_mount() {
     # Already mounted!
     ;;
   *)
-    # If it doesn't exist, assume they want a dir.  But don't blindly run
-    # it all the time in case they're trying to bind mount a file.
-    if [[ ! -e ${mounted_path} ]]; then
-      mkdir -p "${mounted_path}"
+    # Don't blindly mkdir in case they're trying to bind mount a file.
+    if [[ ! -e "${mounted_path}" ]]; then
+      if [[ -d "${source}" ]]; then
+        mkdir -p "${mounted_path}"
+      elif [[ -f "${source}" ]]; then
+        mkdir -p "$(dirname "${mounted_path}")"
+        touch "${mounted_path}"
+      fi
     fi
     # The args are left unquoted on purpose.
     if [[ -n ${source} ]]; then
