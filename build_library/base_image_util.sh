@@ -190,38 +190,91 @@ _get_variable() {
   fi
 }
 
-install_libc() {
-  root_fs_dir="$1"
+install_libc_for_abi() {
   # We need to install libc manually from the cross toolchain.
   # TODO: Improve this? It would be ideal to use emerge to do this.
-  libc_version="$(_get_variable "${BOARD_ROOT}/${SYSROOT_SETTINGS_FILE}" \
-    "LIBC_VERSION")"
+  local root_fs_dir="$1"
+  local abi="$2"
   PKGDIR="/var/lib/portage/pkgs"
-  local libc_atom="cross-${CHOST}/glibc-${libc_version}"
-  LIBC_PATH="${PKGDIR}/${libc_atom}.tbz2"
 
-  if [[ ! -e ${LIBC_PATH} ]]; then
-    sudo emerge --nodeps -gf "=${libc_atom}"
+  local pkgs=( "glibc" )
+  local pkg_ver_str=( "LIBC_VERSION" )
+  local exclude_gconv=false
+  if [[ "$3" == "--copy-cxx-runtime" ]]; then
+    # Normally only glibc gets installed here since it is not built per board
+    # while other "standard" libraries like the C++ libraries get installed by
+    # ebuilds. In the case of NaCl on Arm64, we need to install a second set of
+    # "standard" libraries for Arm32 to run NaCl binaries in Arm32 mode.
+    # So we'll install glibc and C++ libraries here using prebuilts for host
+    # cross-<abi>/<library> packages and not rely on ebuilds.
+    # This is a bit hacky but is only for a "short" while.
+    pkgs+=( "llvm-libunwind" "libcxxabi" "libcxx" )
+    pkg_ver_str+=("LIBGCC_VERSION" "LIBCXXABI_VERSION" "LIBCXX_VERSION")
+    # gconv_strip.py does not like two set of gconv files but for
+    # arm32 + aarch64 multilib for NaCl, we have two set of files.
+    # As long as the second set for extra ABI is not needed for NaCl, we can
+    # just skip installing them for the arm32 abi while keeping aarch64.
+    exclude_gconv=true
   fi
 
-  # Strip out files we don't need in the final image at runtime.
-  local libc_excludes=(
-    # Compile-time headers.
-    'usr/include' 'sys-include'
-    # Link-time objects.
-    '*.[ao]'
-    # Debug commands not used by normal runtime code.
-    'usr/bin/'{getent,ldd}
-    # LD_PRELOAD objects for debugging.
-    'lib*/lib'{memusage,pcprofile,SegFault}.so 'usr/lib*/audit'
-    # We only use files & dns with nsswitch, so throw away the others.
-    'lib*/libnss_'{compat,db,hesiod,nis,nisplus}'*.so*'
-    # This is only for very old packages which we don't have.
-    'lib*/libBrokenLocale*.so*'
-  )
-  pbzip2 -dc --ignore-trailing-garbage=1 "${LIBC_PATH}" | \
-    sudo tar xpf - -C "${root_fs_dir}" ./usr/${CHOST} \
-      --strip-components=3 "${libc_excludes[@]/#/--exclude=}"
+  local idx pkg pkg_version pkg_atom pkg_path pkg_excludes
+  for (( idx = 0; idx < ${#pkgs[@]}; idx++ )); do
+    pkg="${pkgs[${idx}]}"
+    pkg_version="$(_get_variable "${BOARD_ROOT}/${SYSROOT_SETTINGS_FILE}" \
+      "${pkg_ver_str[${idx}]}")"
+    pkg_atom="cross-${abi}/${pkg}-${pkg_version}"
+    pkg_path="${PKGDIR}/${pkg_atom}.tbz2"
+    if [[ "${pkg}" == "glibc" ]]; then
+      # LIBC_PATH needs to be export for later use in dev_image_util.sh
+      # to extract debug symbols.
+      # TODO(b/223285139): Change to export an array of packages instead
+      # since we should have really extract debug info for all of them.
+      export LIBC_PATH="${pkg_path}"
+    fi
+
+    if [[ ! -e "${pkg_path}" ]]; then
+      sudo emerge --nodeps -gf "=${pkg_atom}"
+    fi
+
+    # Strip out files we don't need in the final image at runtime.
+    pkg_excludes=(
+      # Compile-time headers.
+      'usr/include' 'sys-include'
+      # Link-time objects.
+      '*.[ao]'
+      # Debug commands not used by normal runtime code.
+      'usr/bin/'{getent,ldd}
+      # LD_PRELOAD objects for debugging.
+      'lib*/lib'{memusage,pcprofile,SegFault}.so 'usr/lib*/audit'
+      # We only use files & dns with nsswitch, so throw away the others.
+      'lib*/libnss_'{compat,db,hesiod,nis,nisplus}'*.so*'
+      # This is only for very old packages which we don't have.
+      'lib*/libBrokenLocale*.so*'
+   )
+   if [[ "${exclude_gconv}" == true ]]; then
+      pkg_excludes+=(
+        'usr/lib/gconv'
+        'usr/lib64/gconv'
+      )
+    fi
+    pbzip2 -dc --ignore-trailing-garbage=1 "${pkg_path}" | \
+      sudo tar xpf - -C "${root_fs_dir}" "./usr/${abi}" \
+        --strip-components=3 "${pkg_excludes[@]/#/--exclude=}"
+  done
+}
+
+install_libc() {
+  local root_fs_dir="$1"
+
+  # Until nacl goes away completely, we actually need to run it in arm32
+  # mode on arm64 hosts. This will get the basic C/C++ libraries installed
+  # onto the device.
+  if [[ "${CHOST}" == "aarch64-cros-linux-gnu" ]]; then
+    install_libc_for_abi "${root_fs_dir}" "armv7a-cros-linux-gnueabihf" \
+      "--copy-cxx-runtime"
+  fi
+
+  install_libc_for_abi "${root_fs_dir}" "${CHOST}"
 }
 
 create_base_image() {
