@@ -17,8 +17,6 @@ fi
 # Discard the magic marker flag.
 shift
 
-assert_not_root_user
-
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
@@ -36,10 +34,6 @@ DEFINE_boolean withdebugsymbols "${FLAGS_FALSE}" \
   "Install the debug symbols for all packages"
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
-DEFINE_boolean autosetgov "${FLAGS_FALSE}" \
-  "Automatically set cpu governor to 'performance'."
-DEFINE_boolean autosetgov_sticky "${FLAGS_FALSE}" \
-  "Remember --autosetgov setting for future runs."
 DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
   "Use any Chrome prebuilt available, even if the prebuilt doesn't match exactly."
 DEFINE_boolean cleanbuild "${FLAGS_FALSE}" \
@@ -133,46 +127,6 @@ fi
 # Right now build_packages has to be run from scripts/
 . ${SRC_ROOT}/third_party/chromiumos-overlay/chromeos/config/chromeos_version.sh
 
-# On some systems, powersave can take a long time to ramp up.  Inform the user
-# so they can get faster builds.  https://crbug.com/1008932
-CHROMITE_CONFIG_DIR=$(
-  python -c 'from chromite.lib.chromite_config import DIR; print(DIR)')
-CONFIG_AUTOSETGOV="${CHROMITE_CONFIG_DIR}/autosetgov"
-if [[ "${FLAGS_autosetgov_sticky}" -eq "${FLAGS_TRUE}" ]]; then
-  mkdir -p "${CHROMITE_CONFIG_DIR}"
-  if [[ "${FLAGS_autosetgov}" -eq "${FLAGS_TRUE}" ]]; then
-    info "Future runs of build_packages will *always* use --autosetgov"
-    echo "# Delete this file to turn off automatic build_packages" \
-      "--autosetgov." >"${CONFIG_AUTOSETGOV}"
-  else
-    info "Future runs of build_packages will respect --autosetgov"
-    rm -f "${CONFIG_AUTOSETGOV}"
-  fi
-fi
-if [[ -e "${CONFIG_AUTOSETGOV}" ]]; then
-  FLAGS_autosetgov="${FLAGS_TRUE}"
-fi
-# Make sure we can actually support "performance".
-if grep -qs performance \
-     /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors; then
-  curr_gov=$(sort -u /sys/devices/system/cpu/cpufreq/policy*/scaling_governor)
-  if [[ "${curr_gov}" != "performance" ]]; then
-    if [[ "${FLAGS_autosetgov}" -eq "${FLAGS_TRUE}" ]]; then
-      if [[ $(echo "${curr_gov}" | wc -l) -gt 1 ]]; then
-        warn "Too many active CPU governors; refusing to use 'performance'."
-      else
-        info "Temporarily setting cpu governor to 'performance'"
-        trap "sudo cpupower -c all frequency-set -g powersave >&/dev/null" EXIT
-        sudo cpupower -c all frequency-set -g performance >&/dev/null
-      fi
-    elif [[ "${curr_gov}" == "powersave" ]]; then
-      warn "Current CPU governor set to 'powersave' which can slow down builds."
-      warn "Use --autosetgov to automatically (and temporarily) switch to" \
-        "'performance'."
-    fi
-  fi
-fi
-
 BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
 
 # Skip revdeps when we don't already have a built sysroot.
@@ -181,11 +135,6 @@ if [[ "${FLAGS_cleanbuild}" -eq "${FLAGS_TRUE}" || ! -d "${BOARD_ROOT}" ]]; then
 else
   SKIP_REVDEPS="${FLAGS_FALSE}"
 fi
-
-sudo_clear_shadow_locks "${BOARD_ROOT}"
-PORTAGE_BINHOST=$(portageq-${FLAGS_board} envvar 'PORTAGE_BINHOST')
-info "PORTAGE_BINHOST: ${PORTAGE_BINHOST}"
-
 
 # Setup all the emerge command/flags.
 EMERGE_FLAGS=( -uDNv --backtrack=30 --newrepo --with-test-deps y )
