@@ -259,6 +259,11 @@ check_oom() {
 check() {
   local arg ret_oom=0 ret_lint=0
 
+  # If nothing to scan, don't keep running below.
+  if [[ $# -eq 0 ]]; then
+    return
+  fi
+
   for arg in "$@"; do
     if [[ -L "${arg}" ]]; then
       continue
