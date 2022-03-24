@@ -93,7 +93,6 @@ BAD_HOST_USR_LOCAL_PACKAGES = {
 BAD_VAR_PACKAGES = {
     'app-accessibility/brltty',
     'app-admin/eselect',
-    'app-admin/puppet',
     'app-admin/rsyslog',
     'app-admin/sudo',
     'app-admin/sysstat',
@@ -102,8 +101,6 @@ BAD_VAR_PACKAGES = {
     'app-crypt/trousers',
     'app-emulation/containerd',
     'app-emulation/lxc',
-    # https://crbug.com/1059308
-    'chromeos-base/chromeos-bsp-initramfs-rialto',
     'chromeos-base/chromeos-initramfs',
     # https://crbug.com/1054646
     'chromeos-base/devserver',
@@ -122,7 +119,6 @@ BAD_VAR_PACKAGES = {
     'sys-apps/dbus',
     'sys-apps/fwupd',
     'sys-apps/iproute2',
-    'sys-apps/journald',
     'sys-apps/portage',
     'sys-apps/sandbox',
     'sys-apps/systemd',
