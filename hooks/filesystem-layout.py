@@ -68,7 +68,6 @@ NOSUBDIRS_USR = {
 KNOWN_TARGETS = {
     # These are historical names that we want to change to *-cros-* someday.
     'arm-none-eabi',
-    'i686-pc-linux-gnu',
     # This is the host SDK name.
     'x86_64-pc-linux-gnu',
     '*-cros-eabi',
