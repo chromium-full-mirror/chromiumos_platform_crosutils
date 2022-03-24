@@ -503,6 +503,7 @@ if [ -z "$INSTALL_VBLOCK" ]; then
 fi
 
 FACTORY_ROOT="${BOARD_ROOT}/factory-root"
+: "${USE:=}"
 
 if [ -z "${FLAGS_kernel_image}" ]; then
   # Build the recovery kernel.
