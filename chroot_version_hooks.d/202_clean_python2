@@ -1,0 +1,23 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# These packages have been removed, so make sure they're cleaned up.
+pkgs=(
+  dev-python/enum34
+  dev-python/mox
+  dev-python/backports-functools-lru-cache
+  dev-python/enum34
+  dev-python/funcsigs
+  dev-python/functools32
+  dev-python/futures
+  dev-python/ipaddress
+  dev-python/mox
+  dev-python/pathlib
+  dev-python/subprocess32
+  virtual/python-enum34
+  virtual/python-funcsigs
+  virtual/python-futures
+)
+
+sudo qmerge -Uqy "${pkgs[@]}"
