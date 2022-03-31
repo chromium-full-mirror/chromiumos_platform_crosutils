@@ -221,15 +221,6 @@ if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
   get_eclean_exclusions | "eclean-${FLAGS_board}" -e /dev/stdin packages
 fi
 
-# Verify that all packages can be emerged from scratch, without any
-# backtracking. Only print the output if this step fails.
-info "Checking package dependencies are correct: ${PACKAGES[*]}"
-if ! OUTPUT=$(emerge-${FLAGS_board} -pe --backtrack=0 \
-              "${PACKAGES[@]}" 2>&1); then
-  printf "%s\n" "${OUTPUT}"
-  die_notrace "emerge detected broken ebuilds. See error message above."
-fi
-
 # Build cros_workon packages when they are changed.
 CROS_WORKON_PKGS=()
 if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
