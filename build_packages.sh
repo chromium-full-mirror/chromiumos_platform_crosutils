@@ -124,9 +124,6 @@ if [[ "${FLAGS_internal}" -eq "${FLAGS_TRUE}" ]]; then
   export USE="${USE} chrome_internal"
 fi
 
-# Right now build_packages has to be run from scripts/
-. ${SRC_ROOT}/third_party/chromiumos-overlay/chromeos/config/chromeos_version.sh
-
 BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
 
 # Skip revdeps when we don't already have a built sysroot.
