@@ -38,8 +38,6 @@ DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
   "Use any Chrome prebuilt available, even if the prebuilt doesn't match exactly."
 DEFINE_boolean cleanbuild "${FLAGS_FALSE}" \
   "Perform a clean build; delete sysroot if it exists before building."
-DEFINE_boolean internal "${FLAGS_FALSE}" \
-  "Build the internal version of chrome (set the chrome_internal USE flag)."
 DEFINE_boolean pretend "${FLAGS_FALSE}" \
   "Don't build packages, just display which packages would have been installed."
 
@@ -64,8 +62,6 @@ DEFINE_boolean norebuild "${FLAGS_FALSE}" \
   "Don't automatically rebuild dependencies."
 DEFINE_boolean withdev "${FLAGS_TRUE}" \
   "Build useful developer friendly utilities."
-DEFINE_boolean withdebug "${FLAGS_TRUE}" \
-  "Build debug versions of Chromium-OS-specific packages."
 DEFINE_boolean withfactory "${FLAGS_TRUE}" \
   "Build factory installer."
 DEFINE_boolean withtest "${FLAGS_TRUE}" \
@@ -120,10 +116,6 @@ CHROME_PACKAGES=(
   "chromeos-base/chrome-icu"
 )
 
-if [[ "${FLAGS_internal}" -eq "${FLAGS_TRUE}" ]]; then
-  export USE="${USE} chrome_internal"
-fi
-
 BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
 
 # Skip revdeps when we don't already have a built sysroot.
@@ -176,10 +168,6 @@ if [[ "${FLAGS_norebuild}" -eq "${FLAGS_FALSE}" ]]; then
 fi
 if [[ "${FLAGS_showoutput}" -eq "${FLAGS_TRUE}" ]]; then
   EMERGE_FLAGS+=( --show-output )
-fi
-
-if [[ "${FLAGS_withdebug}" -eq "${FLAGS_FALSE}" ]]; then
-  export USE="${USE} -cros-debug"
 fi
 
 # Figure out which packages we should be building.
