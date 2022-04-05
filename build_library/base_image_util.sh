@@ -269,10 +269,10 @@ install_libc() {
   # Until nacl goes away completely, we actually need to run it in arm32
   # mode on arm64 hosts. This will get the basic C/C++ libraries installed
   # onto the device.
-#  if [[ "${CHOST}" == "aarch64-cros-linux-gnu" ]]; then
-#    install_libc_for_abi "${root_fs_dir}" "armv7a-cros-linux-gnueabihf" \
-#      "--copy-cxx-runtime"
-#  fi
+  if [[ "${CHOST}" == "aarch64-cros-linux-gnu" ]]; then
+    install_libc_for_abi "${root_fs_dir}" "armv7a-cros-linux-gnueabihf" \
+      "--copy-cxx-runtime"
+  fi
 
   install_libc_for_abi "${root_fs_dir}" "${CHOST}"
 }
