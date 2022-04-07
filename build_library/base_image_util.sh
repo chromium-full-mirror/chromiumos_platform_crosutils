@@ -257,9 +257,8 @@ install_libc_for_abi() {
         'usr/lib64/gconv'
       )
     fi
-    pbzip2 -dc --ignore-trailing-garbage=1 "${pkg_path}" | \
-      sudo tar xpf - -C "${root_fs_dir}" "./usr/${abi}" \
-        --strip-components=3 "${pkg_excludes[@]/#/--exclude=}"
+    sudo tar -Ilbzip2 -xpf "${pkg_path}" -C "${root_fs_dir}" "./usr/${abi}" \
+      --strip-components=3 "${pkg_excludes[@]/#/--exclude=}"
   done
 }
 
