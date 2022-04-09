@@ -257,7 +257,8 @@ install_libc_for_abi() {
         'usr/lib64/gconv'
       )
     fi
-    sudo tar -Ilbzip2 -xpf "${pkg_path}" -C "${root_fs_dir}" "./usr/${abi}" \
+    info_run sudo tar -Ilbzip2 -xpf "${pkg_path}" \
+      -C "${root_fs_dir}" "./usr/${abi}" \
       --strip-components=3 "${pkg_excludes[@]/#/--exclude=}"
   done
 }
@@ -360,7 +361,7 @@ create_base_image() {
   # and we don't known which ones will be used until all the applications are
   # installed. This script looks for the charset names on all the binaries
   # installed on the the ${root_fs_dir} and removes the unreferenced ones.
-  sudo "${CHROMITE_BIN}/gconv_strip" "${root_fs_dir}"
+  info_run sudo "${CHROMITE_BIN}/gconv_strip" "${root_fs_dir}"
 
   # Run ldconfig to create /etc/ld.so.cache.
   run_ldconfig "${root_fs_dir}"
@@ -415,7 +416,7 @@ create_base_image() {
   # If Python is installed in the rootfs, make sure the latest is the default.
   # If we have multiple versions, there's no guarantee as to which was selected.
   if [[ -e "${root_fs_dir}/usr/bin/python" ]]; then
-    sudo env ROOT="${root_fs_dir}" eselect python update
+    info_run sudo env ROOT="${root_fs_dir}" eselect python update
   fi
 
   # Set /etc/lsb-release on the image.
@@ -447,7 +448,7 @@ create_base_image() {
     unibuild_flag="--unibuild"
   fi
 
-  "${CHROMITE_BIN}/cros_set_lsb_release" \
+  info_run "${CHROMITE_BIN}/cros_set_lsb_release" \
     --sysroot="${root_fs_dir}" \
     --board="${BOARD}" \
     ${unibuild_flag} \
@@ -476,7 +477,7 @@ create_base_image() {
   # Note: fields in /etc/os-release can come from different places:
   # * /etc/os-release itself with docrashid
   # * /etc/os-release.d for fields created with do_osrelease_field
-  sudo "${CHROMITE_BIN}/cros_generate_os_release" \
+  info_run sudo "${CHROMITE_BIN}/cros_generate_os_release" \
     --root="${root_fs_dir}" \
     --version="${CHROME_BRANCH}" \
     --build_id="${CHROMEOS_VERSION_STRING}"
@@ -520,7 +521,7 @@ create_base_image() {
   fi
 
   if [[ "${has_bootable_kernel}" -eq 1 ]]; then
-    ${BUILD_LIBRARY_DIR}/create_legacy_bootloader_templates.sh \
+    info_run "${BUILD_LIBRARY_DIR}/create_legacy_bootloader_templates.sh" \
       --arch=${ARCH} \
       --board=${BOARD} \
       --image_type="${image_type}" \
@@ -563,7 +564,7 @@ create_base_image() {
     # stateful since we created a symlink for those. We ignore the
     # symlink in this package since the directory /usr/local/var
     # exists in the target image when dev_install runs.
-    sudo tar -cf "${BOARD_ROOT}/packages/dev-only-extras.tar.xz" \
+    info_run sudo tar -cf "${BOARD_ROOT}/packages/dev-only-extras.tar.xz" \
       -I 'xz -9 -T0' --exclude=var -C "${root_fs_dir}/usr/local" .
 
     create_dev_install_lists "${root_fs_dir}"
@@ -574,7 +575,7 @@ create_base_image() {
   if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
     info "Skipping DLC copying for factory shim images."
   else
-    build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
+    info_run build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
       --stateful="${stateful_fs_dir}" --board="${BOARD}" --factory-install
   fi
 
@@ -646,13 +647,14 @@ create_base_image() {
   if [[ "${skip_kernelblock_install}" -ne 1 \
     && "${has_bootable_kernel}" -eq 1 ]]; then
     # Place flags before positional args.
-    ${SCRIPTS_DIR}/bin/cros_make_image_bootable "${BUILD_DIR}" \
+    info_run "${SCRIPTS_DIR}/bin/cros_make_image_bootable" "${BUILD_DIR}" \
       ${image_name} ${USE_DEV_KEYS} --adjust_part="${FLAGS_adjust_part}"
   fi
 
   # Build minios kernel and put it in the MINIOS-A partition of the image.
   if has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
-    build_minios --board "${BOARD}" --image "${BUILD_DIR}/${image_name}" \
+    info_run build_minios --board "${BOARD}" \
+      --image "${BUILD_DIR}/${image_name}" \
       --version "${CHROMEOS_VERSION_STRING}"
   fi
 }

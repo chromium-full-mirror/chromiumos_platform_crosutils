@@ -196,8 +196,7 @@ delete_prompt() {
 emerge_to_image() {
   set -- ${EMERGE_BOARD_CMD} --root-deps=rdeps --usepkgonly -v --with-bdeps=n \
     "$@" ${EMERGE_JOBS}
-  info "$*"
-  sudo -E "$@"
+  info_run sudo -E "$@"
 }
 
 # Create the /etc/shadow file with all the right entries.

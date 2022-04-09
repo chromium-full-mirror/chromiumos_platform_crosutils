@@ -47,7 +47,7 @@ install_dev_packages() {
   # Copy over the libc debug info so that gdb
   # works with threads and also for a better debugging experience.
   sudo mkdir -p "${root_fs_dir}/usr/local/usr/lib/debug"
-  sudo tar -Ilbzip2 -xpf "${LIBC_PATH}" \
+  info_run sudo tar -Ilbzip2 -xpf "${LIBC_PATH}" \
     -C "${root_fs_dir}/usr/local/usr/lib/debug" \
     ./usr/lib/debug/usr/${CHOST} --strip-components=6
   # Since gdb only looks in /usr/lib/debug, symlink the /usr/local
