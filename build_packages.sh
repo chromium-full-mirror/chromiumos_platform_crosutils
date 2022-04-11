@@ -52,8 +52,6 @@ DEFINE_string board_root "" \
 # The following options are advanced options, only available to those willing
 # to read the source code. They are not shown in help output, since they are
 # not needed for the typical developer workflow.
-DEFINE_boolean eclean "${FLAGS_TRUE}" \
-  "Run eclean to delete old binpkgs."
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
 DEFINE_boolean norebuild "${FLAGS_FALSE}" \
@@ -187,18 +185,6 @@ if [[ $# -eq 0 ]]; then
   if [[ "${FLAGS_withautotest}" -eq "${FLAGS_TRUE}" ]]; then
     PACKAGES+=( chromeos-base/autotest-all )
   fi
-fi
-
-info "Rebuilding Portage cache"
-# Before running any emerge operations, regenerate the Portage dependency cache
-# in parallel.
-info_run "${EMERGE_CMD[@]}" --regen --quiet
-
-# Clean out any stale binpkgs we've accumulated. This is done immediately after
-# regenerating the cache in case ebuilds have been removed (e.g. from a revert).
-if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
-  info "Cleaning stale binpkgs"
-  get_eclean_exclusions | "eclean-${FLAGS_board}" -e /dev/stdin packages
 fi
 
 # Build cros_workon packages when they are changed.
