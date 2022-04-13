@@ -217,19 +217,21 @@ install_libc_for_abi() {
     exclude_gconv=true
   fi
 
-  local idx pkg pkg_version pkg_atom pkg_path pkg_excludes
+  local idx pkg pkg_version pkg_atom pkg_path pkg_excludes pkg_comp
   for (( idx = 0; idx < ${#pkgs[@]}; idx++ )); do
     pkg="${pkgs[${idx}]}"
     pkg_version="$(_get_variable "${BOARD_ROOT}/${SYSROOT_SETTINGS_FILE}" \
       "${pkg_ver_str[${idx}]}")"
     pkg_atom="cross-${abi}/${pkg}-${pkg_version}"
     pkg_path="${PKGDIR}/${pkg_atom}.tbz2"
+    pkg_decompressor="$(detect_decompression_tool "${pkg_path}")"
     if [[ "${pkg}" == "glibc" ]]; then
       # LIBC_PATH needs to be export for later use in dev_image_util.sh
       # to extract debug symbols.
       # TODO(b/223285139): Change to export an array of packages instead
       # since we should have really extract debug info for all of them.
       export LIBC_PATH="${pkg_path}"
+      export LIBC_DECOMPRESSOR="${pkg_decompressor}"
     fi
 
     if [[ ! -e "${pkg_path}" ]]; then
@@ -257,7 +259,7 @@ install_libc_for_abi() {
         'usr/lib64/gconv'
       )
     fi
-    info_run sudo tar -Ilbzip2 -xpf "${pkg_path}" \
+    info_run sudo tar -I"${pkg_decompressor}" -xpf "${pkg_path}" \
       -C "${root_fs_dir}" "./usr/${abi}" \
       --strip-components=3 "${pkg_excludes[@]/#/--exclude=}"
   done

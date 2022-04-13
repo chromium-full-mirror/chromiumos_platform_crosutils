@@ -103,3 +103,18 @@ emerge_custom_kernel() {
   sudo -E PKGDIR="${tmp_pkgdir}" ${EMERGE_BOARD_CMD} --usepkgonly \
     --root=${install_root} ${kernel} || die "Cannot emerge kernel to root"
 }
+
+# Detect the decompression tool to use for |file|.
+detect_decompression_tool() {
+  local file="$1"
+
+  if [[ "$(od -An -tx1 -N4 "${file}")" == " 28 b5 2f fd" ]]; then
+    # Since the Gentoo binpkg has trailing garbage, tell zstd to ignore it.
+    echo "zstd -f"
+  elif [[ "$(od -An -tx1 -N3 "${file}")" == " 42 5a 68" ]]; then
+    echo "lbzip2"
+  else
+    echo "$1: unknown compression type" >&2
+    return 1
+  fi
+}
