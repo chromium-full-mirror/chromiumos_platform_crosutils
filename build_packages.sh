@@ -26,8 +26,6 @@ DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
   "Only use binary packages to bootstrap; abort if any are missing."
 DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Force-build workon packages."
-DEFINE_boolean showoutput "${FLAGS_FALSE}" \
-  "Show all output from parallel_emerge."
 DEFINE_boolean withautotest "${FLAGS_TRUE}" \
   "Build autotest client code."
 DEFINE_boolean withdebugsymbols "${FLAGS_FALSE}" \
@@ -165,9 +163,6 @@ fi
 
 if [[ "${FLAGS_norebuild}" -eq "${FLAGS_FALSE}" ]]; then
   EMERGE_FLAGS+=( --rebuild-if-new-rev )
-fi
-if [[ "${FLAGS_showoutput}" -eq "${FLAGS_TRUE}" ]]; then
-  EMERGE_FLAGS+=( --show-output )
 fi
 
 # Figure out which packages we should be building.
