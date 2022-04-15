@@ -344,7 +344,7 @@ create_base_image() {
   info "Generating license credits page. Time:"
   sudo mkdir -p "${root_fs_dir}/opt/google/chrome/resources"
   local license_path="${root_fs_dir}/opt/google/chrome/resources/about_os_credits.html"
-  time sudo "${GCLIENT_ROOT}/chromite/licensing/licenses" \
+  time info_run sudo "${GCLIENT_ROOT}/chromite/licensing/licenses" \
     --board="${BOARD}" \
     --log-level error \
     --generate-licenses \
