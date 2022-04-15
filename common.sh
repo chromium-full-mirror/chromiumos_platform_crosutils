@@ -87,7 +87,11 @@ _dump_trace() {
 # Declare these asap so that code below can safely assume they exist.
 _message() {
   local prefix
-  prefix="$(date +%H:%M:%S) $1"
+  # Turn nanoseconds into milliseconds.
+  prefix="$(date +%H:%M:%S.%N)"
+  prefix="${prefix:0:-6}"
+
+  prefix+=" $1"
   shift
   if [[ $# -eq 0 ]]; then
     echo -e "${prefix}${CROS_LOG_PREFIX:-""}:${V_VIDOFF}" >&2
