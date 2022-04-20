@@ -312,10 +312,6 @@ early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
 early_enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/cros_setup_toolchains" \
     --hostonly "${TOOLCHAIN_ARGS[@]}"
 
-info "Updating Perl modules"
-early_enter_chroot \
-  "${CHROOT_TRUNK_DIR}/src/scripts/build_library/perl_rebuild.sh"
-
 # If we're creating a new chroot, we also want to set it to the latest version.
 enter_chroot run_chroot_version_hooks --init-latest
 
