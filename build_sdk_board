@@ -122,7 +122,7 @@ TOOLCHAIN_PACKAGES=(
 if [[ ${#TOOLCHAIN_PACKAGES[@]} -eq 0 ]]; then
   die_notrace "cros_setup_toolchains failed"
 fi
-PACKAGES=( system virtual/target-sdk world )
+PACKAGES=( system virtual/target-sdk )
 
 run_emerge() {
   info_run sudo -E ${EMERGE_CMD} "$@"
