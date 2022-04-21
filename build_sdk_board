@@ -153,6 +153,10 @@ run_emerge $HOST_FLAGS --with-bdeps=n --oneshot \
   virtual/target-sdk-nobdeps
 info_run sudo cp -a "${PKGDIR}" $BOARD_ROOT/packages
 
+# Make sure a version of Python is enabled since it might have raced above
+# when installing packages into the new root in parallel.
+info_run sudo env ROOT="${BOARD_ROOT}" eselect python update
+
 # Copy our chroot version into the newly packaged chroot.
 sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
 
