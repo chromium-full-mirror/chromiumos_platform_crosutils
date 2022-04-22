@@ -251,7 +251,7 @@ def check_root(root, host=False):
       logging.warning('Package has improved; please update BAD_VAR_PACKAGES')
 
   # Special case /run due to so many misuses currently.
-  if has_subdirs(os.path.join(root, 'run')):
+  if os.path.exists(os.path.join(root, 'run')):
     if atom in BAD_RUN_PACKAGES:
       logging.warning('Ignoring known bad /run install for now')
     elif os.environ.get('PORTAGE_REPO_NAME') == 'portage-stable':
