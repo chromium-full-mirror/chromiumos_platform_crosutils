@@ -25,7 +25,7 @@ import sys
 # Those are: /dev
 VALID_ROOT = {
     'bin', 'etc', 'home', 'lib', 'lib32', 'lib64', 'media',
-    'mnt', 'opt', 'proc', 'root', 'run', 'sbin', 'sys', 'tmp', 'usr', 'var',
+    'mnt', 'opt', 'proc', 'root', 'run', 'sbin', 'sys', 'usr', 'var',
 }
 
 # Paths that are allowed in the / dir for boards.
@@ -40,7 +40,7 @@ VALID_HOST_ROOT = set()
 
 # Paths under / that should not have any subdirs.
 NOSUBDIRS_ROOT = {
-    'bin', 'dev', 'proc', 'sbin', 'sys', 'tmp',
+    'bin', 'dev', 'proc', 'sbin', 'sys',
 }
 
 # Paths that are allowed in the /usr dir.
@@ -137,20 +137,6 @@ BAD_RUN_PACKAGES = {
     'net-fs/samba',
 }
 
-# Ignore some packages installing into /tmp for now.
-# NB: Do *not* add more packages here.
-BAD_TMP_PACKAGES = {
-    # https://crbug.com/1057059
-    'chromeos-base/chromeos-bsp-caroline-private',
-    'chromeos-base/chromeos-bsp-elm-private',
-    'chromeos-base/chromeos-config-bsp',
-    'chromeos-base/chromeos-config-bsp-coral',
-    'chromeos-base/chromeos-config-bsp-coral-private',
-    'chromeos-base/chromeos-config-bsp-nami',
-    'chromeos-base/chromeos-config-bsp-scarlet-private',
-    'chromeos-base/cros-config-test',
-}
-
 
 def has_subdirs(path):
   """See if |path| has any subdirs."""
@@ -232,10 +218,7 @@ def check_root(root, host=False):
   # Some of these may have subdirs at runtime, but not from package installs.
   for path in NOSUBDIRS_ROOT:
     if has_subdirs(os.path.join(root, path)):
-      if path == 'tmp' and atom in BAD_TMP_PACKAGES:
-        logging.warning('Ignoring known bad /tmp install for now')
-      else:
-        ret = False
+      ret = False
 
   # Special case /var due to so many misuses currently.
   if has_subdirs(os.path.join(root, 'var')):
@@ -312,8 +295,9 @@ def main(argv):
 
   if not check_root(opts.root, opts.host):
     logging.critical(
-        "This package does not conform to CrOS's filesystem conventions. "
-        'Please review the paths flagged above and adjust its layout.')
+        "Package '%s' does not conform to CrOS's filesystem conventions. "
+        'Please review the paths flagged above and adjust its layout.',
+        get_current_package())
     return 1
   else:
     return 0
