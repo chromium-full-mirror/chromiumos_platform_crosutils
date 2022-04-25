@@ -157,7 +157,6 @@ known_bad_oom() {
   chromeos-base/rialto-cellular-autoconnect|\
   chromeos-base/rialto-modem-watchdog|\
   chromeos-base/runtime_probe|\
-  chromeos-base/shill|\
   chromeos-base/sirenia|\
   chromeos-base/smbprovider|\
   chromeos-base/swap-init|\
