@@ -28,8 +28,6 @@ DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Force-build workon packages."
 DEFINE_boolean withautotest "${FLAGS_TRUE}" \
   "Build autotest client code."
-DEFINE_boolean withdebugsymbols "${FLAGS_FALSE}" \
-  "Install the debug symbols for all packages"
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
 DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
@@ -376,12 +374,6 @@ info "Merging board packages now"
 )
 
 echo "Builds complete"
-
-if [[ ${FLAGS_withdebugsymbols} -eq ${FLAGS_TRUE} ]]; then
-  info "fetching the debug symbols"
-  info_run sudo -E "${CHROMITE_BIN}/cros_install_debug_syms" \
-    "--board=${FLAGS_board}" "--all"
-fi
 
 command_completed
 echo "Done"
