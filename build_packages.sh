@@ -26,8 +26,6 @@ DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
   "Only use binary packages to bootstrap; abort if any are missing."
 DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Force-build workon packages."
-DEFINE_boolean withautotest "${FLAGS_TRUE}" \
-  "Build autotest client code."
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
 DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
@@ -54,12 +52,6 @@ DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
 DEFINE_boolean norebuild "${FLAGS_FALSE}" \
   "Don't automatically rebuild dependencies."
-DEFINE_boolean withdev "${FLAGS_TRUE}" \
-  "Build useful developer friendly utilities."
-DEFINE_boolean withfactory "${FLAGS_TRUE}" \
-  "Build factory installer."
-DEFINE_boolean withtest "${FLAGS_TRUE}" \
-  "Build packages required for testing."
 
 # The --reuse_pkgs_from_local_boards flag tells Portage to share binary
 # packages between boards that are built locally, so that the total time
@@ -164,25 +156,13 @@ fi
 # Figure out which packages we should be building.
 PACKAGES=( "$@" )
 FORCE_LOCAL_BUILD_PKGS=()
-if [[ $# -eq 0 ]]; then
-  PACKAGES=( virtual/target-os )
-  if [[ "${FLAGS_withdev}" -eq "${FLAGS_TRUE}" ]]; then
-    PACKAGES+=( virtual/target-os-dev )
-  fi
-  if [[ "${FLAGS_withfactory}" -eq "${FLAGS_TRUE}" ]]; then
-    PACKAGES+=( virtual/target-os-factory )
-    PACKAGES+=( virtual/target-os-factory-shim )
-  fi
-  if [[ "${FLAGS_withtest}" -eq "${FLAGS_TRUE}" ]]; then
-    PACKAGES+=( virtual/target-os-test )
-    # chromeos-ssh-testkeys may generate ssh keys if the right USE flag is set.
-    # We force rebuilding this package from source every time, so that
-    # consecutive builds don't share ssh keys.
-    FORCE_LOCAL_BUILD_PKGS+=( chromeos-base/chromeos-ssh-testkeys )
-  fi
-  if [[ "${FLAGS_withautotest}" -eq "${FLAGS_TRUE}" ]]; then
-    PACKAGES+=( chromeos-base/autotest-all )
-  fi
+TEST_PACKAGES=( $(printf '%s\n' "${PACKAGES[@]}" | \
+  grep "virtual/target-os-test" || :) )
+if [[ ${#TEST_PACKAGES[@]} -gt 0 ]]; then
+  # chromeos-ssh-testkeys may generate ssh keys if the right USE flag is set.
+  # We force rebuilding this package from source every time, so that
+  # consecutive builds don't share ssh keys.
+  FORCE_LOCAL_BUILD_PKGS+=( chromeos-base/chromeos-ssh-testkeys )
 fi
 
 # Build cros_workon packages when they are changed.
