@@ -20,20 +20,12 @@ shift
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_boolean usepkg "${FLAGS_TRUE}" \
-  "Use binary packages to bootstrap when possible."
-DEFINE_boolean usepkgonly "${FLAGS_FALSE}" \
-  "Only use binary packages to bootstrap; abort if any are missing."
 DEFINE_boolean workon "${FLAGS_TRUE}" \
   "Force-build workon packages."
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
-DEFINE_boolean use_any_chrome "${FLAGS_TRUE}" \
-  "Use any Chrome prebuilt available, even if the prebuilt doesn't match exactly."
 DEFINE_boolean cleanbuild "${FLAGS_FALSE}" \
   "Perform a clean build; delete sysroot if it exists before building."
-DEFINE_boolean pretend "${FLAGS_FALSE}" \
-  "Don't build packages, just display which packages would have been installed."
 
 # The --board_root flag specifies the environment variables ROOT and PKGDIR.
 # This allows fetching and emerging of all packages to specified board_root.
@@ -44,22 +36,6 @@ DEFINE_boolean pretend "${FLAGS_FALSE}" \
 # enforce this)."
 DEFINE_string board_root "" \
   "Emerge packages to board_root."
-
-# The following options are advanced options, only available to those willing
-# to read the source code. They are not shown in help output, since they are
-# not needed for the typical developer workflow.
-DEFINE_integer jobs -1 \
-  "How many packages to build in parallel at maximum."
-DEFINE_boolean norebuild "${FLAGS_FALSE}" \
-  "Don't automatically rebuild dependencies."
-
-# The --reuse_pkgs_from_local_boards flag tells Portage to share binary
-# packages between boards that are built locally, so that the total time
-# required to build several boards is reduced. This flag is only useful
-# when you are not able to use remote binary packages, since remote binary
-# packages are usually more up to date than anything you have locally.
-DEFINE_boolean reuse_pkgs_from_local_boards "${FLAGS_FALSE}" \
-  "Bootstrap from local packages instead of remote packages."
 
 # --run_goma option is designed to be used on bots.
 # If you're trying to build pacakges with goma in your local dev env, this is
@@ -112,46 +88,15 @@ else
 fi
 
 # Setup all the emerge command/flags.
-EMERGE_FLAGS=( -uDNv --backtrack=30 --newrepo --with-test-deps y )
+# TODO(xcl): Remove once reverse dependency logic is migrated to Python.
+# During the migration, temporarily get the emerge flags from a envvar set in
+# Python.
+EMERGE_FLAGS=( ${BUILD_PACKAGES_EMERGE_FLAGS} )
 
 EMERGE_CMD=(
   "${CHROMITE_BIN}/parallel_emerge"
   --board=${FLAGS_board}
 )
-
-if [[ "${FLAGS_use_any_chrome}" -eq "${FLAGS_TRUE}" ]]; then
-  for pkg in "${CHROME_PACKAGES[@]}"; do
-    EMERGE_CMD+=( "--force-remote-binary=${pkg}" )
-  done
-fi
-
-EMERGE_CMD+=( ${EXTRA_BOARD_FLAGS} )
-
-if [[ "${FLAGS_pretend}" -eq "${FLAGS_TRUE}" ]]; then
-  EMERGE_FLAGS+=( "--pretend" )
-fi
-
-if [[ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ||
-      "${FLAGS_reuse_pkgs_from_local_boards}" -eq "${FLAGS_TRUE}" ||
-      "${FLAGS_usepkgonly}" -eq "${FLAGS_TRUE}" ]]; then
-  # Use binary packages. Include all build-time dependencies,
-  # so as to avoid unnecessary differences between source
-  # and binary builds.
-  EMERGE_FLAGS+=( --getbinpkg --with-bdeps y )
-  if [[ ${FLAGS_usepkgonly} -eq ${FLAGS_TRUE} ]]; then
-    EMERGE_FLAGS+=( --usepkgonly )
-  else
-    EMERGE_FLAGS+=( --usepkg )
-  fi
-fi
-
-if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-  EMERGE_FLAGS+=( --jobs=${FLAGS_jobs} )
-fi
-
-if [[ "${FLAGS_norebuild}" -eq "${FLAGS_FALSE}" ]]; then
-  EMERGE_FLAGS+=( --rebuild-if-new-rev )
-fi
 
 # Figure out which packages we should be building.
 PACKAGES=( "$@" )
