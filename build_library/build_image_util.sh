@@ -295,7 +295,8 @@ run_depmod() {
     local system_map="${kernel_out_dir}/System.map"
 
     if [[ -r "${system_map}" ]]; then
-      sudo depmod -ae -F "${system_map}" -b "${root_fs_dir}" "${kernel_release}"
+      info_run sudo depmod -ae -F "${system_map}" -b "${root_fs_dir}" \
+        "${kernel_release}"
     fi
   done
 }
