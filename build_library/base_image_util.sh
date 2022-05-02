@@ -418,6 +418,9 @@ create_base_image() {
   # If Python is installed in the rootfs, make sure the latest is the default.
   # If we have multiple versions, there's no guarantee as to which was selected.
   if [[ -e "${root_fs_dir}/usr/bin/python" ]]; then
+    # Workaround upstream bug.
+    # https://bugs.gentoo.org/697152
+    sudo mkdir -p "${root_fs_dir}/usr/share/man/man1"
     info_run sudo env ROOT="${root_fs_dir}" eselect python update
   fi
 
