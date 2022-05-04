@@ -221,7 +221,7 @@ def check_root(root, host=False):
       ret = False
 
   # Special case /var due to so many misuses currently.
-  if has_subdirs(os.path.join(root, 'var')):
+  if os.path.exists(os.path.join(root, 'var')):
     if atom in BAD_VAR_PACKAGES:
       logging.warning('Ignoring known bad /var install for now')
     elif os.environ.get('PORTAGE_REPO_NAME') == 'portage-stable':
