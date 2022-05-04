@@ -1,0 +1,10 @@
+# Copyright 2022 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# If an older SDK doesn't have zstd yet, the SDK produces the zstd binpkg using
+# zstd, so we can't install it.  Force it from source.
+
+if ! type -P zstd >/dev/null; then
+  sudo emerge -1O --buildpkg=n zstd
+fi

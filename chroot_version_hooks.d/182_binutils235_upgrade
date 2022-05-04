@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# See comments in the hook.
+. /mnt/host/source/src/scripts/chroot_version_hooks.d/204_zstd
+
 # Upgrade binutils to avoid binutils being pulled into
 # build graph when building target packages, https://crbug.com/1171084
 sudo emerge -ugq sys-devel/binutils

@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# See comments in the hook.
+. /mnt/host/source/src/scripts/chroot_version_hooks.d/204_zstd
+
 # Force all boards to re-emerge sys-libs/libcxxabi sys-libs/libcxx.
 # This is required for switch to runtimes builds (b/204093890).
 

@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# See comments in the hook.
+. /mnt/host/source/src/scripts/chroot_version_hooks.d/204_zstd
+
 # Upgrade bash to the latest version we support.
 # Bash updates change behavior, and build scripts are made to support the
 # latest bash version, and may not work with older versions.
