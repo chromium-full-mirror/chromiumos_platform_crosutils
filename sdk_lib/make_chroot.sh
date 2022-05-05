@@ -117,7 +117,6 @@ user_append() {
 init_setup () {
    info "Running init_setup()..."
    mkdir -p -m 755 "${FLAGS_chroot}/usr" \
-     "${FLAGS_chroot}${OVERLAYS_ROOT}" \
      "${FLAGS_chroot}"/"${CROSSDEV_OVERLAY}/metadata"
    # Newer portage complains about bare overlays.  Create the file that crossdev
    # will also create later on.
@@ -129,12 +128,6 @@ repo-name = crossdev
 use-manifests = true
 thin-manifests = true
 EOF
-   ln -sf "${CHROOT_TRUNK_DIR}/src/third_party/eclass-overlay" \
-     "${FLAGS_chroot}"/"${ECLASS_OVERLAY}"
-   ln -sf "${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay" \
-     "${FLAGS_chroot}"/"${CHROOT_OVERLAY}"
-   ln -sf "${CHROOT_TRUNK_DIR}/src/third_party/portage-stable" \
-     "${FLAGS_chroot}"/"${PORTAGE_STABLE_OVERLAY}"
 
    # Use the standardized upgrade script to setup proxied vars.
    load_environment_whitelist
@@ -237,10 +230,7 @@ OVERLAY="${SRC_ROOT}/third_party/chromiumos-overlay"
 CONFIG_DIR="${OVERLAY}/chromeos/config"
 CHROOT_CONFIG="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay/chromeos/config"
 OVERLAYS_ROOT="/usr/local/portage"
-ECLASS_OVERLAY="${OVERLAYS_ROOT}/eclass-overlay"
-PORTAGE_STABLE_OVERLAY="${OVERLAYS_ROOT}/stable"
 CROSSDEV_OVERLAY="${OVERLAYS_ROOT}/crossdev"
-CHROOT_OVERLAY="${OVERLAYS_ROOT}/chromiumos"
 
 # Pass proxy variables into the environment.
 for type in http ftp all; do
