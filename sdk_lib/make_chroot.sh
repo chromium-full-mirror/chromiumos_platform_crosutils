@@ -208,13 +208,6 @@ EOF
    info "Running post-inst configuration hacks"
    early_enter_chroot env-update
 
-   # This is basically a sanity check of our chroot.  If any of these
-   # don't exist, then either bind mounts have failed, an invocation
-   # from above is broke, or some assumption about the stage3 is no longer
-   # true.
-   early_enter_chroot ls -l /etc/make.conf /etc/portage/make.profile \
-     /usr/local/portage/chromiumos/profiles/default/linux/amd64/10.0
-
    target="${FLAGS_chroot}/etc/profile.d"
    mkdir -p "${target}"
    ln -sfT \
