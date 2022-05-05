@@ -397,18 +397,25 @@ create_base_image() {
   # into /usr/local later on.  Create symlinks in the rootfs so python still
   # works even when not in the rootfs.  This is needed because Gentoo creates
   # wrappers with hardcoded paths to the rootfs (e.g. python-exec).
+  local pyversions=(
+    # Querying versions is a bit fun.  We don't know precisely what will be
+    # installed in /usr/local, so just query what is available in the sysroot.
+    # The qlist output is: dev-lang/python:3.6
+    $("qlist-${BOARD}" -ICSe 'dev-lang/python' | cut -d: -f2)
+  )
   local path python_paths=(
     "/etc/env.d/python"
+    "${pyversions[@]/#//usr/lib/python}"
     "/usr/lib/python-exec"
     "/usr/lib/portage"
     "/usr/bin/python"
     "/usr/bin/python3"
-    # Querying versions is a bit fun.  We don't know precisely what will be
-    # installed in /usr/local, so just query what is available in the sysroot.
-    # The qlist output is: dev-lang/python:3.6
-    $("qlist-${BOARD}" -ICSe '>=dev-lang/python-3' | \
-        tr -d ':' | sed 's:dev-lang:/usr/bin:')
+    "/usr/bin/python-exec2c"
+    "${pyversions[@]/#//usr/bin/python}"
   )
+  if [[ -d "${root_fs_dir}/lib64" ]]; then
+    python_paths+=( "${pyversions[@]/#//usr/lib64/python}" )
+  fi
   for path in "${python_paths[@]}"; do
     if [[ ! -e "${root_fs_dir}${path}" && ! -L "${root_fs_dir}${path}" ]]; then
       sudo ln -sf "/usr/local${path}" "${root_fs_dir}${path}"
