@@ -427,6 +427,7 @@ COMMON_INSTALL_MASK="
   /usr/local/autotest-chrome
   /usr/man
   /usr/share/aclocal
+  /usr/share/applications
   /usr/share/cups/drv
   /usr/share/doc
   /usr/share/gettext
