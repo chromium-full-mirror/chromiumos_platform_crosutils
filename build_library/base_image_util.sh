@@ -164,8 +164,9 @@ create_dev_install_lists() {
 
   # Copy the profile stubbed packages which are always disabled for the board.
   # TODO(vapier): This doesn't currently respect the profile or its parents.
+  local overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
   sudo cp \
-    "/usr/local/portage/chromiumos/profiles/targets/chromeos/package.provided" \
+    "${overlay}/profiles/targets/chromeos/package.provided" \
     "${package_provided_dir}/board-profile.conf"
 
   rm -r "${pkgs_out}"

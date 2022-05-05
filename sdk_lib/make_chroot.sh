@@ -158,7 +158,9 @@ EOF
    mkdir -p "${FLAGS_chroot}/etc/portage"
    ln -sf "${CHROOT_CONFIG}/make.conf.amd64-host" \
      "${FLAGS_chroot}/etc/make.conf"
-   ln -sf "${CHROOT_OVERLAY}/profiles/default/linux/amd64/10.0/sdk" \
+   local cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
+   ln -sf \
+     "${cros_overlay}/profiles/default/linux/amd64/10.0/sdk" \
      "${FLAGS_chroot}/etc/portage/make.profile"
 
    # Create make.conf.user .

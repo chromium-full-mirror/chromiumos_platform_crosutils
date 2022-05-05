@@ -38,8 +38,7 @@ BOARD=${FLAGS_board}
 
 # Locations we will need
 BOARD_ROOT="/build/${BOARD}"
-CROSSDEV_OVERLAY="/usr/local/portage/crossdev"
-CHROMIUMOS_OVERLAY="/usr/local/portage/chromiumos"
+CHROMIUMOS_OVERLAY="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
 CHROMIUMOS_CONFIG="${CHROMIUMOS_OVERLAY}/chromeos/config"
 CHROMIUMOS_PROFILES="${CHROMIUMOS_OVERLAY}/profiles"
 BOARD_ETC="${BOARD_ROOT}/etc"
