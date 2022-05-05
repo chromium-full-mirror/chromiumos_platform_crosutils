@@ -42,6 +42,10 @@ check_linker_flags()
 
 check_binaries()
 {
+  # We don't care as much about security checks in the SDK itself.
+  if [[ "${ROOT:-/}" == "/" ]] ; then
+    return
+  fi
   if [[ " ${RESTRICT} " == *" binchecks "* ]] ; then
     return
   fi
