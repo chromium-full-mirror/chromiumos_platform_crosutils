@@ -102,8 +102,6 @@ BAD_VAR_PACKAGES = {
     'app-emulation/containerd',
     'app-emulation/lxc',
     'chromeos-base/chromeos-initramfs',
-    # https://crbug.com/1054646
-    'chromeos-base/devserver',
     'dev-python/django',
     'media-gfx/sane-backends',
     'media-sound/alsa-utils',
