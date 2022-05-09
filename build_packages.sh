@@ -155,15 +155,9 @@ fi
 
 # Figure out which packages we should be building.
 PACKAGES=( "$@" )
-FORCE_LOCAL_BUILD_PKGS=()
-TEST_PACKAGES=( $(printf '%s\n' "${PACKAGES[@]}" | \
-  grep "virtual/target-os-test" || :) )
-if [[ ${#TEST_PACKAGES[@]} -gt 0 ]]; then
-  # chromeos-ssh-testkeys may generate ssh keys if the right USE flag is set.
-  # We force rebuilding this package from source every time, so that
-  # consecutive builds don't share ssh keys.
-  FORCE_LOCAL_BUILD_PKGS+=( chromeos-base/chromeos-ssh-testkeys )
-fi
+# TODO(xcl): During the migration, temporarily get the force local build
+# packages from a envvar set in Python.
+FORCE_LOCAL_BUILD_PKGS=( ${BUILD_PACKAGES_FORCE_LOCAL_BUILD_PKGS} )
 
 # Build cros_workon packages when they are changed.
 CROS_WORKON_PKGS=()
