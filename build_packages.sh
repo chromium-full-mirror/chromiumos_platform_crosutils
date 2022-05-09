@@ -20,8 +20,6 @@ shift
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_boolean workon "${FLAGS_TRUE}" \
-  "Force-build workon packages."
 DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
   "Calculate reverse dependencies on changed ebuilds."
 DEFINE_boolean cleanbuild "${FLAGS_FALSE}" \
@@ -105,48 +103,7 @@ PACKAGES=( "$@" )
 FORCE_LOCAL_BUILD_PKGS=( ${BUILD_PACKAGES_FORCE_LOCAL_BUILD_PKGS} )
 
 # Build cros_workon packages when they are changed.
-CROS_WORKON_PKGS=()
-if [ "${FLAGS_workon}" -eq "${FLAGS_TRUE}" ]; then
-  LIST_MODIFIED_PACKAGES="${CHROMITE_BIN}/cros_list_modified_packages"
-  MODIFIED_PACKAGES=( $("${LIST_MODIFIED_PACKAGES}" --board=${FLAGS_board}) )
-  info "cros_workon modified packages '${MODIFIED_PACKAGES[*]}' detected"
-  CROS_WORKON_PKGS+=( "${MODIFIED_PACKAGES[@]}" )
-
-  # TODO(anush): Make chrome a fake cros-workon package.
-  if [[ -n "${CHROME_ORIGIN}" ]]; then
-    CROS_WORKON_PKGS+=( "${CHROME_PACKAGES[@]}" )
-  fi
-fi
-
-# cros_workon packages always have to be rebuilt.
-FORCE_LOCAL_BUILD_PKGS+=( "${CROS_WORKON_PKGS[@]}" )
-
-# Any package that directly depends on an active cros_workon package also needs
-# to be rebuilt in order to be correctly built against the current set of
-# changes a user may have made to the cros_workon package.
-if [[ ${#CROS_WORKON_PKGS[@]} -gt 0 ]]; then
-  # Collect all installed packages that depend on active cros_workon packages.
-  WORKON_PKG_CONSUMERS=()
-  mapfile -t WORKON_PKG_CONSUMERS < <( \
-    equery-${FLAGS_board} -q depends "${CROS_WORKON_PKGS[@]}" | \
-    sort -u | \
-    grep -Ev "^\s*$" )
-
-  # Transform this list of packages with versions in to a list of just
-  # $CATEGORY/$NAME entries, since we don't want to pass packages with explicit
-  # version numbers as arguments to `emerge`.
-  if [[ ${#WORKON_PKG_CONSUMERS[@]} -gt 0 ]]; then
-    WORKON_REBUILD_PKGS=()
-    mapfile -t WORKON_REBUILD_PKGS < <( \
-      equery-${FLAGS_board} list -p -o --format='$category/$name' \
-        "${WORKON_PKG_CONSUMERS[@]}" | sort -u )
-
-    info "The following packages depend directly on an active" \
-      "cros_workon package and will be rebuilt: ${WORKON_REBUILD_PKGS[*]}"
-
-    FORCE_LOCAL_BUILD_PKGS+=( "${WORKON_REBUILD_PKGS[@]}" )
-  fi
-fi
+CROS_WORKON_PKGS=( ${BUILD_PACKAGES_CROS_WORKON_PKGS} )
 
 if [[ -n "${FLAGS_board_root}" ]]; then
   export ROOT="${FLAGS_board_root}"
