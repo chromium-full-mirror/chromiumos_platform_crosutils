@@ -5,7 +5,7 @@
 
 # Various upstart init script checks.
 
-DOC_RESOURCE_URL="https://dev.chromium.org/chromium-os/chromiumos-design-docs/boot-design#TOC-Runtime-Resource-Limits"
+DOC_RESOURCE_URL="https://www.chromium.org/chromium-os/chromiumos-design-docs/boot-design/#runtime-resource-limits"
 CROS_COMMAND="/mnt/host/source/chromite/bin/cros"
 
 # Default portage vars to make shellcheck happy.
