@@ -20,10 +20,6 @@ shift
 # Developer-visible flags.
 DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build packages for."
-DEFINE_boolean withrevdeps "${FLAGS_TRUE}" \
-  "Calculate reverse dependencies on changed ebuilds."
-DEFINE_boolean cleanbuild "${FLAGS_FALSE}" \
-  "Perform a clean build; delete sysroot if it exists before building."
 
 # The --board_root flag specifies the environment variables ROOT and PKGDIR.
 # This allows fetching and emerging of all packages to specified board_root.
@@ -68,23 +64,6 @@ eval set -- "${FLAGS_ARGV}"
 # Die on any errors.
 switch_to_strict_mode
 
-# Chrome packages that need to be treated the same. These are the chrome and
-# chrome follow-on packages that share the same version as chrome and are
-# updated in lock step.
-CHROME_PACKAGES=(
-  "chromeos-base/chromeos-chrome"
-  "chromeos-base/chrome-icu"
-)
-
-BOARD_ROOT="${FLAGS_board_root:-/build/${FLAGS_board}}"
-
-# Skip revdeps when we don't already have a built sysroot.
-if [[ "${FLAGS_cleanbuild}" -eq "${FLAGS_TRUE}" || ! -d "${BOARD_ROOT}" ]]; then
-  SKIP_REVDEPS="${FLAGS_TRUE}"
-else
-  SKIP_REVDEPS="${FLAGS_FALSE}"
-fi
-
 # Setup all the emerge command/flags.
 # TODO(xcl): Remove once reverse dependency logic is migrated to Python.
 # During the migration, temporarily get the emerge flags from a envvar set in
@@ -102,101 +81,12 @@ PACKAGES=( "$@" )
 # packages from a envvar set in Python.
 FORCE_LOCAL_BUILD_PKGS=( ${BUILD_PACKAGES_FORCE_LOCAL_BUILD_PKGS} )
 
-# Build cros_workon packages when they are changed.
-CROS_WORKON_PKGS=( ${BUILD_PACKAGES_CROS_WORKON_PKGS} )
-
 if [[ -n "${FLAGS_board_root}" ]]; then
   export ROOT="${FLAGS_board_root}"
   export PORTAGE_CONFIGROOT="${ROOT}"
   export SYSROOT="${ROOT}"
   export PKGDIR="${ROOT}"/packages
 fi
-
-# Temporarily modify the emerge flags so we can calculate the revdeps
-# on the modified packages.
-if [[ "${FLAGS_withrevdeps}" -eq "${FLAGS_TRUE}" &&
-      "${SKIP_REVDEPS}" -eq "${FLAGS_FALSE}" ]]; then
-  info "starting reverse dependency calculations ..."
-  SIM_EMERGE_FLAGS=( "${EMERGE_FLAGS[@]}" --pretend --columns )
-
-  if [[ ${#PACKAGES[@]} -gt 0 ]]; then
-    SIM_EMERGE_FLAGS+=(
-      --reinstall-atoms="${PACKAGES[*]}"
-      --usepkg-exclude="${PACKAGES[*]}"
-    )
-  fi
-
-  # cros-workon packages are always going to be force reinstalled, so we add
-  # the forced reinstall behavior to the modified package calculation. This is
-  # necessary to include when a user has already installed a 9999 ebuild and is
-  # now reinstalling that package with additional local changes, because
-  # otherwise the modified package calculation would not see that a 'new'
-  # package is being installed.
-  if [[ ${#CROS_WORKON_PKGS[@]} -gt 0 ]]; then
-    SIM_EMERGE_FLAGS+=(
-      --reinstall-atoms="${CROS_WORKON_PKGS[*]}"
-      --usepkg-exclude="${CROS_WORKON_PKGS[*]}"
-    )
-  fi
-
-  # Calculate only the ebuild changes from the emerge simulation ignoring
-  # the virtual packages and the forced rebuild of autotest-all package.
-  # The lines of the following block do the following operations:
-  # 1. Do a pretend `emerge` command to get a list of what would be built.
-  # 2. Filter to only packages that will be installed to the board sysroot.
-  # 3. Filter to only packages that would be built from source and rewrite the
-  #    line from Portage's full output to only $CATEGORY/$PACKAGE
-  # 4. Filter the list of packages to a heuristic set of packages known to have
-  #    incorrectly specified dependencies.
-  # 5. Sort the output and remove any duplicate entries.
-  BASE_INSTALL_PKGS=( $( \
-    sudo -E "${EMERGE_CMD[@]}" "${SIM_EMERGE_FLAGS[@]}" "${PACKAGES[@]}" | \
-    grep -e 'to /build/' | \
-    sed -n -E '/^\[ebuild /{s:^[^]]+\] +::;s: .*::;p}' | \
-    grep -E '/(coreboot-private-files.*|tast-build-deps)$' | \
-    sort -u ) )
-
-  MOD_PKGS=()
-  if [[ "${#BASE_INSTALL_PKGS[@]}" -gt 0 ]]; then
-    info "Forced rebuild packages detected: ${BASE_INSTALL_PKGS[*]}."
-    # Convert specific versions into base package names
-    MOD_PKGS+=( $(\
-    equery-${FLAGS_board} list -p -o --format='$category/$name' \
-      "${BASE_INSTALL_PKGS[@]}" | sort -u ) )
-    # Remove Chrome as rebuilding it is expensive and almost never makes sense.
-    # Ignore grep exit status in case chromeos-chrome is the only package.
-    grep_cmd=( grep -v )
-    for pkg in "${CHROME_PACKAGES[@]}"; do
-      grep_cmd+=( -e "${pkg}" )
-    done
-    MOD_PKGS=( $(printf '%s\n' "${MOD_PKGS[@]}" | "${grep_cmd[@]}" || :) )
-  fi
-
-  FORCE_LOCAL_BUILD_PKGS+=( "${MOD_PKGS[@]}" )
-
-  if [[ "${#MOD_PKGS[@]}" -gt 0 ]]; then
-    info "calculating reverse dependencies on packages: ${MOD_PKGS[*]}"
-    REV_DEPS=( $(\
-      equery-${FLAGS_board} -q depends --indirect "${MOD_PKGS[@]}" |\
-      awk '{print $1}' | grep -v ^virtual/ | sort -u) )
-    if [[ "${#REV_DEPS[@]}" -gt 0 ]]; then
-      # Convert specific versions into base package names
-      RMOD_PKGS=( $(\
-        equery-${FLAGS_board} -q list -p -o --format='$category/$name' \
-        "${REV_DEPS[@]}" | sort -u ) )
-      # Remove Chrome as rebuilding it is expensive and almost never makes
-      # sense.  Ignore grep exit status in case chromeos-chrome is the only
-      # package.
-      grep_cmd=( grep -v )
-      for pkg in "${CHROME_PACKAGES[@]}"; do
-        grep_cmd+=( -e "${pkg}" )
-      done
-      RMOD_PKGS=( $(printf '%s\n' "${RMOD_PKGS[@]}" | "${grep_cmd[@]}" || :) )
-      info "final reverse dependencies that will be rebuilt: ${RMOD_PKGS[*]}"
-      FORCE_LOCAL_BUILD_PKGS+=( "${RMOD_PKGS[@]}" )
-    fi
-  fi
-fi # end FLAGS_withrevdeps
 
 if [[ ${#FORCE_LOCAL_BUILD_PKGS[@]} -gt 0 ]]; then
   EMERGE_FLAGS+=(
