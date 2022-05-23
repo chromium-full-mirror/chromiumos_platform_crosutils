@@ -248,8 +248,3 @@ info "Merging board packages now"
     --useoldpkg-atoms="${CRITICAL_SDK_PACKAGES[*]}" \
     --rebuild-exclude="${CRITICAL_SDK_PACKAGES[*]}"
 )
-
-echo "Builds complete"
-
-command_completed
-echo "Done"
