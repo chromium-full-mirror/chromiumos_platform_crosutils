@@ -75,13 +75,6 @@ KNOWN_TARGETS = {
     '*-cros-linux-gnu*',
 }
 
-# These packages need fixing.
-# NB: Do *not* add more packages here.
-BAD_ROOT_PACKAGES = {
-    # TODO(crbug.com/1003107): Delete this.
-    'dev-go/go-tools',
-}
-
 # These SDK packages need cleanup.
 # NB: Do *not* add more packages here.
 BAD_HOST_USR_LOCAL_PACKAGES = {
@@ -206,9 +199,7 @@ def check_root(root, host=False):
   else:
     unknown -= VALID_BOARD_ROOT
 
-  if atom in BAD_ROOT_PACKAGES:
-    logging.warning('Ignoring known bad / install for now')
-  elif unknown:
+  if unknown:
     logging.error('Paths are not allowed in the root dir:\n  %s\n  |-- %s',
                   root, '\n  |-- '.join(sorted(unknown)))
     ret = False
