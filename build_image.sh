@@ -143,6 +143,8 @@ OVERLAY_CHROMEOS_DIR="${SRC_ROOT}/third_party/chromiumos-overlay/chromeos"
 # shellcheck source=build_library/selinux_util.sh
 . "${BUILD_LIBRARY_DIR}/selinux_util.sh" || exit 1
 
+IMAGES_TO_BUILD="$*"
+
 parse_build_image_args
 
 load_board_specific_script "board_specific_setup.sh"
@@ -155,23 +157,10 @@ BASE_PACKAGE="virtual/target-os"
 # Tweak flags, configure extra USE flags, and set base packages for the factory
 # install shim.
 if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
-  # TODO: Build a separated ebuild for the install shim to reduce size.
-  INSTALL_MASK="${FACTORY_SHIM_INSTALL_MASK}"
-
   # Add the cros_factory_install boot arg.
   FLAGS_boot_args="${FLAGS_boot_args} cros_factory_install"
 
   BASE_PACKAGE="virtual/target-os-factory-shim"
-
-  export USE="${USE} fbconsole vtconsole factory_shim_ramfs i2cdev vfat"
-fi
-
-# Mask systemd directories if this is not a systemd image.
-if ! has "systemd" "$("portageq-${FLAGS_board}" envvar USE)"; then
-  COMMON_INSTALL_MASK+=" ${SYSTEMD_INSTALL_MASK}"
-  DEFAULT_INSTALL_MASK+=" ${SYSTEMD_INSTALL_MASK}"
-  FACTORY_SHIM_INSTALL_MASK+=" ${SYSTEMD_INSTALL_MASK}"
-  INSTALL_MASK+=" ${SYSTEMD_INSTALL_MASK}"
 fi
 
 # TODO: </prebuild hook>

@@ -26,61 +26,16 @@ fi
 BUILD_DIR="${FLAGS_build_root}/${BOARD}/${IMAGE_SUBDIR}"
 OUTPUT_DIR="${FLAGS_output_root}/${BOARD}/${IMAGE_SUBDIR}"
 OUTSIDE_OUTPUT_DIR="../build/images/${BOARD}/${IMAGE_SUBDIR}"
-IMAGES_TO_BUILD=
 
 EMERGE_BOARD_CMD="${CHROMITE_BIN}/parallel_emerge"
 EMERGE_BOARD_CMD="$EMERGE_BOARD_CMD --board=$BOARD"
-
-export INSTALL_MASK="${DEFAULT_INSTALL_MASK}"
 
 if [[ $FLAGS_jobs -ne -1 ]]; then
   EMERGE_JOBS="--jobs=$FLAGS_jobs"
 fi
 
-# Populates list of IMAGES_TO_BUILD from args passed in.
-# Arguments should be the shortnames of images we want to build.
-get_images_to_build() {
-  local image_to_build
-  for image_to_build in $*; do
-    # Shflags leaves "'"s around ARGV.
-    case ${image_to_build} in
-      \'base\' )
-        IMAGES_TO_BUILD="${IMAGES_TO_BUILD} ${CHROMEOS_BASE_IMAGE_NAME}"
-        ;;
-      \'dev\' )
-        IMAGES_TO_BUILD="${IMAGES_TO_BUILD} ${CHROMEOS_DEVELOPER_IMAGE_NAME}"
-        ;;
-      \'test\' )
-        IMAGES_TO_BUILD="${IMAGES_TO_BUILD} ${CHROMEOS_TEST_IMAGE_NAME}"
-        ;;
-      \'factory_install\' )
-        IMAGES_TO_BUILD="${IMAGES_TO_BUILD} \
-          ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"
-        ;;
-      * )
-        die "${image_to_build} is not an image specification."
-        ;;
-    esac
-  done
-
-  # Set default if none specified.
-  if [ -z "${IMAGES_TO_BUILD}" ]; then
-    IMAGES_TO_BUILD=${CHROMEOS_DEVELOPER_IMAGE_NAME}
-  fi
-
-  info "The following images will be built ${IMAGES_TO_BUILD}."
-}
-
 # Look at flags to determine which image types we should build.
 parse_build_image_args() {
-  get_images_to_build ${FLAGS_ARGV}
-  if should_build_image ${CHROMEOS_BASE_IMAGE_NAME} \
-      ${CHROMEOS_DEVELOPER_IMAGE_NAME} ${CHROMEOS_TEST_IMAGE_NAME} && \
-      should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
-    die_notrace \
-        "Can't build ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME} with any other" \
-        "image."
-  fi
   if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
     # For factory, force rootfs verification and bootcache off
     FLAGS_enable_rootfs_verification=${FLAGS_FALSE}
