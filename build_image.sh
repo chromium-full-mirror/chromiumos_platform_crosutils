@@ -102,18 +102,6 @@ DEFINE_boolean eclean ${FLAGS_TRUE} \
 # Parse command line.
 FLAGS "$@" || exit 1
 
-# See if we want to default the bootcache flag before we clobber
-# the user's command line.  We want to default to false if the
-# user explicitly disabled rootfs verification otherwise they
-# have to manually specify both.
-FLAGS_bootcache_use_board_default=${FLAGS_enable_rootfs_verification}
-case " $* " in
-  *" --enable_bootcache "*|\
-  *" --noenable_bootcache "*)
-    FLAGS_bootcache_use_board_default=${FLAGS_FALSE}
-    ;;
-esac
-
 eval set -- "${FLAGS_ARGV}"
 
 # Only now can we die on error. shflags functions leak non-zero error codes,
@@ -145,34 +133,11 @@ OVERLAY_CHROMEOS_DIR="${SRC_ROOT}/third_party/chromiumos-overlay/chromeos"
 
 IMAGES_TO_BUILD="$*"
 
-parse_build_image_args
-
 load_board_specific_script "board_specific_setup.sh"
 
 sudo_clear_shadow_locks "/build/${FLAGS_board}"
 
 # TODO: <prebuild hook>
-
-BASE_PACKAGE="virtual/target-os"
-# Tweak flags, configure extra USE flags, and set base packages for the factory
-# install shim.
-if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
-  # Add the cros_factory_install boot arg.
-  FLAGS_boot_args="${FLAGS_boot_args} cros_factory_install"
-
-  BASE_PACKAGE="virtual/target-os-factory-shim"
-fi
-
-# TODO: </prebuild hook>
-
-# If we are creating a developer image, also create a pristine image with a
-# different name.
-PRISTINE_IMAGE_NAME=
-if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
-  PRISTINE_IMAGE_NAME="${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"
-else
-  PRISTINE_IMAGE_NAME="${CHROMEOS_BASE_IMAGE_NAME}"
-fi
 
 if [[ ${FLAGS_eclean} -eq ${FLAGS_TRUE} ]]; then
   "${BOARD_ROOT}/build/bin/eclean" -d packages

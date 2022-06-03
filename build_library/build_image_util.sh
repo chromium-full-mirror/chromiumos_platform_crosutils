@@ -34,16 +34,6 @@ if [[ $FLAGS_jobs -ne -1 ]]; then
   EMERGE_JOBS="--jobs=$FLAGS_jobs"
 fi
 
-# Look at flags to determine which image types we should build.
-parse_build_image_args() {
-  if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
-    # For factory, force rootfs verification and bootcache off
-    FLAGS_enable_rootfs_verification=${FLAGS_FALSE}
-    FLAGS_enable_bootcache=${FLAGS_FALSE}
-    FLAGS_bootcache_use_board_default=${FLAGS_FALSE}
-  fi
-}
-
 make_salt() {
   # It is not important that the salt be cryptographically strong; it just needs
   # to be different for each release. The purpose of the salt is just to ensure
