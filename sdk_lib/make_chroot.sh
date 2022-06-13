@@ -35,6 +35,8 @@ assert_root_user
 
 DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
+DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
+  "Skip automatic SDK/toolchain upgrade. Will eventually break as ToT moves on."
 DEFINE_boolean usepkg $FLAGS_TRUE "Use binary packages to bootstrap."
 DEFINE_integer jobs -1 "How many packages to build in parallel at maximum."
 DEFINE_string cache_dir "" "Directory to store caches within."
@@ -258,9 +260,10 @@ if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
     eclean -e <(get_eclean_exclusions) packages'
 fi
 
-info "Updating portage"
-early_enter_chroot emerge -uNv --quiet --ignore-world portage
-
+if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
+  info "Updating portage"
+  early_enter_chroot emerge -uNv --quiet --ignore-world portage
+fi
 # Add chromite into python path.
 for python_path in "${FLAGS_chroot}/usr/lib/"python*.*; do
   python_path+="/site-packages"
@@ -268,48 +271,53 @@ for python_path in "${FLAGS_chroot}/usr/lib/"python*.*; do
   sudo ln -s -fT "${CHROOT_TRUNK_DIR}"/chromite "${python_path}"/chromite
 done
 
-# Now that many of the fundamental packages should be in a good state, update
-# the host toolchain.  We have to do this step by step ourselves to avoid races
-# when building tools that are actively used (e.g. updating the assembler while
-# also compiling other packages that use the assembler).
-# https://crbug.com/715788
-info "Updating host toolchain"
-TOOLCHAIN_ARGS=( --deleteold )
-if [[ "${FLAGS_usepkg}" == "${FLAGS_FALSE}" ]]; then
-  TOOLCHAIN_ARGS+=( --nousepkg )
-fi
-# First the low level compiler tools.  These should be fairly independent of
-# the C library, so we can do it first.
-early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
-  sys-devel/binutils
-# Next the C library.  The compilers often use newer features, but the C library
-# is often designed to work with older compilers.
-early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
-  sys-kernel/linux-headers sys-libs/glibc
+if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
+  # Now that many of the fundamental packages should be in a good state, update
+  # the host toolchain. We have to do this step by step ourselves to avoid
+  # races when building tools that are actively used (e.g. updating the
+  # assembler while also compiling other packages that use the assembler).
+  # https://crbug.com/715788
+  info "Updating host toolchain"
+  TOOLCHAIN_ARGS=( --deleteold )
+  if [[ "${FLAGS_usepkg}" == "${FLAGS_FALSE}" ]]; then
+    TOOLCHAIN_ARGS+=( --nousepkg )
+  fi
+  # First the low level compiler tools. These should be fairly independent of
+  # the C library, so we can do it first.
+  early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
+    sys-devel/binutils
+  # Next the C library. The compilers often use newer features,
+  # but the C library is often designed to work with older compilers.
+  early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
+    sys-kernel/linux-headers sys-libs/glibc
 
-# Next libcxx. This is required due to the migration to LLVM runtime builds.
-early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
-  sys-libs/libcxx
+  # Next libcxx. This is required due to the migration to LLVM runtime builds.
+  early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
+    sys-libs/libcxx
 
-# Now we can let the rest of the compiler packages build in parallel as they
-# don't generally rely on each other.
-# Note: early_enter_chroot executes as root.
-early_enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/cros_setup_toolchains" \
-    --hostonly "${TOOLCHAIN_ARGS[@]}"
+  # Now we can let the rest of the compiler packages build in parallel as they
+  # don't generally rely on each other.
+  # Note: early_enter_chroot executes as root.
+  early_enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/cros_setup_toolchains" \
+      --hostonly "${TOOLCHAIN_ARGS[@]}"
 
-# Update chroot.
-# Skip toolchain update because it already happened above, and the chroot is
-# not ready to emerge all cross toolchains.
-UPDATE_ARGS=( --skip_toolchain_update --noeclean )
-if [[ "${FLAGS_usepkg}" == "${FLAGS_TRUE}" ]]; then
-  UPDATE_ARGS+=( --usepkg )
+  # Update chroot.
+  # Skip toolchain update because it already happened above, and the chroot is
+  # not ready to emerge all cross toolchains.
+  UPDATE_ARGS=( --skip_toolchain_update --noeclean )
+  if [[ "${FLAGS_usepkg}" == "${FLAGS_TRUE}" ]]; then
+    UPDATE_ARGS+=( --usepkg )
+  else
+    UPDATE_ARGS+=( --nousepkg )
+  fi
+  if [[ "${FLAGS_jobs}" -ne -1 ]]; then
+    UPDATE_ARGS+=( --jobs="${FLAGS_jobs}" )
+  fi
+  enter_chroot "${CHROOT_TRUNK_DIR}/src/scripts/update_chroot" \
+    "${UPDATE_ARGS[@]}"
 else
-  UPDATE_ARGS+=( --nousepkg )
+  warn "SDK and toolchain update were skipped. It will eventually stop working."
 fi
-if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-  UPDATE_ARGS+=( --jobs="${FLAGS_jobs}" )
-fi
-enter_chroot "${CHROOT_TRUNK_DIR}/src/scripts/update_chroot" "${UPDATE_ARGS[@]}"
 
 # The java-config package atm does not support $ROOT.  Select a default
 # VM ourselves until that gets fixed upstream.
