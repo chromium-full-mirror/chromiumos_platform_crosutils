@@ -289,7 +289,7 @@ early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
 
 # Next libcxx. This is required due to the migration to LLVM runtime builds.
 early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
-  sys-libs/libcxxabi sys-libs/libcxx
+  sys-libs/libcxx
 
 # Now we can let the rest of the compiler packages build in parallel as they
 # don't generally rely on each other.
