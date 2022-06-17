@@ -108,10 +108,6 @@ eval set -- "${FLAGS_ARGV}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-# Determine build version.
-OVERLAY_CHROMEOS_DIR="${SRC_ROOT}/third_party/chromiumos-overlay/chromeos"
-# shellcheck source=../third_party/chromiumos-overlay/chromeos/config/chromeos_version.sh
-. "${OVERLAY_CHROMEOS_DIR}/config/chromeos_version.sh" || exit 1
 # N.B.  Ordering matters for some of the libraries below, because
 # some of the files contain initialization used by later files.
 # shellcheck source=build_library/board_options.sh
