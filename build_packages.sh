@@ -31,32 +31,6 @@ DEFINE_string board "${DEFAULT_BOARD}" \
 DEFINE_string board_root "" \
   "Emerge packages to board_root."
 
-# --run_goma option is designed to be used on bots.
-# If you're trying to build pacakges with goma in your local dev env, this is
-# *not* the option you're looking for. Please see comments below.
-# This option; 1) starts goma, 2) builds packages (expecting that goma is
-# used), then 3) stops goma explicitly.
-# 3) is a request from the goma team, so that stats/logs can be taken.
-# Note: GOMA_DIR and GOMA_SERVICE_ACCOUNT_JSON_FILE are expected to be passed
-# via env var.
-#
-# In local dev env cases, compiler_proxy is expected to keep running.
-# In such a case;
-#   $ python ${GOMA_DIR}/goma_ctl.py ensure_start
-#   $ ./build_packages (... and options without --run_goma ...)
-# is an expected commandline sequence. If you set --run_goma flag while
-# compiler_proxy is already running, the existing compiler_proxy will be
-# stopped.
-DEFINE_boolean run_goma "${FLAGS_FALSE}" \
-  "If set to true, (re)starts goma, builds packages, and then stops goma."
-
-# This option is for building chrome remotely.
-#1) starts reproxy 2) builds chrome with reproxy and 3) stops reproxy so
-# logs/stats can be collected.
-# Note: RECLIENT_DIR and REPROXY_CFG are expected to be passed via env var.
-DEFINE_boolean run_remoteexec "${FLAGS_FALSE}" \
-  "If set to true, starts RBE reproxy, builds packages, and then stops reproxy."
-
 # Parse command line
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
@@ -117,23 +91,6 @@ CRITICAL_SDK_PACKAGES=(
 
 info "Merging board packages now"
 (
-
-  # Start reproxy for remote execution of building chrome.
-  if [[ "${FLAGS_run_remoteexec}" -eq "${FLAGS_TRUE}" ]]; then
-    info "Starting RBE reproxy."
-    bootstrap="${RECLIENT_DIR}/bootstrap --cfg=${REPROXY_CFG} \
-      --re_proxy=${RECLIENT_DIR}/reproxy"
-    ${bootstrap}
-    trap "${bootstrap} --shutdown" EXIT
-  # Support goma on bots. This has to run in subshell, otherwise EXIT trap
-  # handler is overwritten.
-  elif [[ "${FLAGS_run_goma}" -eq "${FLAGS_TRUE}" ]]; then
-    info "Starting goma compiler_proxy."
-    goma_ctl="${GOMA_DIR:-${HOME}/goma}/goma_ctl.py"
-    "${goma_ctl}" restart
-    trap "'${goma_ctl}' stop" EXIT
-  fi
-
   info_run sudo -E "${EMERGE_CMD[@]}" "${EMERGE_FLAGS[@]}" "${PACKAGES[@]}" \
     --useoldpkg-atoms="${CRITICAL_SDK_PACKAGES[*]}" \
     --rebuild-exclude="${CRITICAL_SDK_PACKAGES[*]}"
