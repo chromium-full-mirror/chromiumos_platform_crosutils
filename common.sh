@@ -309,9 +309,6 @@ if [[ -f ${GCLIENT_ROOT}/src/scripts/.default_board ]]; then
   fi
 fi
 
-# Directory to store built images.  Should be set by sourcing script when used.
-BUILD_DIR=
-
 # Path to the verified boot directory where we get signing related keys/scripts.
 VBOOT_DIR="${CHROOT_TRUNK_DIR}/src/platform/vboot_reference"
 VBOOT_TESTKEYS_DIR="${VBOOT_DIR}/tests/testkeys"

@@ -139,21 +139,6 @@ if [[ ${FLAGS_eclean} -eq ${FLAGS_TRUE} ]]; then
   "${BOARD_ROOT}/build/bin/eclean" -d packages
 fi
 
-# Handle existing directory.
-if [[ -e "${BUILD_DIR}" ]]; then
-  if [[ ${FLAGS_replace} -eq ${FLAGS_TRUE} ]]; then
-    sudo rm -rf "${BUILD_DIR}"
-  else
-    error "Directory ${BUILD_DIR} already exists."
-    error "Use --build_attempt option to specify an unused attempt."
-    error "Or use --replace if you want to overwrite this directory."
-    die "Unwilling to overwrite ${BUILD_DIR}."
-  fi
-fi
-
-# Create the output directory and temporary mount points.
-mkdir -p "${BUILD_DIR}"
-
 # Create the base image.
 create_base_image "${PRISTINE_IMAGE_NAME}" \
   "${FLAGS_enable_rootfs_verification}" "${FLAGS_enable_bootcache}"

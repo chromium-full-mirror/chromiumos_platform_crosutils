@@ -9,24 +9,6 @@
 # one file aside from its lack of anywhere else to go.  Probably,
 # this file should get broken up or otherwise reorganized.
 
-# Use canonical path since some tools (e.g. mount) do not like symlinks.
-# Append build attempt to output directory.
-IMAGE_SUBDIR="R${CHROME_BRANCH}"
-if [ -z "${FLAGS_version}" ]; then
-  IMAGE_SUBDIR="${IMAGE_SUBDIR}-${CHROMEOS_VERSION_STRING}-a\
-${FLAGS_build_attempt}"
-else
-  IMAGE_SUBDIR="${IMAGE_SUBDIR}-${FLAGS_version}"
-fi
-
-if [ -n "${FLAGS_output_suffix}" ];  then
-  IMAGE_SUBDIR="${IMAGE_SUBDIR}-${FLAGS_output_suffix}"
-fi
-
-BUILD_DIR="${FLAGS_build_root}/${BOARD}/${IMAGE_SUBDIR}"
-OUTPUT_DIR="${FLAGS_output_root}/${BOARD}/${IMAGE_SUBDIR}"
-OUTSIDE_OUTPUT_DIR="../build/images/${BOARD}/${IMAGE_SUBDIR}"
-
 EMERGE_BOARD_CMD="${CHROMITE_BIN}/parallel_emerge"
 EMERGE_BOARD_CMD="$EMERGE_BOARD_CMD --board=$BOARD"
 
