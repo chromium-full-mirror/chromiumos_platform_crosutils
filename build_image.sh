@@ -96,8 +96,6 @@ DEFINE_string version "" \
   "Overrides version number in name to this version."
 DEFINE_string output_suffix "" \
   "Add custom suffix to output directory."
-DEFINE_boolean eclean ${FLAGS_TRUE} \
-  "Do NOT call eclean before building the image (default is to call eclean)."
 
 # Parse command line.
 FLAGS "$@" || exit 1
@@ -134,10 +132,6 @@ load_board_specific_script "board_specific_setup.sh"
 sudo_clear_shadow_locks "/build/${FLAGS_board}"
 
 # TODO: <prebuild hook>
-
-if [[ ${FLAGS_eclean} -eq ${FLAGS_TRUE} ]]; then
-  "${BOARD_ROOT}/build/bin/eclean" -d packages
-fi
 
 # Create the base image.
 create_base_image "${PRISTINE_IMAGE_NAME}" \
