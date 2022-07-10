@@ -345,6 +345,7 @@ COMMON_INSTALL_MASK="
   *.hxx
   *.proto
   */.keep*
+  /build/bin
   /build/initramfs
   /build/libexec/tast
   /build/manatee
