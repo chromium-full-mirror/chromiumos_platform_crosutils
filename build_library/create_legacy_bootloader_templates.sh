@@ -60,7 +60,7 @@ fi
 # TODO: This code to support modifying kernel command line by boards is very
 # similar to the one in build_kernel_image.sh. This could be refactored into a
 # common place. Until then it needs to be kept consistent.
-config_file="$(mktemp legacy_config_XXXXXXXXXX.txt)"
+config_file="$(mktemp --tmpdir legacy_config_XXXXXXXXXX.txt)"
 cleanup() {
   rm -f "${config_file}"
 }
