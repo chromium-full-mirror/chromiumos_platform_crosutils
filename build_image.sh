@@ -41,8 +41,6 @@ DEFINE_boolean enable_bootcache ${FLAGS_FALSE} \
 DEFINE_boolean enable_rootfs_verification ${FLAGS_TRUE} \
   "Default all bootloaders to use kernel-based root fs integrity checking." \
   r
-DEFINE_string output_root "${DEFAULT_BUILD_ROOT}/images" \
-  "Directory in which to place image result directories (named by version)"
 DEFINE_string disk_layout "default" \
   "The disk layout type to use for this image."
 DEFINE_string enable_serial "" \
@@ -82,20 +80,8 @@ adjust_part='STATE:=1G' --  make the stateful partition 1 GB
 # The following options are advanced options, only available to those willing
 # to read the source code. They are not shown in help output, since they are
 # not needed for the typical developer workflow.
-DEFINE_integer build_attempt 1 \
-  "The build attempt for this image build."
-DEFINE_string build_root "${DEFAULT_BUILD_ROOT}/images" \
-  "Directory in which to compose the image, before copying it to output_root."
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
-DEFINE_boolean replace ${FLAGS_FALSE} \
-  "Overwrite existing output, if any."
-DEFINE_string symlink "latest" \
-  "Symlink name to use for this image."
-DEFINE_string version "" \
-  "Overrides version number in name to this version."
-DEFINE_string output_suffix "" \
-  "Add custom suffix to output directory."
 
 # Parse command line.
 FLAGS "$@" || exit 1
@@ -155,34 +141,12 @@ if should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
   mod_image_for_test  "${CHROMEOS_TEST_IMAGE_NAME}"
 fi
 
-# Move the completed image to the output_root.
-move_image "${BUILD_DIR}" "${OUTPUT_DIR}"
-
-# Copy DLC images to the output_root directory.
-info_run build_dlc \
-  --sysroot="${BOARD_ROOT}" \
-  --install-root-dir="${OUTPUT_DIR}/dlc" \
-  --board="${BOARD}"
-
-# Create a named symlink.
-LINK_NAME="${FLAGS_output_root}/${BOARD}/${FLAGS_symlink}"
-ln -sfT "$(basename "${OUTPUT_DIR}")" "${LINK_NAME}"
-
-info "Done. Image(s) created in ${OUTPUT_DIR}"
 echo
 
 # Print out the images we generated.
 summarize() {
   local name="$1" img="$2"
-  local dir_path
-
-  # __flags_output_root_default defined in shflags.
-  # shellcheck disable=2154
-  if [[ "${FLAGS_output_root}" == "${__flags_output_root_default}" ]]; then
-    dir_path=${OUTSIDE_OUTPUT_DIR}
-  else
-    dir_path="${OUTPUT_DIR}"
-  fi
+  local dir_path="${OUTPUT_DIR}"
 
   info "${name} image created as ${img}"
   info "To copy the image to a USB key, use:"
