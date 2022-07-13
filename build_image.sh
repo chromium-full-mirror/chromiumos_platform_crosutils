@@ -140,38 +140,3 @@ if should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
   copy_image  "${CHROMEOS_DEVELOPER_IMAGE_NAME}" "${CHROMEOS_TEST_IMAGE_NAME}"
   mod_image_for_test  "${CHROMEOS_TEST_IMAGE_NAME}"
 fi
-
-echo
-
-# Print out the images we generated.
-summarize() {
-  local name="$1" img="$2"
-  local dir_path="${OUTPUT_DIR}"
-
-  info "${name} image created as ${img}"
-  info "To copy the image to a USB key, use:"
-  info "  cros flash usb:// ${dir_path}/${img}"
-  info "To flash the image to a Chrome OS device, use:"
-  info "  cros flash YOUR_DEVICE_IP ${dir_path}/${img}"
-  info "Note that the device must be accessible over the network."
-  info "A base image will not work in this mode, but a test or dev image will."
-  if [[ $# -ge 3 ]]; then
-    info "To run the image in a virtual machine, use:"
-    info "  cros_vm --start --image-path=${dir_path}/${img} --board=${BOARD}"
-  fi
-  echo
-}
-if should_build_image "${CHROMEOS_BASE_IMAGE_NAME}"; then
-  summarize "Non-developer Chromium OS" "${PRISTINE_IMAGE_NAME}"
-fi
-if should_build_image "${CHROMEOS_FACTORY_SHIM_NAME}"; then
-  summarize "Chromium OS Factory install shim" "${PRISTINE_IMAGE_NAME}"
-fi
-if should_build_image "${CHROMEOS_DEVELOPER_IMAGE_NAME}"; then
-  summarize "Developer" "${CHROMEOS_DEVELOPER_IMAGE_NAME}" ""
-fi
-if should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
-  summarize "Test" "${CHROMEOS_TEST_IMAGE_NAME}" "--test"
-fi
-
-command_completed
