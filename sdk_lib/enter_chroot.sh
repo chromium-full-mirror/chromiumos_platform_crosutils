@@ -83,6 +83,10 @@ switch_to_strict_mode
 FILES_TO_COPY_TO_CHROOT=(
   # Creds used to authenticate with LUCI services.
   .config/chrome_infra/auth/creds.json
+
+  # Creds used to authenticate with GCP services.
+  .config/gcloud/application_default_credentials.json
+
   .gdata_cred.txt             # User/password for Google Docs on chromium.org
   .gdata_token                # Auth token for Google Docs on chromium.org
   .goma_client_oauth2_config  # Auth token for Goma
