@@ -4,4 +4,6 @@
 
 # Clean local portage caches. We have stale mojom headers in chroot after camera
 # package consolidation (b/177958529).
+# Clean local portage caches. We have stale intermediates after the protobuf
+# # upgrade (crbug.com/1346059).
 sudo rm -rf /var/cache/portage/* /build/*/var/cache/portage/*
