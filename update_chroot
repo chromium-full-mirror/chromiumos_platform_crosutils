@@ -14,7 +14,7 @@ assert_inside_chroot "$@"
 assert_not_root_user
 
 # Developer-visible flags.
-DEFINE_boolean usepkg $FLAGS_TRUE \
+DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap."
 
 FLAGS_HELP="usage: $(basename $0) [flags]
@@ -27,11 +27,12 @@ build_packages, so there is typically no need to call this script directly.
 # not needed for the typical developer workflow.
 DEFINE_integer jobs -1 \
   "How many packages to build in parallel at maximum."
-DEFINE_boolean skip_toolchain_update $FLAGS_FALSE \
+DEFINE_boolean skip_toolchain_update "${FLAGS_FALSE}" \
   "Don't update the toolchains."
 DEFINE_string toolchain_boards "" \
   "Extra toolchains to setup for the specified boards."
 DEFINE_boolean eclean "${FLAGS_TRUE}" "Run eclean to delete old binpkgs."
+DEFINE_integer backtrack 10 "See emerge --backtrack."
 
 # Parse command line flags
 FLAGS "$@" || exit 1
@@ -41,7 +42,7 @@ eval set -- "${FLAGS_ARGV}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
-. ${SCRIPTS_DIR}/sdk_lib/make_conf_util.sh
+. "${SCRIPTS_DIR}"/sdk_lib/make_conf_util.sh
 
 # Run version hooks as pre-update
 run_chroot_version_hooks
@@ -103,7 +104,7 @@ fi
 
 info "Updating the SDK"
 
-EMERGE_FLAGS=( -uNv --with-bdeps=y --backtrack=30 )
+EMERGE_FLAGS=( -uNv --with-bdeps=y --backtrack="${FLAGS_backtrack}" )
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=( --getbinpkg )
 
@@ -134,7 +135,7 @@ done
 
 # Second pass, update everything else.
 EMERGE_FLAGS+=( --deep )
-info_run sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}" virtual/target-sdk world
+info_run sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}" virtual/target-sdk world
 
 # Install post cross packages if binary pkgs are available.
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
@@ -144,7 +145,7 @@ if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   EMERGE_FLAGS+=(
     $("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host-post-cross)
   )
-  sudo -E ${EMERGE_CMD} "${EMERGE_FLAGS[@]}"
+  sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}"
 
   # Install nobdeps packages only when binary pkgs are available, since we don't
   # want to accidentally pull in build deps for a rebuild.
