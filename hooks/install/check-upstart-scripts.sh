@@ -93,7 +93,6 @@ known_bad_oom() {
   chromeos-base/chromeos-firewall-init|\
   chromeos-base/chromeos-firewall-init-mobbase|\
   chromeos-base/chromeos-imageburner|\
-  chromeos-base/chromeos-init|\
   chromeos-base/chromeos-installer|\
   chromeos-base/chromeos-login|\
   chromeos-base/chromeos-machine-id-regen|\
