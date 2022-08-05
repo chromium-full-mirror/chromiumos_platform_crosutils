@@ -27,8 +27,7 @@ DEFINE_string partition "" "Override kernel partition reported by target"
 DEFINE_string rootoff "" "Override root offset"
 DEFINE_string rootfs "" "Override rootfs partition reported by target"
 DEFINE_string arch "" "Override architecture reported by target"
-DEFINE_boolean clean "${FLAGS_FALSE}" \
-  "Remove old files before sending new files"
+DEFINE_boolean clean "${FLAGS_TRUE}" "Remove old files before sending new files"
 DEFINE_boolean hv "${FLAGS_TRUE}" "Use hypervisor kernel if available."
 DEFINE_boolean ignore_verity "${FLAGS_FALSE}" "Update kernel even if system \
 is using verity (WARNING: likely to make the system unable to boot)"
