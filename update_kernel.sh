@@ -70,15 +70,6 @@ learn_device() {
   info "Target reports root device is ${FLAGS_device}"
 }
 
-# Delete the fixed numbers after R65 when we don't care about <R57 upgrades.
-load_default_partition_numbers() {
-  PARTITION_NUM_KERN_A=2
-  PARTITION_NUM_ROOT_A=3
-  PARTITION_NUM_KERN_B=4
-  PARTITION_NUM_ROOT_B=5
-  PARTITION_NUM_EFI_SYSTEM=12
-}
-
 # Ask the target what the kernel partition is
 learn_partition_and_ro() {
   remote_sh rootdev || die_notrace
@@ -269,6 +260,14 @@ mark_boot_once() {
 
 update_syslinux_kernel() {
   local basedir="$1" # rootfs directory (could be in /tmp) or empty string
+
+  # All systems _should_ have the EFI variables defined, but we already make
+  # syslinux updates optional, so make this optional too.
+  if [[ -z "${PARTITION_NUM_EFI_SYSTEM}" ]]; then
+    warn "Target is missing EFI partition info; skipping syslinux"
+    return
+  fi
+
   # ARM does not have the syslinux directory, so skip it when the
   # partition is missing, the file system fails to mount, or the syslinux
   # vmlinuz target is missing.
@@ -326,9 +325,11 @@ main() {
   learn_device
 
   learn_partition_layout
-  if [[ -z "${PARTITION_NUM_KERN_A}" ]]; then
-    info "Target has no partition number info, use default instead"
-    load_default_partition_numbers
+  if [[ -z "${PARTITION_NUM_KERN_A}" ||
+        -z "${PARTITION_NUM_KERN_B}" ||
+        -z "${PARTITION_NUM_ROOT_A}" ||
+        -z "${PARTITION_NUM_ROOT_B}" ]]; then
+    die_notrace "Target is missing partition number info"
   fi
 
   learn_partition_and_ro
