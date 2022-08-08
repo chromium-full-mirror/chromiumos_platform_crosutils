@@ -13,6 +13,14 @@ SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 # Script must be run inside the chroot.
 restart_in_chroot_if_needed "$@"
 
+FLAGS_HELP="usage: $(basename "$0") [flags]
+
+Updates the kernel on a target CrOS system. Supports both real hardware and
+QEMU VMs (e.g., betty/amd64-generic with 'cros_vm'). Note that there are some
+assumptions about the CrOS verified boot chain, so command-line updates may not
+work well on non-vboot systems (such as BIOS or EFI boot on QEMU).
+"
+
 DEFINE_string board "" "Override board reported by target"
 DEFINE_string device "" "Override boot device reported by target"
 DEFINE_string partition "" "Override kernel partition reported by target"
