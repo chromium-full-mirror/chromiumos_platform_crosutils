@@ -965,7 +965,7 @@ def WritePartitionSizesFunction(options, slines, func, image_type, config,
                 ('FORMAT_', part_format),
                 ('FS_FORMAT_', fs_format)]
         sargs = [('FS_OPTIONS_', fs_options),
-                ('PARTITION_NUM_', partition_num)]
+                 ('PARTITION_NUM_', partition_num)]
         for arg, value in args:
           label = arg + shell_label
           lines += ['%s=%s' % (label, value),]
@@ -973,7 +973,7 @@ def WritePartitionSizesFunction(options, slines, func, image_type, config,
         for arg, value in sargs:
           label = arg + shell_label
           lines += ['%s="%s"' % (label, value),]
-          data[func_name][label] = '"%s"' % value
+          data[func_name][label] = '%s' % value
   slines += '%s\n}\n\n' % '\n  '.join(lines)
 
 
