@@ -115,8 +115,6 @@ IMAGES_TO_BUILD="$*"
 
 load_board_specific_script "board_specific_setup.sh"
 
-sudo_clear_shadow_locks "/build/${FLAGS_board}"
-
 # TODO: <prebuild hook>
 
 # Create the base image.
