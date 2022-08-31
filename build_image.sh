@@ -18,6 +18,14 @@ if [[ "$1" != "--script-is-run-only-by-chromite-and-not-users" ]]; then
     'Please run `build_images` from $PATH (in chromite/bin/) instead.'
 fi
 
+# Make sure we run with network disabled to prevent leakage.
+if [[ -z ${UNSHARE} ]]; then
+  if [[ $(id -u) -ne 0 ]]; then
+    exec sudo -E env PATH="${PATH}" "$0" "$@"
+  fi
+  exec unshare -n -- sudo -E UNSHARE=true -u "${SUDO_USER}" -- "$0" "$@"
+fi
+
 # Discard the 'script-is-run-only-by-chromite-and-not-users' flag.
 shift
 
