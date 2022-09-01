@@ -6,6 +6,12 @@
 # Detect 32bit builds that are using legacy 32bit file interfaces.
 # https://en.wikipedia.org/wiki/Large_file_support
 
+# Set ebuild vars to make shellcheck happy.
+: "${ARCH:=}"
+: "${D:=/}"
+: "${RESTRICT:=}"
+: "${WORKDIR:=}"
+
 # Lists gleaned from headers and this doc:
 # http://people.redhat.com/berrange/notes/largefile.html
 # http://opengroup.org/platform/lfs.html
@@ -110,9 +116,10 @@ SYMBOLS_REGEX="^(${SYMBOLS_REGEX%|})$"
 
 check_lfs()
 {
-  local files=$(scanelf -F '%s %p' -qRgs "-${SYMBOLS_REGEX}" "$@")
+  local files
 
-  if [[ -n ${files} ]]; then
+  files=$(scanelf -F '%s %p' -qRgs "-${SYMBOLS_REGEX}" "$@")
+  if [[ -n "${files}" ]]; then
     echo
     eqawarn "QA Notice: The following files were not built with LFS support:"
     eqawarn "  Please see http://crbug.com/464024 for details."
@@ -123,7 +130,7 @@ check_lfs()
 
 # Only check on 32bit systems.  Filtering by $ARCH here isn't perfect, but it
 # should be good enough for our needs so far.
-case ${ARCH} in
+case "${ARCH}" in
 arm|mips|ppc|sh|x86)
   if [[ " ${RESTRICT} " == *" binchecks "* ]] ; then
     check_lfs "${D}"
