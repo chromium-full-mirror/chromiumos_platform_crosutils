@@ -130,10 +130,12 @@ check_lfs()
   fi
 }
 
-# Only check on 32bit systems.  Filtering by $ARCH here isn't perfect, but it
+# Only check on 32-bit systems.  Filtering by $ARCH here isn't perfect, but it
 # should be good enough for our needs so far.
 case "${ARCH}" in
-arm|mips|ppc|sh|x86)
+amd64|arm64|"")
+  ;;
+*)
   if [[ " ${RESTRICT} " != *" binchecks "* ]]; then
     check_lfs "${D}"
   fi
