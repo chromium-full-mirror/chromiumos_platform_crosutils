@@ -120,12 +120,14 @@ check_lfs()
 {
   local files
 
-  files=$(scanelf -F '%s %p' -qRgs "-${SYMBOLS_REGEX}" "$@")
+  files=$(scanelf -F '%s %p' -qyRgs "-${SYMBOLS_REGEX}" "$@")
   if [[ -n "${files}" ]]; then
     echo
     eqawarn "QA Notice: The following files were not built with LFS support:"
     eqawarn "  Please see ${DOC_URL} for details."
     eqawarn "${files}"
+    eqawarn "Full build files:"
+    scanelf -F '%s %F' -qyRgs "-${SYMBOLS_REGEX}" "${WORKDIR:-}"
     echo
   fi
 }
