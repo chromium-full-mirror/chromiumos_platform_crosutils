@@ -490,8 +490,7 @@ check_lfs()
     echo
 
     if ! known_bad_pkg; then
-      # TODO(vapier): Enable this.
-      : die "package needs LFS support enabled -- see ${DOC_URL}"
+      die "package needs LFS support enabled -- see ${DOC_URL}"
     fi
   else
     if known_bad_pkg; then
