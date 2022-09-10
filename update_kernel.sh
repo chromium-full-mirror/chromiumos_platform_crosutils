@@ -231,17 +231,24 @@ check_buildid() {
 
 copy_kernelmodules() {
   local basedir="$1" # rootfs directory (could be in /tmp) or empty string
+  local old_kern_ver="$2"
+  local new_kern_ver="$3"
   local modules_dir=/build/"${FLAGS_board}"/lib/modules/
   if [ ! -d "${modules_dir}" ]; then
     info "No modules. Skipping."
     return
   fi
   if [[ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]]; then
-    info "Cleaning /lib/modules"
-    remote_sh rm -rf "${basedir}/lib/modules/*"
+    info "Cleaning and copying modules"
+    if [[ "${old_kern_ver}" != "${new_kern_ver}" ]]; then
+      remote_sh mv "${basedir}/lib/modules/${old_kern_ver}" \
+        "${basedir}/lib/modules/${new_kern_ver}" || true
+    fi
+    remote_send_to "${modules_dir}" "${basedir}"/lib/modules --delete
+  else
+    info "Copying modules"
+    remote_send_to "${modules_dir}" "${basedir}"/lib/modules
   fi
-  info "Copying modules"
-  remote_send_to "${modules_dir}" "${basedir}"/lib/modules
 }
 
 copy_kernelimage() {
@@ -249,9 +256,8 @@ copy_kernelimage() {
 }
 
 check_kernelbuildtime() {
-  local version
+  local version="$1"
   local build_dir
-  version=$(readlink "/build/${FLAGS_board}/boot/vmlinuz" | cut -d- -f2-)
   build_dir="/build/${FLAGS_board}/lib/modules/${version}/build"
   if [ "${build_dir}/Makefile" -nt "/build/${FLAGS_board}/boot/vmlinuz" ]; then
     warn "Your build directory has been built more recently than"
@@ -313,6 +319,9 @@ multi_main() {
 }
 
 main() {
+  local old_kern_ver
+  local new_kern_ver
+
   # If there are commas in the --remote, run the script in parallel.
   if [[ ${FLAGS_remote} == *,* ]]; then
     multi_main
@@ -346,10 +355,13 @@ main() {
   fi
 
   remote_sh uname -r -v
-
   old_kernel="${REMOTE_OUT}"
 
-  check_kernelbuildtime
+  remote_sh uname -r
+  old_kern_ver="${REMOTE_OUT}"
+  new_kern_ver=$(readlink "/build/${FLAGS_board}/boot/vmlinuz" | cut -d- -f2-)
+
+  check_kernelbuildtime "${new_kern_ver}"
 
   if [[ "${FLAGS_vboot}" -eq "${FLAGS_TRUE}" ]]; then
     make_kernelimage
@@ -367,27 +379,33 @@ main() {
 
     if [[ ${FLAGS_syslinux} -eq ${FLAGS_TRUE} ]]; then
       if [[ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]]; then
-        info "Cleaning /boot"
-        remote_sh rm -rf \
-                  "${remote_basedir}"/boot/{Image,System,config,vmlinuz}'*'
+        info "Cleaning /boot, copying syslinux and /boot"
+        if [[ "${old_kern_ver}" != "${new_kern_ver}" ]]; then
+          remote_sh rename "${old_kern_ver}" "${new_kern_ver}" "/boot/*" || true
+        fi
+        remote_send_to /build/"${FLAGS_board}"/boot/ "${remote_basedir}"/boot/ \
+          --delete
+      else
+        info "Copying syslinux and /boot"
+        remote_send_to /build/"${FLAGS_board}"/boot/ "${remote_basedir}"/boot/
       fi
-      info "Copying syslinux and /boot"
-      remote_send_to /build/"${FLAGS_board}"/boot/ "${remote_basedir}"/boot/
       update_syslinux_kernel "${remote_basedir}"
     else
       info "Skipping syslinux and /boot (per request)"
     fi
 
-    copy_kernelmodules "${remote_basedir}"
+    copy_kernelmodules "${remote_basedir}" "${old_kern_ver}" "${new_kern_ver}"
 
     if [[ ${FLAGS_firmware} -eq ${FLAGS_TRUE} ]]; then
       if [[ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]]; then
-        info "Cleaning /lib/firmware"
-        remote_sh rm -rf "${remote_basedir}/lib/firmware/*"
+        info "Cleaning and copying firmware (per request)"
+        remote_send_to /build/"${FLAGS_board}"/lib/firmware/ \
+                       "${remote_basedir}"/lib/firmware/ --delete
+      else
+        info "Copying firmware (per request)"
+        remote_send_to /build/"${FLAGS_board}"/lib/firmware/ \
+                       "${remote_basedir}"/lib/firmware/
       fi
-      info "Copying firmware (per request)"
-      remote_send_to /build/"${FLAGS_board}"/lib/firmware/ \
-                     "${remote_basedir}"/lib/firmware/
     fi
     if [[ ${REMOTE_NEEDS_ROOTFS_MOUNTED} -eq ${FLAGS_TRUE} ]]; then
       remote_sh umount "${remote_basedir}"
