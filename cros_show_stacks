@@ -105,7 +105,9 @@ main() {
     # duplicate crashes (in case cryptohome is not mounted) below.
     local remote_crash_dirs=(
         "/var/spool/crash"
+        "/home/chronos/crash"
         "/home/user/*/crash"
+        "/run/daemon-store/crash/*"
         "/mnt/stateful_partition/home/user/*/crash"
     )
     local remote_crash_patterns=()
