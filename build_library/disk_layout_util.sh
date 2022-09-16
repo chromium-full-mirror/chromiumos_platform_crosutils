@@ -6,7 +6,9 @@
 # is sourced as ${BUILD_LIBRARY_DIR}/disk_layout_util.sh
 . "${BUILD_LIBRARY_DIR}/filesystem_util.sh" || exit 1
 
-CGPT_PY="${BUILD_LIBRARY_DIR}/cgpt.py"
+# shellcheck disable=SC2154
+CGPT_PY="${GCLIENT_ROOT}/chromite/scripts/disk_layout_tool"
+# shellcheck disable=SC2034
 PARTITION_SCRIPT_PATH="usr/sbin/write_gpt.sh"
 DISK_LAYOUT_PATH=
 
