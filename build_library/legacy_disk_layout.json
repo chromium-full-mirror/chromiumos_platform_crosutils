@@ -123,6 +123,7 @@
         "fs_format": "ext2",
         "fs_options": {
           "squashfs": "-noI -no-exports -comp lzo -Xalgorithm lzo1x_999 -Xcompression-level 9",
+          "ext2": "-i 65536",
           "btrfs": "skinny-metadata"
         },
         "size": "2048 MiB",
@@ -166,7 +167,10 @@
       {
         "num": 3,
         "size": "420 MiB",
-        "fs_size": "400 MiB"
+        "fs_size": "400 MiB",
+        "fs_options": {
+          "ext2": "-i 32768"
+        }
       },
       {
         "num": 1,
