@@ -29,7 +29,7 @@ eval set -- "${FLAGS_ARGV}"
 
 switch_to_strict_mode
 # build_packages artifact output.
-SYSROOT="${GCLIENT_ROOT}/chroot/build/${FLAGS_board}"
+SYSROOT="/build/${FLAGS_board}"
 # build_image artifact output.
 
 if [ -n "${FLAGS_image_dir}" ]; then
