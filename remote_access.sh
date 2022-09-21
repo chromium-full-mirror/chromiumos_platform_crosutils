@@ -110,9 +110,10 @@ remote_rsync_from() {
 # Send a directory from $1 to $2 on remote host
 #
 # Tries to use rsync -a but will fall back to tar if the remote doesn't
-# have rsync.
+# have rsync.  The optional rsync flags are ignored if we fall back to tar.
 #
-# Use like: remote_send_to /build/board/lib/modules/ /lib/modules/
+# Use like:
+# remote_send_to /build/board/lib/modules/ /lib/modules/ [optional rsync flags]
 remote_send_to() {
   local rsync_rem
   if [ ! -d "$1" ]; then
@@ -121,7 +122,7 @@ remote_send_to() {
 
   if remote_sh rsync --version >/dev/null 2>&1; then
     rsync_rem="$(brackets_enclosed_if_ipv6 "${FLAGS_remote}")"
-    remote_rsync_raw -a "$1/" root@"${rsync_rem}:$2/"
+    remote_rsync_raw -a "${@:3}" "$1/" root@"${rsync_rem}:$2/"
   else
     tar -C "$1" -cz . | remote_sh tar -C "$2" -xz
   fi
