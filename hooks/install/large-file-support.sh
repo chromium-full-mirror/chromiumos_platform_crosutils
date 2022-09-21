@@ -204,12 +204,13 @@ known_bad_pkg() {
   chromeos-base/infineon-firmware-updater:1.1.2459.0|\
   chromeos-base/ippusb_bridge:0.0.1|\
   chromeos-base/libevdev:0.0.1|\
+  chromeos-base/libhwsec:0.0.1|\
   chromeos-base/manatee-runtime:0.1.0|\
   chromeos-base/memd:0.1.0|\
   chromeos-base/mttools:0.0.1|\
-  chromeos-base/perfetto:28.0|\
+  chromeos-base/perfetto:29.0|\
   chromeos-base/perfetto_simple_producer:0.0.1|\
-  chromeos-base/pixart_tpfwup:0.0.1|\
+  chromeos-base/pixart_tpfwup:0.0.3|\
   chromeos-base/sirenia:0.24.52|\
   chromeos-base/sommelier:0.0.1|\
   chromeos-base/resourced:0.1.0|\
@@ -277,7 +278,7 @@ known_bad_pkg() {
   dev-util/glslang:1.3.211|\
   dev-util/hdctools:0.0.1|\
   dev-rust/manatee-client:0.24.52|\
-  dev-util/perf:5.15|\
+  dev-util/perf:5.15*|\
   dev-util/rt-tests:2.2|\
   dev-util/spirv-tools:1.3.211|\
   dev-util/trace-cmd:3.1.2|\
@@ -299,14 +300,14 @@ known_bad_pkg() {
   media-libs/arc-mali-drivers-valhall:25.0|\
   media-libs/arc-mesa-freedreno:22.3.*|\
   media-libs/arc-mesa-img:21.3*|\
-  media-libs/arc-mesa-virgl:22.0.*|\
+  media-libs/arc-mesa-virgl:22.3*|\
   media-libs/clvk:0.0.1|\
   media-libs/cros-camera-document-scanner-dlc:2022.08.05|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
   media-libs/dlm:0.0.1|\
   media-libs/freeimage:3.15.3|\
-  media-libs/freetype:2.9|\
+  media-libs/freetype:2.12*|\
   media-libs/ladspa-sdk:1.13|\
   media-libs/lcms:2.12|\
   media-libs/libjpeg-turbo:2.1.1|\
@@ -328,6 +329,7 @@ known_bad_pkg() {
   media-libs/rockchip-isp1-3a-libs-bin:2018.06.28|\
   media-libs/sbc:1.3|\
   media-libs/shaderc:2022.1|\
+  media-libs/skia:106|\
   media-libs/tiff:4.3.0|\
   media-libs/vulkan-layers:1.3.211|\
   media-libs/vulkan-loader:1.3.211|\
@@ -335,12 +337,15 @@ known_bad_pkg() {
   media-plugins/alsa-plugins:1.1.6|\
   media-sound/adhd:0.0.6|\
   media-sound/alsa-utils:1.2.1|\
+  media-sound/audio_streams_conformance_test:0.1.0|\
   media-sound/cras_bench:0.0.1|\
   media-sound/cras_tests:0.1.0|\
   media-sound/gsm:1.0.13|\
   media-sound/sound_card_init:0.1.0|\
   media-tv/v4l-utils:1.22.1|\
   media-video/yavta:0.0.1|\
+  net-analyzer/netcat:110.20180111|\
+  net-analyzer/netdata:1.34.1|\
   net-analyzer/netperf:2.7.0|\
   net-analyzer/tcpdump:4.9.3|\
   net-analyzer/traceroute:2.1.0|\
