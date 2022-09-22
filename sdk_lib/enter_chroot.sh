@@ -100,7 +100,6 @@ fi
 
 INNER_CHROME_ROOT=$FLAGS_chrome_root_mount  # inside chroot
 CHROME_ROOT_CONFIG="/var/cache/chrome_root"  # inside chroot
-FUSE_DEVICE="/dev/fuse"
 
 # We can't use /var/lock because that might be a symlink to /run/lock outside
 # of the chroot.  Or /run on the host system might not exist.
@@ -615,13 +614,6 @@ setup_env() {
         setup_mount "$CHROME_ROOT" --bind "$INNER_CHROME_ROOT"
         setup_gclient_cache_dir_mount "$CHROME_ROOT"
       fi
-    fi
-
-    # Install fuse module.  Skip modprobe when possible for slight
-    # speed increase when initializing the env.
-    if [ -c "${FUSE_DEVICE}" ] && ! grep -q fuse /proc/filesystems; then
-      modprobe fuse 2> /dev/null ||\
-        warn "-- Note: modprobe fuse failed.  gmergefs will not work"
     fi
 
     # Bind mount the host kernel modules read-only so modprobe can be used
