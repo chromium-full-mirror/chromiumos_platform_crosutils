@@ -412,6 +412,7 @@ known_bad_pkg() {
   sys-apps/flashmap:0.3|\
   sys-apps/flashrom-tester:1.6.0|\
   sys-apps/groff:1.22.4|\
+  sys-apps/haveged:1.9.14|\
   sys-apps/hdparm:9.63|\
   sys-apps/i2c-tools:4.0|\
   sys-apps/install-xattr:0.5|\
