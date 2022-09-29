@@ -297,7 +297,9 @@ known_bad_pkg() {
   media-libs/arc-img-ddk:1.13.5824814|\
   media-libs/arc-mali-drivers:1.20|\
   media-libs/arc-mali-drivers-bifrost:25.0|\
+  media-libs/arc-mali-drivers-bifrost-bin:25.0*|\
   media-libs/arc-mali-drivers-valhall:25.0|\
+  media-libs/arc-mali-drivers-valhall-bin:25.0*|\
   media-libs/arc-mesa-freedreno:22.3.*|\
   media-libs/arc-mesa-img:21.3*|\
   media-libs/arc-mesa-virgl:22.3*|\
@@ -317,8 +319,11 @@ known_bad_pkg() {
   media-libs/libvorbis:1.3.7|\
   media-libs/libyuv-test:1774|\
   media-libs/mali-drivers:1.20|\
+  media-libs/mali-drivers-bin:1.20*|\
   media-libs/mali-drivers-bifrost:32.0|\
+  media-libs/mali-drivers-bifrost-bin:32.0*|\
   media-libs/mali-drivers-valhall:32.0|\
+  media-libs/mali-drivers-valhall-bin:32.0*|\
   media-libs/mtk-isp-3a-libs-bin:0.0.8|\
   media-libs/mtk-tuning-libs-bin:0.0.34|\
   media-libs/opencl-cts:0.0.1|\
