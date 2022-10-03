@@ -324,6 +324,8 @@ known_bad_pkg() {
   media-libs/mali-drivers-bifrost-bin:32.0*|\
   media-libs/mali-drivers-valhall:32.0|\
   media-libs/mali-drivers-valhall-bin:32.0*|\
+  media-libs/mesa-freedreno:22.3.*|\
+  media-libs/mesa-img:21.3*|\
   media-libs/mtk-isp-3a-libs-bin:0.0.8|\
   media-libs/mtk-tuning-libs-bin:0.0.34|\
   media-libs/opencl-cts:0.0.1|\
