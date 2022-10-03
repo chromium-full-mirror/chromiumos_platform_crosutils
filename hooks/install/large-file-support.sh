@@ -307,6 +307,7 @@ known_bad_pkg() {
   media-libs/cros-camera-document-scanner-dlc:2022.08.05|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
+  media-libs/cros-camera-sw-privacy-switch-test:0.0.1|\
   media-libs/dlm:0.0.1|\
   media-libs/freeimage:3.15.3|\
   media-libs/freetype:2.12*|\
