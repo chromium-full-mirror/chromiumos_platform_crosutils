@@ -357,8 +357,6 @@ main() {
   remote_sh uname -r -v
   old_kernel="${REMOTE_OUT}"
 
-  remote_sh uname -r
-  old_kern_ver="${REMOTE_OUT}"
   new_kern_ver=$(readlink "/build/${FLAGS_board}/boot/vmlinuz" | cut -d- -f2-)
 
   check_kernelbuildtime "${new_kern_ver}"
@@ -377,11 +375,23 @@ main() {
       remote_sh mount -o remount,rw /
     fi
 
+    # Getting the old kernel version from /boot/vmlinuz is the most reliable,
+    # but this file doesn't exist on ARM.  In that case we fall back to the
+    # most recently installed kernel in /lib/modules.
+    if remote_sh "test -f '${remote_basedir}/boot/vmlinuz'"; then
+      remote_sh readlink "${remote_basedir}/boot/vmlinuz"
+      old_kern_ver="$(echo "${REMOTE_OUT}" | cut -d- -f2-)"
+    else
+      remote_sh "ls -t ${remote_basedir}/lib/modules | head -1"
+      old_kern_ver="${REMOTE_OUT}"
+    fi
+
     if [[ ${FLAGS_syslinux} -eq ${FLAGS_TRUE} ]]; then
       if [[ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]]; then
         info "Cleaning /boot, copying syslinux and /boot"
         if [[ "${old_kern_ver}" != "${new_kern_ver}" ]]; then
-          remote_sh rename "${old_kern_ver}" "${new_kern_ver}" "/boot/*" || true
+          remote_sh rename "${old_kern_ver}" "${new_kern_ver}" \
+                    "${remote_basedir}/boot/* 2>/dev/null" || true
         fi
         remote_send_to /build/"${FLAGS_board}"/boot/ "${remote_basedir}"/boot/ \
           --delete
