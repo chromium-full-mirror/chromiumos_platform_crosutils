@@ -211,6 +211,7 @@ known_bad_pkg() {
   chromeos-base/perfetto:29.0|\
   chromeos-base/perfetto_simple_producer:0.0.1|\
   chromeos-base/pixart_tpfwup:0.0.3|\
+  chromeos-base/pixart_tpfwup:0.0.6|\
   chromeos-base/sirenia:0.24.52|\
   chromeos-base/sommelier:0.0.1|\
   chromeos-base/resourced:0.1.0|\
