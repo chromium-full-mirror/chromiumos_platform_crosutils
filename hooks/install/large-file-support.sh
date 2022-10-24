@@ -294,7 +294,7 @@ known_bad_pkg() {
   media-gfx/zbar:0.23.1|\
   media-libs/alsa-lib:1.2.1.2|\
   media-libs/arc-cros-gralloc:0.0.1|\
-  media-libs/arc-img-ddk:1.13.5824814|\
+  media-libs/arc-img-ddk:1.*|\
   media-libs/arc-mali-drivers:1.20|\
   media-libs/arc-mali-drivers-bifrost:25.0|\
   media-libs/arc-mali-drivers-bifrost-bin:25.0*|\
