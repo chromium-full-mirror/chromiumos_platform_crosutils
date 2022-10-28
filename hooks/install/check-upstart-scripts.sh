@@ -174,7 +174,6 @@ known_bad_oom() {
   chromeos-base/vm_host_tools|\
   chromeos-base/vpd|\
   chromeos-base/weaveauth|\
-  chromeos-base/webserver|\
   chromeos-base/whining|\
   dev-util/hdctools|\
   media-libs/arc-camera-service|\
