@@ -305,7 +305,6 @@ known_bad_pkg() {
   media-libs/arc-mesa-img:21.3*|\
   media-libs/arc-mesa-virgl:22.3*|\
   media-libs/clvk:0.0.1|\
-  media-libs/cros-camera-document-scanner-dlc:2022.08.05|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
   media-libs/cros-camera-sw-privacy-switch-test:0.0.1|\
