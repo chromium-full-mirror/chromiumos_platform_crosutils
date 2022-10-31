@@ -384,7 +384,7 @@ known_bad_pkg() {
   net-misc/iperf:2.0.9|\
   net-misc/iperf:3.7|\
   net-misc/iputils:20171016_pre|\
-  net-misc/modemmanager-next:1.19.1|\
+  net-misc/modemmanager-next:1.20.0|\
   net-misc/pps-tools:0.0.20120407|\
   net-misc/qc-netmgr:0.1_p20220118|\
   net-misc/radvd:2.17|\
