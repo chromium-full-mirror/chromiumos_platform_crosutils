@@ -101,7 +101,6 @@ known_bad_oom() {
   chromeos-base/chromeos-test-init|\
   chromeos-base/chromeos-trim|\
   chromeos-base/chunnel|\
-  chromeos-base/crash-reporter|\
   chromeos-base/cros-camera|\
   chromeos-base/cros-camera-libs|\
   chromeos-base/cros-disks|\
