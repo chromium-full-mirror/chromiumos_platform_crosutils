@@ -90,7 +90,7 @@
         "num": 5,
         "label": "ROOT-B",
         "type": "rootfs",
-        "size": "2048 MiB"
+        "size": "2 GiB"
       },
       {
         # Slot A rootfs. Rootfs + extras (AKA verity) must fit, AKA:
@@ -126,7 +126,7 @@
           "ext2": "-i 65536",
           "btrfs": "skinny-metadata"
         },
-        "size": "2048 MiB",
+        "size": "2 GiB",
         "fs_size": "1991 MiB",
         "uuid": "clear"
       },
@@ -212,7 +212,7 @@
       {
         # Will be shrunk to size from base on install.
         "num": 3,
-        "size": "2048 MiB",
+        "size": "2 GiB",
         "fs_size": "2000 MiB"
       }
     ],
@@ -222,12 +222,12 @@
       {
         # The partition size matches base, so it's installable.
         "num": 5,
-        "size": "2048 MiB"
+        "size": "2 GiB"
       },
       {
         # The partition size matches base, so it's installable.
         "num": 3,
-        "size": "2048 MiB",
+        "size": "2 GiB",
         "fs_size": "2000 MiB"
       },
       {
@@ -246,7 +246,7 @@
         # This partition is larger than the base partition, so the
         # installer will corrupt the disk during installation.
         "num": 3,
-        "size": "4096 MiB",
+        "size": "4 GiB",
         "fs_size": "4000 MiB"
       }
     ],
@@ -259,7 +259,7 @@
       },
       {
         "num": 3,
-        "size": "16384 MiB",
+        "size": "16 GiB",
         "fs_size": "16000 MiB"
       }
     ]

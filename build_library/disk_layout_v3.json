@@ -85,7 +85,7 @@
           "ext2": "-i 65536",
           "btrfs": "skinny-metadata"
         },
-        "size": "4096 MiB",
+        "size": "4 GiB",
         "fs_size": "2300 MiB",
         "uuid": "clear"
       },
@@ -103,7 +103,7 @@
         "num": 5,
         "label": "ROOT-B",
         "type": "rootfs",
-        "size": "4096 MiB"
+        "size": "4 GiB"
       },
       {
         # Powerwash data, including rollback data.
@@ -216,7 +216,7 @@
     "16gb-rootfs": [
       {
         "num": 3,
-        "size": "16384 MiB",
+        "size": "16 GiB",
         "fs_size": "16000 MiB"
       },
       {
