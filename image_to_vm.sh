@@ -24,7 +24,7 @@ DEFINE_string board "${DEFAULT_BOARD}" \
   "Board for which the image was built"
 DEFINE_string from "" \
   "Directory containing rootfs.image and mbr.image"
-DEFINE_string disk_layout "2gb-rootfs-updatable" \
+DEFINE_string disk_layout "usb-updatable" \
   "The disk layout type to use for this image."
 DEFINE_boolean test_image "${FLAGS_FALSE}" \
   "Use ${CHROMEOS_TEST_IMAGE_NAME} instead of ${CHROMEOS_IMAGE_NAME}."

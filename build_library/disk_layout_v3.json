@@ -1,10 +1,3 @@
-# Changes from disk_layout_v2:
-# * Introduce 128MB MINIOS-A and MINIOS-B on partitions 9 and 10, with
-#   10 being set as last_partition.
-# * Reduce OEM partition 8 from 16MB to 4MB.
-# * Remove -no-exports from ROOTFS-A squashfs options.
-# * Add powerwash data as partition 11.
-# * Delete 2gb-rootfs, 2gb-rootfs-updatable, and 4gb-rootfs.
 {
   # See README.disk_layout.
   "parent": "common_disk_layout.json",
@@ -145,6 +138,23 @@
       {
         "num": 5,
         "size": "2 MiB"
+      },
+      {
+        # MINIOS-B partitions are not filled with anything on USB images.
+        "num": 10,
+        "size": "2 MiB",
+        "type": "reserved"
+      }
+    ],
+    # Same as USB, but updatable.
+    "usb-updatable": [
+      {
+        "num": 3,
+        "size": "2400 MiB"
+      },
+      {
+        "num": 5,
+        "size": "2400 MiB"
       },
       {
         # MINIOS-B partitions are not filled with anything on USB images.
