@@ -301,7 +301,7 @@ known_bad_pkg() {
   media-libs/arc-mali-drivers-bifrost-bin:25.0*|\
   media-libs/arc-mali-drivers-valhall:25.0|\
   media-libs/arc-mali-drivers-valhall-bin:25.0*|\
-  media-libs/arc-mesa-freedreno:22.3.*|\
+  media-libs/arc-mesa-freedreno:*|\
   media-libs/arc-mesa-img:21.3*|\
   media-libs/arc-mesa-virgl:22.3*|\
   media-libs/clvk:0.0.1|\
