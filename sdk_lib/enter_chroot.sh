@@ -6,7 +6,7 @@
 
 # Script to enter the chroot environment
 
-SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
+SCRIPT_ROOT=$(readlink -f "$(dirname "$0")"/..)
 # shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
@@ -16,9 +16,9 @@ assert_root_user
 
 # Define command line flags
 # See http://code.google.com/p/shflags/wiki/Documentation10x
-DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
+DEFINE_string chroot "${DEFAULT_CHROOT_DIR}" \
   "The destination dir for the chroot environment." "d"
-DEFINE_string trunk "$GCLIENT_ROOT" \
+DEFINE_string trunk "${GCLIENT_ROOT}" \
   "The source trunk to bind mount within the chroot." "s"
 DEFINE_string build_number "" \
   "The build-bot build number (when called by buildbot only)." "b"
@@ -35,10 +35,10 @@ DEFINE_string working_dir "" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
 
-DEFINE_boolean ssh_agent $FLAGS_TRUE "Import ssh agent."
-DEFINE_boolean early_make_chroot $FLAGS_FALSE \
+DEFINE_boolean ssh_agent "${FLAGS_TRUE}" "Import ssh agent."
+DEFINE_boolean early_make_chroot "${FLAGS_FALSE}" \
   "Internal flag.  If set, the command is run as root without sudo."
-DEFINE_boolean verbose $FLAGS_FALSE "Print out actions taken"
+DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
 
 # More useful help
 FLAGS_HELP="USAGE: $0 [flags] [VAR=value] [-- command [arg1] [arg2] ...]
@@ -58,7 +58,7 @@ Otherwise, provides an interactive shell.
 "
 
 CROS_LOG_PREFIX=cros_sdk:enter_chroot
-SUDO_HOME=$(eval echo ~${SUDO_USER})
+SUDO_HOME=$(eval echo "~${SUDO_USER}")
 
 # Version of info from common.sh that only echos if --verbose is set.
 debug() {
@@ -99,26 +99,26 @@ if [[ "${SUDO_USER:-${USER}}" == "chrome-bot" ]]; then
   FILES_TO_COPY_TO_CHROOT+=( .netrc )
 fi
 
-INNER_CHROME_ROOT=$FLAGS_chrome_root_mount  # inside chroot
-CHROME_ROOT_CONFIG="/var/cache/chrome_root"  # inside chroot
+INNER_CHROME_ROOT=${FLAGS_chrome_root_mount}  # inside chroot
+CHROME_ROOT_CONFIG="/var/cache/chrome_root"   # inside chroot
 
 # We can't use /var/lock because that might be a symlink to /run/lock outside
 # of the chroot.  Or /run on the host system might not exist.
 LOCKFILE="${FLAGS_chroot}/.enter_chroot.lock"
-MOUNTED_PATH=$(readlink -f "$FLAGS_chroot")
+MOUNTED_PATH=$(readlink -f "${FLAGS_chroot}")
 
 # Writes stdin to the given file name as the sudo user in overwrite mode.
 #
 # $@ - The output file names.
 user_clobber() {
-  install -m644 -o ${SUDO_UID} -g ${SUDO_GID} /dev/stdin "$@"
+  install -m644 -o "${SUDO_UID}" -g "${SUDO_GID}" /dev/stdin "$@"
 }
 
 # Copies the specified file owned by the user to the specified location.
 # If the copy fails as root (e.g. due to root_squash and NFS), retry the copy
 # with the user's account before failing.
 user_cp() {
-  cp -p "$@" 2>/dev/null || sudo -u ${SUDO_USER} -- cp -p "$@"
+  cp -p "$@" 2>/dev/null || sudo -u "${SUDO_USER}" -- cp -p "$@"
 }
 
 # Appends stdin to the given file name as the sudo user.
@@ -126,14 +126,14 @@ user_cp() {
 # $1 - The output file name.
 user_append() {
   cat >> "$1"
-  chown ${SUDO_UID}:${SUDO_GID} "$1"
+  chown "${SUDO_UID}:${SUDO_GID}" "$1"
 }
 
 # Create the specified directory, along with parents, as the sudo user.
 #
 # $@ - The directories to create.
 user_mkdir() {
-  install -o ${SUDO_UID} -g ${SUDO_GID} -d "$@"
+  install -o "${SUDO_UID}" -g "${SUDO_GID}" -d "$@"
 }
 
 # Create the specified symlink as the sudo user.
@@ -142,7 +142,7 @@ user_mkdir() {
 # $2 - Link name
 user_symlink() {
   ln -sfT "$1" "$2"
-  chown -h ${SUDO_UID}:${SUDO_GID} "$2"
+  chown -h "${SUDO_UID}:${SUDO_GID}" "$2"
 }
 
 setup_mount() {
@@ -154,7 +154,7 @@ setup_mount() {
   local mount_args="-n $2"
   local target="$3"
 
-  local mounted_path="${MOUNTED_PATH}$target"
+  local mounted_path="${MOUNTED_PATH}${target}"
 
   case " ${MOUNT_CACHE} " in
   *" ${mounted_path} "*)
@@ -185,7 +185,7 @@ symlink_or_bind() {
   local inside_target="$2"
 
   # Try to compute the source relative to trunk.
-  local relative_source=${outside_source#${FLAGS_trunk}}
+  local relative_source=${outside_source#"${FLAGS_trunk}"}
 
   # If the link target is outside the source tree, fall back to a bind mount.
   if [[ ${outside_source} == "${relative_source}" ]]; then
@@ -342,7 +342,7 @@ generate_locales() {
     else
       enc="ISO-8859-1"
     fi
-    case $(echo ${enc//-} | tr '[:upper:]' '[:lower:]') in
+    case $(echo "${enc//-}" | tr '[:upper:]' '[:lower:]') in
     utf8) enc="UTF-8";;
     esac
     gen_locales+=("${l} ${enc}")
@@ -390,8 +390,8 @@ setup_git() {
   # If the user didn't set up their username in their gitconfig, look
   # at the default git settings for the user.
   if ! git config -f "${chroot_gitconfig}" user.email >& /dev/null; then
-    local ident=$(cd /; sudo -u ${SUDO_USER} -- git var GIT_COMMITTER_IDENT || \
-                  :)
+    local ident
+    ident=$(cd /; sudo -u "${SUDO_USER}" -- git var GIT_COMMITTER_IDENT || :)
     local ident_name=${ident%% <*}
     local ident_email=${ident%%>*}; ident_email=${ident_email##*<}
     git config -f "${chroot_gitconfig}" --replace-all user.name \
@@ -402,9 +402,8 @@ setup_git() {
 
   # Copy the gitcookies file, updating the user's gitconfig to point to it.
   local gitcookies
-  gitcookies="$(git_config_path --file "${chroot_gitconfig}" \
-                  --get http.cookiefile)"
-  if [[ $? -ne 0 ]]; then
+  if ! gitcookies="$(git_config_path --file "${chroot_gitconfig}" \
+                     --get http.cookiefile)"; then
     # Try the default location anyway.
     gitcookies="${SUDO_HOME}/.gitcookies"
   fi
@@ -416,7 +415,7 @@ setup_git() {
   fi
   # This line must be at the end because using `git config` changes ownership of
   # the .gitconfig.
-  chown ${SUDO_UID}:${SUDO_GID} "${chroot_gitconfig}"
+  chown "${SUDO_UID}:${SUDO_GID}" "${chroot_gitconfig}"
 }
 
 setup_gclient_cache_dir_mount() {
@@ -428,8 +427,9 @@ setup_gclient_cache_dir_mount() {
     return 0
   fi
 
-  local cache_dir=$(sed -n -E "s/^ *cache_dir *= *'(.*)'/\1/p" \
-                    "${checkout_root}/.gclient")
+  local cache_dir
+  cache_dir=$(sed -n -E "s/^ *cache_dir *= *'(.*)'/\1/p" \
+              "${checkout_root}/.gclient")
   if [[ -z "${cache_dir}" ]]; then
     return 0
   fi
@@ -448,15 +448,16 @@ setup_gclient_cache_dir_mount() {
 }
 
 setup_env() {
+  # shellcheck disable=SC2094
   (
     flock 200
 
     # Make the lockfile writable for backwards compatibility.
-    chown ${SUDO_UID}:${SUDO_GID} "${LOCKFILE}"
+    chown "${SUDO_UID}:${SUDO_GID}" "${LOCKFILE}"
 
     # Refresh /etc/resolv.conf and /etc/hosts in the chroot.
-    install -C -m644 /etc/resolv.conf ${FLAGS_chroot}/etc/resolv.conf
-    install -C -m644 /etc/hosts ${FLAGS_chroot}/etc/hosts
+    install -C -m644 /etc/resolv.conf "${FLAGS_chroot}/etc/resolv.conf"
+    install -C -m644 /etc/hosts "${FLAGS_chroot}/etc/hosts"
 
     debug "Mounting chroot environment."
     mapfile -t MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
@@ -505,7 +506,7 @@ setup_env() {
       #
       # Finally note that if you're unfamiliar w/ chroot/vfs semantics,
       # the bind is visible only w/in the chroot.
-      user_mkdir ${FLAGS_trunk}/.repo/chroot/empty
+      user_mkdir "${FLAGS_trunk}/.repo/chroot/empty"
       position=1
       for x in "${required[@]}"; do
         base="${CHROOT_TRUNK_DIR}/.repo/chroot/external${position}"
@@ -514,7 +515,7 @@ setup_env() {
           setup_mount "${FLAGS_trunk}/.repo/chroot/empty" "--bind" \
             "${base}/.repo/alternates"
         fi
-        position=$(( ${position} + 1 ))
+        position=$(( position + 1 ))
       done
       unset required position base
     fi
@@ -538,7 +539,9 @@ setup_env() {
       p="${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
       rm -rf "${distfiles_path}"
       ln -s chromeos-cache/distfiles "${distfiles_path}"
+      # shellcheck disable=SC2174
       mkdir -p -m 775 "${p%/*}"
+      # shellcheck disable=SC2016
       echo 'export CHROMEOS_CACHEDIR=${chroot_cache}' > "${p}"
       chmod 0644 "${p}"
     fi
@@ -548,8 +551,8 @@ setup_env() {
         "/home/${SUDO_USER}/.cidb_creds"
     fi
 
-    if [ $FLAGS_ssh_agent -eq $FLAGS_TRUE ]; then
-      if [ -n "${SSH_AUTH_SOCK}" -a -d "${SUDO_HOME}/.ssh" ]; then
+    if [[ "${FLAGS_ssh_agent}" -eq "${FLAGS_TRUE}" ]]; then
+      if [[ -n "${SSH_AUTH_SOCK}" ]] && [[ -d "${SUDO_HOME}/.ssh" ]]; then
         local target_ssh="/home/${SUDO_USER}/.ssh"
         TARGET_DIR="${FLAGS_chroot}${target_ssh}"
         user_mkdir "${TARGET_DIR}"
@@ -561,7 +564,7 @@ setup_env() {
           setup_mount "${known_hosts}" --bind "${target_ssh}/known_hosts"
         fi
         copy_ssh_config "${TARGET_DIR}"
-        chown -R ${SUDO_UID}:${SUDO_GID} "${TARGET_DIR}"
+        chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
 
         if [ -S "${SSH_AUTH_SOCK}" ]; then
           touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
@@ -613,18 +616,18 @@ setup_env() {
 
     # Mount additional directories as specified in .local_mounts file.
     local local_mounts="${FLAGS_trunk}/src/scripts/.local_mounts"
-    if [[ -f ${local_mounts} ]]; then
+    if [[ -f "${local_mounts}" ]]; then
       debug "Mounting local folders"
       # format: mount_source
       #      or mount_source mount_point
       #      or # comments
       local mount_source mount_point
-      while read mount_source mount_point; do
-        if [[ -z ${mount_source} ]]; then
+      while read -r mount_source mount_point; do
+        if [[ -z "${mount_source}" ]]; then
           continue
         fi
         # if only source is assigned, use source as mount point.
-        : ${mount_point:=${mount_source}}
+        : "${mount_point:=${mount_source}}"
         debug "  mounting ${mount_source} on ${mount_point}"
         setup_mount "${mount_source}" "--bind" "${mount_point}"
       done < <(sed -e 's:#.*::' "${local_mounts}" | xargs -0)
@@ -635,24 +638,24 @@ setup_env() {
         die_notrace "${FLAGS_chrome_root} does not exist."
       fi
     fi
-    if [ -z "$CHROME_ROOT" ]; then
+    if [ -z "${CHROME_ROOT}" ]; then
       CHROME_ROOT="$(cat "${FLAGS_chroot}${CHROME_ROOT_CONFIG}" \
         2>/dev/null || :)"
       CHROME_ROOT_AUTO=1
     fi
-    if [[ -n "$CHROME_ROOT" ]]; then
+    if [[ -n "${CHROME_ROOT}" ]]; then
       if [[ ! -d "${CHROME_ROOT}/src" ]]; then
         error "Not mounting chrome source: could not find CHROME_ROOT/src dir."
         error "Full path we tried: ${CHROME_ROOT}/src"
         rm -f "${FLAGS_chroot}${CHROME_ROOT_CONFIG}"
-        if [[ ! "$CHROME_ROOT_AUTO" ]]; then
+        if [[ -z "${CHROME_ROOT_AUTO}" ]]; then
           exit 1
         fi
       else
-        debug "Mounting chrome source at: $INNER_CHROME_ROOT"
-        echo $CHROME_ROOT > "${FLAGS_chroot}${CHROME_ROOT_CONFIG}"
-        setup_mount "$CHROME_ROOT" --bind "$INNER_CHROME_ROOT"
-        setup_gclient_cache_dir_mount "$CHROME_ROOT"
+        debug "Mounting chrome source at: ${INNER_CHROME_ROOT}"
+        echo "${CHROME_ROOT}" > "${FLAGS_chroot}${CHROME_ROOT_CONFIG}"
+        setup_mount "${CHROME_ROOT}" --bind "${INNER_CHROME_ROOT}"
+        setup_gclient_cache_dir_mount "${CHROME_ROOT}"
       fi
     fi
 
@@ -669,6 +672,7 @@ setup_env() {
     # on demand, but only when it updates.
     ccache_dir="${FLAGS_chroot}/var/cache/distfiles/ccache"
     if [[ ! -d ${ccache_dir} ]]; then
+      # shellcheck disable=SC2174
       mkdir -p -m 2775 "${ccache_dir}"
     fi
     (
@@ -705,26 +709,26 @@ setup_env() {
     # to /root for sudoed invocations.
     chroot_user_boto="${FLAGS_chroot}/home/${SUDO_USER}/.boto"
     chroot_root_boto="${FLAGS_chroot}/root/.boto"
-    if [ -f ${SUDO_HOME}/.boto ]; then
+    if [ -f "${SUDO_HOME}/.boto" ]; then
       # Pass --remote-destination to overwrite a symlink.
-      user_cp "--remove-destination" "${SUDO_HOME}/.boto" "$chroot_user_boto"
-      cp "--remove-destination" "$chroot_user_boto" "$chroot_root_boto"
+      user_cp "--remove-destination" "${SUDO_HOME}/.boto" "${chroot_user_boto}"
+      cp "--remove-destination" "${chroot_user_boto}" "${chroot_root_boto}"
     elif [ -f "/etc/boto.cfg" ]; then
       # For GCE instances, the non-chroot .boto file is not deployed so
       # use the system /etc/boto.cfg if it exists.
-      user_cp "--remove-destination" "/etc/boto.cfg" "$chroot_user_boto"
-      cp "--remove-destination" "$chroot_user_boto" "$chroot_root_boto"
+      user_cp "--remove-destination" "/etc/boto.cfg" "${chroot_user_boto}"
+      cp "--remove-destination" "${chroot_user_boto}" "${chroot_root_boto}"
     fi
 
     # If user doesn't have a boto file, check if the private overlays
     # are installed and use those credentials.
     boto='src/private-overlays/chromeos-overlay/googlestorage_account.boto'
     if [ -s "${FLAGS_trunk}/${boto}" ]; then
-      if [ ! -e "$chroot_user_boto" ]; then
-        user_symlink "trunk/${boto}" "$chroot_user_boto"
+      if [ ! -e "${chroot_user_boto}" ]; then
+        user_symlink "trunk/${boto}" "${chroot_user_boto}"
       fi
-      if [ ! -e "$chroot_root_boto" ]; then
-        ln -sf "${CHROOT_TRUNK_DIR}/${boto}" "$chroot_root_boto"
+      if [ ! -e "${chroot_root_boto}" ]; then
+        ln -sf "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_root_boto}"
       fi
     fi
 
@@ -734,16 +738,16 @@ setup_env() {
     # actually write to their directory.
     gsutil_dir="${FLAGS_chroot}/home/${SUDO_USER}/.gsutil"
     if [ -d "${gsutil_dir}" ]; then
-      chown -R ${SUDO_UID}:${SUDO_GID} "${gsutil_dir}"
+      chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
     fi
-  ) 200>>"$LOCKFILE" || die "setup_env failed"
+  ) 200>>"${LOCKFILE}" || die "setup_env failed"
 }
 
 check_locale
 setup_env
 
 CHROOT_PASSTHRU=(
-  "BUILDBOT_BUILD=$FLAGS_build_number"
+  "BUILDBOT_BUILD=${FLAGS_build_number}"
   "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
 
@@ -775,12 +779,12 @@ fi
 # the source trunk for scripts that may need to print it (e.g.
 # build_image.sh).
 
-if [ $FLAGS_early_make_chroot -eq $FLAGS_TRUE ]; then
+if [ "${FLAGS_early_make_chroot}" -eq "${FLAGS_TRUE}" ]; then
   cmd=( /bin/bash -l -c 'env "$@"' -- )
 elif [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
   # Complain that sudo is missing.
   error "Failing since the chroot lacks sudo."
-  error "Requested enter_chroot command was: $@"
+  error "Requested enter_chroot command was: $*"
   exit 127
 else
   cmd=( sudo -i -u "${SUDO_USER}" )
