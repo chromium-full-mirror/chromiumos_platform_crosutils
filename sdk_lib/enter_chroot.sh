@@ -10,6 +10,8 @@ SCRIPT_ROOT=$(readlink -f "$(dirname "$0")"/..)
 # shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
+: "${SUDO_USER:=${USER}}"
+
 # Script must be run outside the chroot and as root.
 assert_outside_chroot
 assert_root_user
@@ -62,7 +64,7 @@ SUDO_HOME=$(eval echo "~${SUDO_USER}")
 
 # Version of info from common.sh that only echos if --verbose is set.
 debug() {
-  if [ $FLAGS_verbose -eq $FLAGS_TRUE ]; then
+  if [[ "${FLAGS_verbose}" -eq "${FLAGS_TRUE}" ]]; then
     info "$*"
   fi
 }
@@ -93,7 +95,7 @@ FILES_TO_COPY_TO_CHROOT=(
   .goma_client_oauth2_config  # Auth token for Goma
   .inputrc                    # Preserve command line customizations
 )
-if [[ "${SUDO_USER:-${USER}}" == "chrome-bot" ]]; then
+if [[ "${SUDO_USER}" == "chrome-bot" ]]; then
   # Builders still haven't migrated fully to gitcookies.
   # https://crbug.com/1032944
   FILES_TO_COPY_TO_CHROOT+=( .netrc )
@@ -111,6 +113,7 @@ MOUNTED_PATH=$(readlink -f "${FLAGS_chroot}")
 #
 # $@ - The output file names.
 user_clobber() {
+  # shellcheck disable=SC2154
   install -m644 -o "${SUDO_UID}" -g "${SUDO_GID}" /dev/stdin "$@"
 }
 
