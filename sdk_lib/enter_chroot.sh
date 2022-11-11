@@ -151,8 +151,14 @@ setup_mount() {
   # these mounts are all contained within an unshare and are therefore
   # inaccessible to other namespaces (e.g. the host desktop system).
   local source="$1"
-  local mount_args="-n $2"
-  local target="$3"
+  local target="$2"
+  shift 2
+  local mount_args=( -n )
+  if [[ $# -gt 0 ]]; then
+    mount_args+=( "$@" )
+  else
+    mount_args+=( --bind )
+  fi
 
   local mounted_path="${MOUNTED_PATH}${target}"
 
@@ -171,10 +177,10 @@ setup_mount() {
       fi
     fi
     # The args are left unquoted on purpose.
-    if [[ -n ${source} ]]; then
-      mount ${mount_args} "${source}" "${mounted_path}"
+    if [[ -n "${source}" ]]; then
+      mount "${mount_args[@]}" "${source}" "${mounted_path}"
     else
-      mount ${mount_args} "${mounted_path}"
+      mount "${mount_args[@]}" "${mounted_path}"
     fi
     ;;
   esac
@@ -191,7 +197,7 @@ symlink_or_bind() {
   if [[ ${outside_source} == "${relative_source}" ]]; then
     info "Falling back to bind mount for:"
     info "  '${inside_target}' -> '${outside_source}'"
-    setup_mount "${outside_source}" --bind "${inside_target}"
+    setup_mount "${outside_source}" "${inside_target}"
     return
   fi
 
@@ -444,7 +450,7 @@ setup_gclient_cache_dir_mount() {
     return 0
   fi
 
-  setup_mount "${cache_dir}" "--bind" "${cache_dir}"
+  setup_mount "${cache_dir}" "${cache_dir}"
 }
 
 setup_env() {
@@ -495,7 +501,7 @@ setup_env() {
         "${FLAGS_trunk}/chromite/lib/rewrite_git_alternates" \
         "${FLAGS_trunk}" "${REFERENCE_DIR}" "${CHROOT_TRUNK_DIR}" )
 
-      setup_mount "${FLAGS_trunk}/.repo/chroot/alternates" --bind \
+      setup_mount "${FLAGS_trunk}/.repo/chroot/alternates" \
         "${CHROOT_TRUNK_DIR}/.repo/alternates"
 
       # Note that as we're bringing up each referened repo, we also
@@ -510,9 +516,9 @@ setup_env() {
       position=1
       for x in "${required[@]}"; do
         base="${CHROOT_TRUNK_DIR}/.repo/chroot/external${position}"
-        setup_mount "${x}" "--bind" "${base}"
+        setup_mount "${x}" "${base}"
         if [ -e "${x}/.repo/alternates" ]; then
-          setup_mount "${FLAGS_trunk}/.repo/chroot/empty" "--bind" \
+          setup_mount "${FLAGS_trunk}/.repo/chroot/empty" \
             "${base}/.repo/alternates"
         fi
         position=$(( position + 1 ))
@@ -525,7 +531,7 @@ setup_env() {
     debug "Setting up shared cache dir directory."
     user_mkdir "${FLAGS_cache_dir}"/distfiles
     user_mkdir "${FLAGS_chroot}/${chroot_cache}"
-    setup_mount "${FLAGS_cache_dir}" "--bind" "${chroot_cache}"
+    setup_mount "${FLAGS_cache_dir}" "${chroot_cache}"
     # Create /var/log/asan directory (b/222311476).
     user_mkdir "${FLAGS_chroot}/var/log/asan"
     # TODO(build): remove this as of 12/01/12.
@@ -547,7 +553,7 @@ setup_env() {
     fi
 
     if [ -d "${SUDO_HOME}/.cidb_creds" ]; then
-      setup_mount "${SUDO_HOME}/.cidb_creds" --bind \
+      setup_mount "${SUDO_HOME}/.cidb_creds" \
         "/home/${SUDO_USER}/.cidb_creds"
     fi
 
@@ -561,20 +567,20 @@ setup_env() {
         if [[ -e ${known_hosts} ]]; then
           # Ensure there is a file to bind mount onto for setup_mount.
           touch "${TARGET_DIR}/known_hosts"
-          setup_mount "${known_hosts}" --bind "${target_ssh}/known_hosts"
+          setup_mount "${known_hosts}" "${target_ssh}/known_hosts"
         fi
         copy_ssh_config "${TARGET_DIR}"
         chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
 
         if [ -S "${SSH_AUTH_SOCK}" ]; then
           touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
-          setup_mount "${SSH_AUTH_SOCK}" "--bind" "/tmp/ssh-auth-sock"
+          setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
         fi
       fi
     fi
 
     if [[ -d "${SUDO_HOME}/.config/chromite" ]]; then
-      setup_mount "${SUDO_HOME}/.config/chromite" "--bind" \
+      setup_mount "${SUDO_HOME}/.config/chromite" \
         "/home/${SUDO_USER}/.config/chromite"
     fi
 
@@ -586,19 +592,20 @@ setup_env() {
 
     if [[ -n "${FLAGS_reclient_dir}" ]]; then
       debug "Mounting re-client"
-      setup_mount "${FLAGS_reclient_dir}" --bind "/home/${SUDO_USER}/reclient"
+      setup_mount "${FLAGS_reclient_dir}" "/home/${SUDO_USER}/reclient"
     fi
 
     if [[ -n "${FLAGS_reproxy_cfg_file}" ]]; then
       debug "Mounting reproxy config file."
-      setup_mount "${FLAGS_reproxy_cfg_file}" --bind "/home/${SUDO_USER}/reclient_cfgs/reproxy_chroot.cfg"
+      setup_mount "${FLAGS_reproxy_cfg_file}" \
+        "/home/${SUDO_USER}/reclient_cfgs/reproxy_chroot.cfg"
     fi
 
     if [[ -n "${FLAGS_goma_dir}" ]]; then
       debug "Mounting goma"
       # $HOME/goma is the default directory for goma.
       # It is used by goma if GOMA_DIR is not provide.
-      setup_mount "${FLAGS_goma_dir}" --bind "/home/${SUDO_USER}/goma"
+      setup_mount "${FLAGS_goma_dir}" "/home/${SUDO_USER}/goma"
     fi
 
     if [[ -n "${FLAGS_goma_client_json}" ]]; then
@@ -611,7 +618,7 @@ setup_env() {
       touch "${mounted_path}"
       # Note: Original UID:GID and permission should be inherited even after
       # mounting.
-      setup_mount "${FLAGS_goma_client_json}" --bind "${dest_path}"
+      setup_mount "${FLAGS_goma_client_json}" "${dest_path}"
     fi
 
     # Mount additional directories as specified in .local_mounts file.
@@ -629,7 +636,7 @@ setup_env() {
         # if only source is assigned, use source as mount point.
         : "${mount_point:=${mount_source}}"
         debug "  mounting ${mount_source} on ${mount_point}"
-        setup_mount "${mount_source}" "--bind" "${mount_point}"
+        setup_mount "${mount_source}" "${mount_point}"
       done < <(sed -e 's:#.*::' "${local_mounts}" | xargs -0)
     fi
 
@@ -654,7 +661,7 @@ setup_env() {
       else
         debug "Mounting chrome source at: ${INNER_CHROME_ROOT}"
         echo "${CHROME_ROOT}" > "${FLAGS_chroot}${CHROME_ROOT_CONFIG}"
-        setup_mount "${CHROME_ROOT}" --bind "${INNER_CHROME_ROOT}"
+        setup_mount "${CHROME_ROOT}" "${INNER_CHROME_ROOT}"
         setup_gclient_cache_dir_mount "${CHROME_ROOT}"
       fi
     fi
@@ -663,7 +670,7 @@ setup_env() {
     # inside the chroot for things like usbip-host.
     local modules_dir="/lib/modules"
     if [ -d "${modules_dir}" ]; then
-      setup_mount "${modules_dir}" "--bind -o ro" "${modules_dir}"
+      setup_mount "${modules_dir}" "${modules_dir}" --bind -o ro
     fi
 
     # Fix permissions on ccache tree.  If this is a fresh chroot, then they
