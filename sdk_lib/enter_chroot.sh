@@ -179,6 +179,47 @@ setup_mount() {
   esac
 }
 
+symlink_or_bind() {
+  local outside_source="$1"
+  local inside_target="$2"
+
+  # Try to compute the source relative to trunk.
+  local relative_source=${outside_source#${FLAGS_trunk}}
+
+  # If the link target is outside the source tree, fall back to a bind mount.
+  if [[ ${outside_source} == "${relative_source}" ]]; then
+    info "Falling back to bind mount for:"
+    info "  '${inside_target}' -> '${outside_source}'"
+    setup_mount "${outside_source}" --bind "${inside_target}"
+    return
+  fi
+
+  # Compute the outside path of the target.
+  target="${FLAGS_chroot}${inside_target}"
+
+  # Compute the inside path of the source.
+  local source="${CHROOT_TRUNK_DIR}${relative_source}"
+
+  # If the target is already a non-empty directory, skip it.
+  if [[ ! -L "${target}" ]] && [[ -d "${target}" ]] && ! ls -A "${target}"; then
+    info "Skipping link for '${inside_target}'"
+    return
+  fi
+
+  # If the symlink is already correct we are done.
+  if [[ -L "${target}" ]] && [[ "$(readlink "${target}")" == "${source}" ]]; then
+    return
+  fi
+
+  # Clear empty directories, incorrect links, etc.
+  if [[ -L "${target}" ]] || [[ -e "${target}" ]]; then
+    info "Cleaning up '${inside_target}'"
+    rm -r "${target}"
+  fi
+
+  ln -s "${source}" "${target}"
+}
+
 copy_ssh_config() {
   # Copy user .ssh/config into the chroot filtering out strings not supported
   # by the chroot ssh. The chroot .ssh directory is passed in as the first
@@ -537,8 +578,8 @@ setup_env() {
 
     # A reference to the DEPOT_TOOLS path may be passed in by cros_sdk.
     if [ -n "${DEPOT_TOOLS}" ]; then
-      debug "Mounting depot_tools"
-      setup_mount "${DEPOT_TOOLS}" --bind "${DEPOT_TOOLS_DIR}"
+      debug "Setting up depot_tools"
+      symlink_or_bind "${DEPOT_TOOLS}" "${DEPOT_TOOLS_DIR}"
     fi
 
     if [[ -n "${FLAGS_reclient_dir}" ]]; then
