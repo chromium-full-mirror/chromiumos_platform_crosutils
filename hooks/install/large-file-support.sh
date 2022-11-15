@@ -343,13 +343,13 @@ known_bad_pkg() {
   media-libs/vulkan-loader:1.3.211|\
   media-libs/waffle:1.6.0|\
   media-plugins/alsa-plugins:1.1.6|\
-  media-sound/adhd:0.0.6|\
+  media-sound/adhd:*|\
   media-sound/alsa-utils:1.2.1|\
-  media-sound/audio_streams_conformance_test:0.1.0|\
-  media-sound/cras_bench:0.0.1|\
-  media-sound/cras_tests:0.1.0|\
+  media-sound/audio_processor:*|\
+  media-sound/audio_streams_conformance_test:*|\
+  media-sound/cras_tests:*|\
   media-sound/gsm:1.0.13|\
-  media-sound/sound_card_init:0.1.0|\
+  media-sound/sound_card_init:*|\
   media-tv/v4l-utils:1.22.1|\
   media-video/yavta:0.0.1|\
   net-analyzer/netcat:110.20180111|\
