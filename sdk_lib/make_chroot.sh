@@ -291,9 +291,10 @@ if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
     sys-kernel/linux-headers sys-libs/glibc
 
-  # Next libcxx. This is required due to the migration to LLVM runtime builds.
+  # Next libcxx and libunwind. This is required due to the migration to LLVM
+  # runtime builds.
   early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
-    sys-libs/libcxx
+    sys-libs/llvm-libunwind sys-libs/libcxx
 
   # Now we can let the rest of the compiler packages build in parallel as they
   # don't generally rely on each other.
