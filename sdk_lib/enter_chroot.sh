@@ -489,11 +489,9 @@ setup_env() {
 
       unset ALTERNATES
 
-      IFS=$'\n';
-      required=( $( sudo -u "${SUDO_USER}" -- \
+      mapfile required < <( sudo -u "${SUDO_USER}" -- \
         "${FLAGS_trunk}/chromite/lib/rewrite_git_alternates" \
-        "${FLAGS_trunk}" "${REFERENCE_DIR}" "${CHROOT_TRUNK_DIR}" ) )
-      unset IFS
+        "${FLAGS_trunk}" "${REFERENCE_DIR}" "${CHROOT_TRUNK_DIR}" )
 
       setup_mount "${FLAGS_trunk}/.repo/chroot/alternates" --bind \
         "${CHROOT_TRUNK_DIR}/.repo/alternates"
