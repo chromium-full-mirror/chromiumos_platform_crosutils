@@ -751,6 +751,10 @@ setup_env() {
       chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
     fi
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
+
+  # shellcheck disable=SC2086
+  # Clear locale related variables, since C.UTF-8 will be used in the chroot.
+  unset -v LANGUAGE ${!LC_*}
 }
 
 check_locale
@@ -767,6 +771,9 @@ CHROOT_PASSTHRU=(
 
   # We don't want to auto-update depot_tools inside of the SDK as we manage it.
   "DEPOT_TOOLS_UPDATE=0"
+
+  # Force LANG=C.UTF-8, so locales do not need to be generated.
+  "LANG=C.UTF-8"
 )
 
 # Needs to be set here because setup_env runs in a subshell.
