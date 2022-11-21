@@ -304,6 +304,7 @@ known_bad_pkg() {
   media-libs/arc-mesa-freedreno:*|\
   media-libs/arc-mesa-img:21.3*|\
   media-libs/arc-mesa-virgl:22.3*|\
+  media-libs/arcvm-mesa-freedreno:*|\
   media-libs/clvk:0.0.1|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
