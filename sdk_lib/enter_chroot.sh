@@ -458,7 +458,7 @@ setup_env() {
     install -C -m644 /etc/hosts ${FLAGS_chroot}/etc/hosts
 
     debug "Mounting chroot environment."
-    MOUNT_CACHE=$(echo $(awk '{print $2}' /proc/mounts))
+    mapfile MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
     # We shouldn't need access to any /run state, so don't mount it.  Some
     # distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
     local run_shm="${FLAGS_chroot}/run/shm"
