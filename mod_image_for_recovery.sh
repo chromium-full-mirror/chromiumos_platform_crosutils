@@ -106,8 +106,8 @@ get_install_vblock() {
   sudo chown "${USER}" "${out}"
 
   safe_umount "${stateful_mnt}"
-  sudo losetup -d "${IMAGE_DEV}"
   rmdir "${stateful_mnt}"
+  loopback_detach "${IMAGE_DEV}"
   switch_to_strict_mode
   echo "${out}"
 }
@@ -201,7 +201,7 @@ update_efi_partition() {
     safe_umount "${efi_dir}"
     rmdir "${efi_dir}"
   fi
-  sudo losetup -d "${RECOVERY_DEV}"
+  loopback_detach "${RECOVERY_DEV}"
 }
 
 install_recovery_kernel() {
@@ -272,7 +272,7 @@ install_recovery_kernel() {
     sudo cp "${vmlinuz}" "${esp_mnt}/syslinux/vmlinuz.A" || failed=1
     safe_umount "${esp_mnt}"
     rmdir "${esp_mnt}"
-    sudo losetup -d "${RECOVERY_DEV}"
+    loopback_detach "${RECOVERY_DEV}"
     switch_to_strict_mode
   fi
 
@@ -332,7 +332,7 @@ copy_stateful() {
   dd if=/dev/zero of="${small_stateful}" bs=512 \
     count="${sectors_needed}" 1>&2
   trap \
-    'rm "${small_stateful}"; sudo losetup -d "${IMAGE_DEV}" || true; cleanup' \
+    'rm "${small_stateful}"; loopback_detach "${IMAGE_DEV}" || true; cleanup' \
     EXIT
 
   # Don't bother with ext3 for such a small image.
@@ -360,10 +360,11 @@ copy_stateful() {
 
   # Cleanup everything.
   safe_umount "${old_stateful_mnt}"
-  safe_umount "${new_stateful_mnt}"
+  # Delete the loop device associated with this mount.
+  safe_umount -d "${new_stateful_mnt}"
   rmdir "${old_stateful_mnt}"
   rmdir "${new_stateful_mnt}"
-  sudo losetup -d "${IMAGE_DEV}"
+  loopback_detach "${IMAGE_DEV}"
   trap cleanup EXIT
   switch_to_strict_mode
 
@@ -400,7 +401,7 @@ calculate_stateful_blocks() {
   # Cleanup everything.
   safe_umount "${old_stateful_mnt}"
   rmdir "${old_stateful_mnt}"
-  sudo losetup -d "${IMAGE_DEV}"
+  loopback_detach "${IMAGE_DEV}"
 
   return 0
 }
@@ -477,10 +478,10 @@ copy_partitions() {
 cleanup() {
   set +e
   if [[ -n "${RECOVERY_DEV}" ]]; then
-    sudo losetup -d "${RECOVERY_DEV}"
+    loopback_detach "${RECOVERY_DEV}" || true
   fi
   if [[ -n "${IMAGE_DEV}" ]]; then
-    sudo losetup -d "${IMAGE_DEV}"
+    loopback_detach "${IMAGE_DEV}" || true
   fi
   if [[ "${FLAGS_image}" != "${RECOVERY_IMAGE}" ]]; then
     rm "${RECOVERY_IMAGE}"
@@ -569,7 +570,7 @@ if [ "${FLAGS_decrypt_stateful}" -eq "${FLAGS_TRUE}" ]; then
   echo -n "1" | sudo tee "${stateful_mnt}"/decrypt_stateful >/dev/null
   sudo umount "${stateful_mnt}"
   rmdir "${stateful_mnt}"
-  sudo losetup -d "${RECOVERY_DEV}"
+  loopback_detach "${RECOVERY_DEV}"
 fi
 
 install_recovery_kernel
