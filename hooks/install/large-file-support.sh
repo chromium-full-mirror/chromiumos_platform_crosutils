@@ -142,6 +142,24 @@ known_bad_pkg() {
   *) return 1;;
   esac
 
+  # TODO(b/260698283): Ignore ARC (bionic) packages for now.
+  case "${CATEGORY}/${PN}:${PV}" in
+  media-libs/arc-cros-gralloc:*|\
+  media-libs/arc-img-ddk:*|\
+  media-libs/arc-mali-drivers:*|\
+  media-libs/arc-mali-drivers-bifrost:*|\
+  media-libs/arc-mali-drivers-bifrost-bin:*|\
+  media-libs/arc-mali-drivers-valhall:*|\
+  media-libs/arc-mali-drivers-valhall-bin:*|\
+  media-libs/arc-mesa-freedreno:*|\
+  media-libs/arc-mesa-img:*|\
+  media-libs/arc-mesa-virgl:*|\
+  media-libs/arcvm-mesa-freedreno:*|\
+  x11-libs/arc-libdrm:*)
+    return 0
+    ;;
+  esac
+
   # Do not add more packages here!
   case "${CATEGORY}/${PN}:${PV}" in
   app-accessibility/brltty:6.3|\
@@ -294,17 +312,6 @@ known_bad_pkg() {
   media-gfx/"sa"ne-backends:1.1.1|\
   media-gfx/zbar:0.23.1|\
   media-libs/alsa-lib:1.2.1.2|\
-  media-libs/arc-cros-gralloc:0.0.1|\
-  media-libs/arc-img-ddk:1.*|\
-  media-libs/arc-mali-drivers:1.20|\
-  media-libs/arc-mali-drivers-bifrost:25.0|\
-  media-libs/arc-mali-drivers-bifrost-bin:25.0*|\
-  media-libs/arc-mali-drivers-valhall:25.0|\
-  media-libs/arc-mali-drivers-valhall-bin:25.0*|\
-  media-libs/arc-mesa-freedreno:*|\
-  media-libs/arc-mesa-img:21.3*|\
-  media-libs/arc-mesa-virgl:22.3*|\
-  media-libs/arcvm-mesa-freedreno:*|\
   media-libs/clvk:0.0.1|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
@@ -465,7 +472,6 @@ known_bad_pkg() {
   sys-process/time:1.9|\
   x11-apps/xkbcomp:1.4.2|\
   x11-base/xwayland:1.20.8|\
-  x11-libs/arc-libdrm:2.4.110|\
   x11-libs/libXau:1.0.9|\
   x11-libs/libfontenc:1.1.4|\
   x11-libs/libpciaccess:0.12.902|\
