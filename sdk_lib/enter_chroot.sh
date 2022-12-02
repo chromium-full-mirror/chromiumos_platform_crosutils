@@ -458,7 +458,7 @@ setup_env() {
     install -C -m644 /etc/hosts ${FLAGS_chroot}/etc/hosts
 
     debug "Mounting chroot environment."
-    mapfile MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
+    mapfile -t MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
     # We shouldn't need access to any /run state, so don't mount it.  Some
     # distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
     local run_shm="${FLAGS_chroot}/run/shm"
@@ -489,7 +489,7 @@ setup_env() {
 
       unset ALTERNATES
 
-      mapfile required < <( sudo -u "${SUDO_USER}" -- \
+      mapfile -t required < <( sudo -u "${SUDO_USER}" -- \
         "${FLAGS_trunk}/chromite/lib/rewrite_git_alternates" \
         "${FLAGS_trunk}" "${REFERENCE_DIR}" "${CHROOT_TRUNK_DIR}" )
 
