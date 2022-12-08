@@ -333,7 +333,6 @@ known_bad_pkg() {
   media-libs/mali-drivers-bifrost-bin:32.0*|\
   media-libs/mali-drivers-valhall:32.0|\
   media-libs/mali-drivers-valhall-bin:32.0*|\
-  media-libs/mesa-freedreno:22.3.*|\
   media-libs/mesa-img:21.3*|\
   media-libs/mtk-isp-3a-libs-bin:0.0.8|\
   media-libs/mtk-tuning-libs-bin:0.0.34|\
@@ -464,20 +463,12 @@ known_bad_pkg() {
   sys-libs/mtdev:1.1.2|\
   sys-libs/pam:1.3.1|\
   sys-libs/zlib:1.2.11|\
-  sys-power/powertop:2.13|\
   sys-process/audit:3.0.6|\
   sys-process/htop:1.0.2|\
   sys-process/numactl:2.0.14|\
   sys-process/psmisc:23.3|\
   sys-process/time:1.9|\
-  x11-apps/xkbcomp:1.4.2|\
   x11-base/xwayland:1.20.8|\
-  x11-libs/libXau:1.0.9|\
-  x11-libs/libfontenc:1.1.4|\
-  x11-libs/libpciaccess:0.12.902|\
-  x11-libs/libXfont2:2.0.5|\
-  x11-libs/libxkbfile:1.1.0|\
-  x11-libs/libxshmfence:1.3|\
   x11-libs/pango:1.42.4)
     return 0
     ;;
