@@ -150,7 +150,6 @@ known_bad_oom() {
   chromeos-base/patchpanel|\
   chromeos-base/pdfc-scripts|\
   chromeos-base/permission_broker|\
-  chromeos-base/power_manager|\
   chromeos-base/quickoffice|\
   chromeos-base/rialto-cellular-autoconnect|\
   chromeos-base/rialto-modem-watchdog|\
