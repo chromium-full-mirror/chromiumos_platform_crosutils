@@ -170,7 +170,6 @@ known_bad_pkg() {
   app-benchmarks/bootchart:0.9.2|\
   app-benchmarks/lmbench:3.0_alpha9|\
   app-benchmarks/pjdfstest:20190822|\
-  app-crypt/mit-krb5:1.19.3|\
   app-crypt/nss:3.68.2|\
   app-crypt/tpm-tools:1.3.9.1|\
   app-crypt/trousers:0.3.3|\
