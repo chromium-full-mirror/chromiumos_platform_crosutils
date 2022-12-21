@@ -271,8 +271,6 @@ known_bad_pkg() {
   dev-libs/libnl:3.4.0|\
   dev-libs/libpcre2:10.34|\
   dev-libs/libpcre:8.44|\
-  dev-libs/libtraceevent:1.6.2|\
-  dev-libs/libtracefs:1.4.2|\
   dev-libs/libunistring:0.9.10|\
   dev-libs/libusb:1.0.22|\
   dev-libs/libverto:0.3.0|\
@@ -299,7 +297,6 @@ known_bad_pkg() {
   dev-util/perf:5.15*|\
   dev-util/rt-tests:2.2|\
   dev-util/spirv-tools:1.3.211|\
-  dev-util/trace-cmd:3.1.2|\
   dev-util/vulkan-tools:1.3.211|\
   dev-util/xdelta:3.0.11|\
   dev-util/xxd:1.10|\
