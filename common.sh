@@ -16,8 +16,8 @@ export NUM_JOBS
 
 # Make sure we have the location and name of the calling script, using
 # the current value if it is already set.
-: ${SCRIPT_LOCATION:=$(dirname "$(readlink -f -- "$0")")}
-: ${SCRIPT_NAME:=$(basename -- "$0")}
+: "${SCRIPT_LOCATION:=$(dirname "$(readlink -f -- "$0")")}"
+: "${SCRIPT_NAME:=$(basename -- "$0")}"
 
 # Detect whether we're inside a chroot or not
 CHROOT_VERSION_FILE=/etc/cros_chroot_version
