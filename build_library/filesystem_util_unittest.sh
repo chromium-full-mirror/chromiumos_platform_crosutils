@@ -4,6 +4,7 @@
 # found in the LICENSE file.
 
 BUILD_LIBRARY_DIR=$(dirname $0)
+# shellcheck source=filesystem_util.sh
 . "${BUILD_LIBRARY_DIR}/filesystem_util.sh" || exit 1
 
 set -e -u

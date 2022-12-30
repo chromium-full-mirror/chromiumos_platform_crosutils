@@ -10,6 +10,7 @@
 # One can enter the chrooted environment for work by running enter_chroot.sh.
 
 SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
+# shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 ENTER_CHROOT=$(readlink -f $(dirname "$0")/enter_chroot.sh)
@@ -59,6 +60,7 @@ switch_to_strict_mode
 
 [[ -z "${FLAGS_cache_dir}" ]] && die "--cache_dir is required"
 
+# shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh
 
 USEPKG=""

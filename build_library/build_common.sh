@@ -9,11 +9,13 @@
 # common to all the scripts.
 
 # SCRIPT_ROOT must be set prior to sourcing this file
+# shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # All scripts using this file must be run inside the chroot.
 restart_in_chroot_if_needed "$@"
 
+# shellcheck source=../../platform2/chromeos-common-script/share/chromeos-common.sh
 . /usr/share/misc/chromeos-common.sh || exit 1
 
 locate_gpt

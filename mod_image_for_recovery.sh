@@ -10,7 +10,9 @@
 # create a Chromium OS recovery image.
 
 SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
+# shellcheck source=/build_library/build_common.sh
 . "${SCRIPT_ROOT}/build_library/build_common.sh" || exit 1
+# shellcheck source=build_library/disk_layout_util.sh
 . "${SCRIPT_ROOT}/build_library/disk_layout_util.sh" || exit 1
 
 # Default recovery kernel name.

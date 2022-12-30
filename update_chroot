@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-
+# shellcheck source=common.sh
 . "$(dirname "$0")/common.sh" || exit 1
 
 # Script must run inside the chroot
@@ -42,6 +42,7 @@ eval set -- "${FLAGS_ARGV}"
 # so will die prematurely if 'switch_to_strict_mode' is specified before now.
 switch_to_strict_mode
 
+# shellcheck source=sdk_lib/make_conf_util.sh
 . "${SCRIPTS_DIR}"/sdk_lib/make_conf_util.sh
 
 # Run version hooks as pre-update

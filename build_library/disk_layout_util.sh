@@ -4,6 +4,7 @@
 
 # BUILD_LIBRARY_DIR must be set prior to sourcing this file, since this file
 # is sourced as ${BUILD_LIBRARY_DIR}/disk_layout_util.sh
+# shellcheck source=filesystem_util.sh
 . "${BUILD_LIBRARY_DIR}/filesystem_util.sh" || exit 1
 
 # shellcheck disable=SC2154

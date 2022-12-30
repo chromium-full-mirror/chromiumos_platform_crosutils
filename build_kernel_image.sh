@@ -13,6 +13,7 @@
 # signing before landed here.
 
 SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+# shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Flags.
@@ -78,7 +79,9 @@ switch_to_strict_mode
 
 # N.B.  Ordering matters for some of the libraries below, because
 # some of the files contain initialization used by later files.
+# shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+# shellcheck source=build_library/disk_layout_util.sh
 . "${BUILD_LIBRARY_DIR}/disk_layout_util.sh" || exit 1
 
 

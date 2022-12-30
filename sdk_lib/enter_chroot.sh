@@ -7,6 +7,7 @@
 # Script to enter the chroot environment
 
 SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
+# shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 # Script must be run outside the chroot and as root.

@@ -7,7 +7,9 @@
 # Script to update the kernel on a live running ChromiumOS instance.
 
 SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
+# shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
+# shellcheck source=remote_access.sh
 . "${SCRIPT_ROOT}/remote_access.sh" || exit 1
 
 # Script must be run inside the chroot.

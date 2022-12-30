@@ -8,13 +8,16 @@
 # It does not populate the templates, but can update a loop device.
 
 SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+# shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
+# shellcheck source=build_library/disk_layout_util.sh
 . "${BUILD_LIBRARY_DIR}/disk_layout_util.sh" || exit 1
 
 # Need to be inside the chroot to load chromeos-common.sh
 assert_inside_chroot
 
 # Load functions and constants for chromeos-install
+# shellcheck source=../../platform2/chromeos-common-script/share/chromeos-common.sh
 . /usr/share/misc/chromeos-common.sh || exit 1
 
 # Flags.
@@ -59,6 +62,7 @@ FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 switch_to_strict_mode
 
+# shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 load_board_specific_script "board_specific_setup.sh"
 

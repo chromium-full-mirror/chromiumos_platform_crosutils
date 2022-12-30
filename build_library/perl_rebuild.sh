@@ -10,6 +10,7 @@
 # Usage: simply run `perl_rebuild.sh` inside chroot without any argument.
 
 SCRIPT_ROOT="$(readlink -f "$(dirname "$0")/..")"
+# shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
 perl_rebuild() {

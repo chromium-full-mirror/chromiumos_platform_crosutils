@@ -8,7 +8,9 @@
 # x86 platforms.
 
 SCRIPT_ROOT=$(readlink -f "$(dirname "$0")"/..)
+# shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
+# shellcheck source=disk_layout_util.sh
 . "${BUILD_LIBRARY_DIR}/disk_layout_util.sh" || exit 1
 
 # We're invoked only by build_image, which runs in the chroot
@@ -88,6 +90,7 @@ modify_kernel_command_line() {
   :
 }
 
+# shellcheck source=board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 load_board_specific_script "build_kernel_image.sh"
 modify_kernel_command_line "${config_file}"

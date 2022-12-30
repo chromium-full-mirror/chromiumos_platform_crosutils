@@ -8,7 +8,9 @@
 
 # Helper scripts should be run from the same location as this script.
 SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
+# shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
+# shellcheck source=build_library/ext2_sb_util.sh
 . "${SCRIPT_ROOT}/build_library/ext2_sb_util.sh" || exit 1
 
 # Need to be inside the chroot to load chromeos-common.sh
@@ -118,6 +120,7 @@ if [[ -z "${FLAGS_board}" ]] && [[ -n "${FLAGS_from}" ]]; then
   # but preferring the board inferred from FLAGS_from over the default,
   # everywhere.
   FLAGS_board="$(
+    # shellcheck source=build_library/mount_gpt_util.sh
     . "${BUILD_LIBRARY_DIR}/mount_gpt_util.sh"
     get_board_from_image "${SRC_IMAGE}"
   )"
@@ -131,7 +134,9 @@ if [[ ! -d "/build/${FLAGS_board}" ]]; then
   setup_board --quiet --board="${FLAGS_board}" \
     --skip-toolchain-update --skip-chroot-upgrade --skip-board-pkg-init
 fi
+# shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
+# shellcheck source=build_library/disk_layout_util.sh
 . "${SCRIPT_ROOT}/build_library/disk_layout_util.sh" || exit 1
 
 # Memory units are in MBs

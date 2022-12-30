@@ -7,6 +7,7 @@
 # Simple wrapper script to build a cros_workon package incrementally.
 # You must already be cros_workon'ing the package in question.
 
+# shellcheck source=lib/shflags/shflags
 . /usr/share/misc/shflags || exit 1
 
 GCLIENT_ROOT="/mnt/host/source"
