@@ -224,7 +224,7 @@ emit_gpt_scripts() {
 
   # Write out the header for the script.
   local gpt_layout=$(${GPT} show "${image}" | sed -e 's/^/# /')
-  for x in "${unpack}" "${pack}" "${mount}" "${umount}"; do
+  for x in "${unpack}" "${pack}" "${mount}"; do
     cat >"${x}" <<\EOF
 #!/bin/bash -eu
 # File automatically generated. Do not edit.
@@ -291,8 +291,7 @@ esac
 
 EOF
 
-    if [[ "${x}" != "${umount}" ]]; then
-      cat >>"${x}" <<\EOF
+    cat >>"${x}" <<\EOF
 # Losetup has support for partitions, and offset= has issues.
 # See crbug.com/954188
 LOOPDEV=''
@@ -307,7 +306,6 @@ if [[ "${USE_LOSETUP}" == yes ]]; then
 fi
 
 EOF
-    fi
 
     echo "${gpt_layout}" >> "${x}"
   done
@@ -322,7 +320,7 @@ EOF
     local size_b=$(( size * 512 ))
     local label=$(${GPT} show "${image}" -i ${part} -l)
 
-    for x in "${unpack}" "${pack}" "${mount}" "${umount}"; do
+    for x in "${unpack}" "${pack}" "${mount}"; do
       cat <<EOF >> "${x}"
 case \${PART:-${part}} in
 ${part}|"${label}")
@@ -359,24 +357,16 @@ fi
 ln -sfT ${dir} "${dir}_${label}"
 ) &
 EOF
-      cat <<-EOF >>"${umount}"
-if [[ -d ${dir} ]]; then
-  (
-  sudo umount ${dir} || :
-  rmdir ${dir}
-  rm -f "${dir}_${label}"
-  ) &
-fi
-EOF
     fi
 
-    for x in "${unpack}" "${pack}" "${mount}" "${umount}"; do
+    for x in "${unpack}" "${pack}" "${mount}"; do
       echo "esac" >> "${x}"
     done
   done < <(${GPT} show -q "${image}")
 
   echo "wait" >> "${mount}"
-  echo "wait" >> "${umount}"
+
+  cp "${BUILD_LIBRARY_DIR}/umount_image_helper.sh" "${umount}"
 
   chmod +x "${unpack}" "${pack}" "${mount}" "${umount}"
 }
