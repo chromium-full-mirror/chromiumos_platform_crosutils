@@ -214,6 +214,9 @@ def check_usr(usr, host=False):
 
     for path in NOSUBDIRS_USR:
         if has_subdirs(os.path.join(usr, path)):
+            logging.error(
+                "%s: Path is not allowed to have subdirectories", path
+            )
             ret = False
 
     return ret
@@ -254,6 +257,10 @@ def check_root(root, host=False):
                 "for now"
             )
         else:
+            logging.error(
+                "Installing files or directories in /var is not allowed; "
+                "these must be created at runtime only (e.g. via tmpfiles.d)"
+            )
             ret = False
     else:
         if atom in BAD_VAR_PACKAGES:
@@ -271,6 +278,10 @@ def check_root(root, host=False):
                 "for now"
             )
         else:
+            logging.error(
+                "Installing files or directories in /run is not allowed; "
+                "these must be created at runtime only (e.g. via tmpfiles.d)"
+            )
             ret = False
     else:
         if atom in BAD_RUN_PACKAGES:
