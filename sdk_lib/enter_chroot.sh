@@ -316,61 +316,6 @@ promote_api_keys() {
   fi
 }
 
-# Sanity check the user's environment locale settings.
-check_locale() {
-  if [[ "$(locale -k charmap)" != 'charmap="UTF-8"' ]]; then
-    error "Your locale appears to not support UTF-8 which is required."
-    error "The output from 'locale':"
-    locale
-    error "The output from 'locale -k LC_CTYPE':"
-    locale -k LC_CTYPE
-    error "The language env vars:"
-    env | grep -E '^(LC_|LANG)'
-    if [[ -n "${LC_ALL}" ]]; then
-      error "Never set LC_ALL (=${LC_ALL}) in your environment; only set LANG."
-    fi
-    die_notrace "Please fix your locale settings by setting LANG to UTF-8" \
-      "compatible locale and removing any LC_ variable settings."
-  fi
-}
-
-generate_locales() {
-  # Make sure user's requested locales are available
-  # http://crosbug.com/19139
-  # And make sure en_US{,.UTF-8} are always available as
-  # that what buildbot forces internally
-  local l locales gen_locales=()
-
-  locales=$(printf '%s\n' en_US en_US.UTF-8 ${LANG} \
-    $LC_{ADDRESS,ALL,COLLATE,CTYPE,IDENTIFICATION,MEASUREMENT,MESSAGES} \
-    $LC_{MONETARY,NAME,NUMERIC,PAPER,TELEPHONE,TIME} | \
-    sort -u | sed '/^C$/d')
-  for l in ${locales}; do
-    if [[ ${l} == *.* ]]; then
-      enc=${l#*.}
-    else
-      enc="ISO-8859-1"
-    fi
-    case $(echo "${enc//-}" | tr '[:upper:]' '[:lower:]') in
-    utf8) enc="UTF-8";;
-    esac
-    gen_locales+=("${l} ${enc}")
-  done
-  if [[ ${#gen_locales[@]} -gt 0 ]] ; then
-    # Force LC_ALL=C to workaround slow string parsing in bash
-    # with long multibyte strings.  Newer setups have this fixed,
-    # but locale-gen doesn't need to be run in any locale in the
-    # first place, so just go with C to keep it fast.
-    # Force jobs=1 to work around locale-gen weirdness where it simultaneously
-    # wants to and doesn't want to run multiple jobs (and complains about it).
-    # crbug.com/761153
-    # Force PATH to the right value inside the SDK in case the host distro has
-    # its own incompatible setup.
-    chroot "${FLAGS_chroot}" env LC_ALL=C PATH='/bin:/sbin:/usr/bin:/usr/sbin' \
-      locale-gen -q -u -j 1 -G "$(printf '%s\n' "${gen_locales[@]}")"
-  fi
-}
-
 git_config() {
   USER="${SUDO_USER:-${USER}}" \
   HOME="${SUDO_HOME:-${HOME}}" \
@@ -483,9 +428,6 @@ setup_env() {
       mkdir -p "${run_lock}"
       chmod 1777 "${run_lock}"
     fi
-
-    # Do this early as it's slow and only needs basic mounts (above).
-    generate_locales &
 
     debug "Setting up referenced repositories if required."
     REFERENCE_DIR=$(git_config_path --file  \
@@ -757,7 +699,6 @@ setup_env() {
   unset -v LANGUAGE ${!LC_*}
 }
 
-check_locale
 setup_env
 
 CHROOT_PASSTHRU=(
