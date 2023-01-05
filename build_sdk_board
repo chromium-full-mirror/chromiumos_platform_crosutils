@@ -160,6 +160,12 @@ sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
 sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
   sed -i -e "s|${BOARD_ROOT}/|/|g" {} +
 
+# Enable locale that some Chrome scripts assume exist.
+sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
+sudo mount --bind /dev "${BOARD_ROOT}/dev"
+sudo chroot "${BOARD_ROOT}" locale-gen -u
+sudo umount "${BOARD_ROOT}/dev"
+
 command_completed
 echo "Done!"
 echo "The SYSROOT is: ${BOARD_ROOT}"
