@@ -207,7 +207,6 @@ known_bad_oom() {
   sys-apps/moblab|\
   sys-apps/satlab|\
   sys-apps/upstart|\
-  sys-apps/ureadahead|\
   sys-apps/usbguard|\
   sys-apps/viking-cleanup-logs|\
   sys-firmware/viking-firmware|\
