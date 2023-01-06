@@ -294,18 +294,18 @@ if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
   # Legacy BIOS will use the kernel in the rootfs (via syslinux), as will
   # standard EFI BIOS (via grub, from the EFI System Partition). Chrome OS
   # BIOS will use a separate signed kernel partition, which we'll create now.
-  cat <<EOF >> "${FLAGS_working_dir}/config.txt"
+  cat <<EOF >> "${config}"
 add_efi_memmap
 boot=local
 noresume
 noswap
 i915.modeset=1
 EOF
-  WORK="${WORK} ${FLAGS_working_dir}/config.txt"
+  WORK="${WORK} ${config}"
 
   bootloader_path="/lib64/bootstub/bootstub.efi"
 elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips"  || "${FLAGS_arch}" == "arm64" ]]; then
-  WORK="${WORK} ${FLAGS_working_dir}/config.txt"
+  WORK="${WORK} ${config}"
 
   # arm does not need/have a bootloader in kernel partition
   dd if="/dev/zero" of="${FLAGS_working_dir}/bootloader.bin" bs=512 count=1
@@ -343,25 +343,24 @@ for image_type in $(get_image_types); do
         partname="${partition}"
       fi
       reserved=$(get_reserved_erase_blocks "${image_type}" "${partition}")
-      echo "ubi.mtd=${partname},0,${reserved},${partname}" \
-          >> "${FLAGS_working_dir}/config.txt"
+      echo "ubi.mtd=${partname},0,${reserved},${partname}" >> "${config}"
       fs_format=$(get_filesystem_format "${image_type}" "${partition}")
       if [[ "${fs_format}" != "ubifs" ]]; then
-        echo "ubi.block=${partname},0" >> "${FLAGS_working_dir}/config.txt"
+        echo "ubi.block=${partname},0" >> "${config}"
       fi
     fi
   done
 done
 
-config_file="${FLAGS_working_dir}/config.txt"
-modify_kernel_command_line "${config_file}"
+modify_kernel_command_line "${config}"
+
 # Create and sign the kernel blob
 vbutil_kernel \
   --pack "${FLAGS_to}" \
   --keyblock "${FLAGS_keys_dir}/${FLAGS_keyblock}" \
   --signprivate "${FLAGS_keys_dir}/${FLAGS_private}" \
   --version 1 \
-  --config "${config_file}" \
+  --config "${config}" \
   --bootloader "${bootloader_path}" \
   --vmlinuz "${kernel_image}" \
   --arch "${FLAGS_arch}"
