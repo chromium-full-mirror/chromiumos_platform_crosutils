@@ -12,7 +12,7 @@
 # reflected in ensure_secure_kernelparams.config and deployed to production
 # signing before landed here.
 
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 # shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
@@ -29,7 +29,7 @@ DEFINE_string vmlinuz "vmlinuz" \
   "The path to the kernel (Default: vmlinuz)"
 DEFINE_string working_dir "/tmp/vmlinuz.working" \
   "Working directory for in-progress files. (Default: /tmp/vmlinuz.working)"
-DEFINE_boolean keep_work ${FLAGS_FALSE} \
+DEFINE_boolean keep_work "${FLAGS_FALSE}" \
   "Keep temporary files (*.keyblock, *.vbpubk). (Default: false)"
 DEFINE_string keys_dir "${VBOOT_TESTKEYS_DIR}" \
   "Directory with the RSA signing keys. (Defaults to test keys)"
@@ -61,9 +61,9 @@ DEFINE_string verity_hash_alg "sha256" \
   "Cryptographic hash algorithm used for dm-verity. (Default: sha256)"
 DEFINE_string verity_salt "" \
   "Salt to use for rootfs hash (Default: \"\")"
-DEFINE_boolean enable_rootfs_verification ${FLAGS_TRUE} \
+DEFINE_boolean enable_rootfs_verification "${FLAGS_TRUE}" \
   "Enable kernel-based root fs integrity checking. (Default: true)"
-DEFINE_boolean enable_bootcache ${FLAGS_FALSE} \
+DEFINE_boolean enable_bootcache "${FLAGS_FALSE}" \
   "Enable boot cache to accelerate booting. (Default: false)"
 DEFINE_string enable_serial "" \
   "Enable serial port for printks. Example values: ttyS0"
@@ -87,17 +87,17 @@ switch_to_strict_mode
 
 rootdigest() {
   local digest=${table#*root_hexdigest=}
-  echo ${digest% salt*}
+  echo "${digest% salt*}"
 }
 
 salt() {
   local salt=${table#*salt=}
-  echo ${salt%}
+  echo "${salt%}"
 }
 
 hashstart() {
   local hash=${table#*hashstart=}
-  echo ${hash% alg*}
+  echo "${hash% alg*}"
 }
 
 # Estimate of sectors used by verity
@@ -137,7 +137,7 @@ if [[ -n "${FLAGS_rootfs_image}" && -n "${FLAGS_rootfs_hash}" ]]; then
   else
     # We try to autodetect the rootfs_image filesystem size.
     if [[ -f "${FLAGS_rootfs_image}" ]]; then
-      root_fs_size=$(stat -c '%s' ${FLAGS_rootfs_image})
+      root_fs_size=$(stat -c '%s' "${FLAGS_rootfs_image}")
     elif [[ -b "${FLAGS_rootfs_image}" ]]; then
       root_fs_type="$(awk -v rootdev="${FLAGS_rootfs_image}" \
                      '$1 == rootdev { print $3 }' /proc/mounts | head -n 1)"
@@ -184,11 +184,11 @@ with --rootfs_image_size."
   info "Generating root fs hash tree (salt '${FLAGS_verity_salt}')."
   # Runs as sudo in case the image is a block device.
   table=$(sudo verity mode=create \
-                      alg=${FLAGS_verity_hash_alg} \
-                      payload=${FLAGS_rootfs_image} \
-                      payload_blocks=${root_fs_blocks} \
-                      hashtree=${FLAGS_rootfs_hash} \
-                      salt=${FLAGS_verity_salt})
+                      alg="${FLAGS_verity_hash_alg}" \
+                      payload="${FLAGS_rootfs_image}" \
+                      payload_blocks="${root_fs_blocks}" \
+                      hashtree="${FLAGS_rootfs_hash}" \
+                      salt="${FLAGS_verity_salt}")
   if [[ -f "${FLAGS_rootfs_hash}" ]]; then
     sudo chmod a+r "${FLAGS_rootfs_hash}"
   fi
@@ -321,14 +321,14 @@ kernel_image="${FLAGS_vmlinuz}"
 # an artifact by cbuildbot.  Non .bin's need to be explicitly specified
 # and would require the entire set of artifacts to be specified.
 info "Saving kernel as ${FLAGS_working_dir}/vmlinuz.bin"
-cp ${kernel_image} ${FLAGS_working_dir}/vmlinuz.bin
+cp "${kernel_image}" "${FLAGS_working_dir}/vmlinuz.bin"
 
 for image_type in $(get_image_types); do
   already_seen_rootfs=0
-  for partition in $(get_partitions ${image_type}); do
-    format=$(get_format ${image_type} "${partition}")
+  for partition in $(get_partitions "${image_type}"); do
+    format=$(get_format "${image_type}" "${partition}")
     if [[ "${format}" == "ubi" ]]; then
-      type=$(get_type ${image_type} "${partition}")
+      type=$(get_type "${image_type}" "${partition}")
       # cgpt.py ensures that the rootfs partitions are compatible, in that if
       # one is ubi then both are, and they have the same number of reserved
       # blocks. We only want to attach one of them in boot to save time, so
@@ -342,10 +342,10 @@ for image_type in $(get_image_types); do
       else
         partname="${partition}"
       fi
-      reserved=$(get_reserved_erase_blocks ${image_type} "${partition}")
+      reserved=$(get_reserved_erase_blocks "${image_type}" "${partition}")
       echo "ubi.mtd=${partname},0,${reserved},${partname}" \
           >> "${FLAGS_working_dir}/config.txt"
-      fs_format=$(get_filesystem_format ${image_type} "${partition}")
+      fs_format=$(get_filesystem_format "${image_type}" "${partition}")
       if [[ "${fs_format}" != "ubifs" ]]; then
         echo "ubi.block=${partname},0" >> "${FLAGS_working_dir}/config.txt"
       fi
@@ -380,7 +380,7 @@ set +e  # cleanup failure is a-ok
 if [[ ${FLAGS_keep_work} -eq ${FLAGS_FALSE} ]]; then
   info "Cleaning up temporary files: ${WORK}"
   rm ${WORK}
-  rmdir ${FLAGS_working_dir}
+  rmdir "${FLAGS_working_dir}"
 fi
 
 info "Kernel partition image emitted: ${FLAGS_to}"
