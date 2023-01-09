@@ -1,8 +1,0 @@
-# Copyright 2022 The ChromiumOS Authors
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-# Remove old virtual/libcrypt-1 and rebuild chroot glibc without libcrypt
-# which is replaced by libxcrypt + virtual/libcrypt-2.
-sudo qmerge -Uqy virtual/libcrypt
-sudo emerge -ugq sys-libs/glibc virtual/libcrypt sys-libs/libxcrypt

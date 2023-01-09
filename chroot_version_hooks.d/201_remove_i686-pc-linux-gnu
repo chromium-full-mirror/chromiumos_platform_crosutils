@@ -1,8 +1,0 @@
-# Copyright 2022 The ChromiumOS Authors
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-
-# The i686-pc-linux-gnu toolchain was renamed to i686-cros-linux-gnu, so delete
-# the old toolchain.
-# https://issuetracker.google.com/issues/187786439
-sudo crossdev --force -C i686-pc-linux-gnu
