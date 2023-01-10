@@ -147,6 +147,18 @@ create_dev_install_lists() {
   sudo mkdir -p "${BOARD_ROOT}/build/dev-install"
   sudo mv "${pkgs_out}/package.installable" "${BOARD_ROOT}/build/dev-install/"
 
+  # installable_commands is the list of all programs installed into ${PATH} from
+  # package.installable.
+  local installable_packages=()
+  mapfile -t installable_packages \
+    < "${BOARD_ROOT}/build/dev-install/package.installable"
+  qlist-"${BOARD}" -e "${installable_packages[@]}" | \
+    grep -E '^(/usr)?/s?bin/' | \
+    awk -F/ '{print $NF}' | \
+    sort -u > "${pkgs_out}/installable_commands"
+  sudo cp "${pkgs_out}/installable_commands" \
+    "${root_fs_dir}/usr/share/dev-install/installable_commands"
+
   local package_provided_dir="${root_fs_dir}/usr/share/dev-install/"
   package_provided_dir+="portage/make.profile/package.provided"
 
