@@ -515,9 +515,6 @@ create_base_image() {
   # use those templates to update the legacy boot partition (12/ESP)
   # on update.
   # (This script does not populate vmlinuz.A and .B needed by syslinux.)
-  # Factory install shims may be booted from USB by legacy EFI BIOS, which does
-  # not support verified boot yet (see create_legacy_bootloader_templates.sh)
-  # so rootfs verification is disabled if we are building with --factory_install
   local enable_rootfs_verification=
   if [[ ${rootfs_verification_enabled} -eq ${FLAGS_TRUE} ]]; then
     enable_rootfs_verification="--enable_rootfs_verification"
