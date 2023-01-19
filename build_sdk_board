@@ -18,10 +18,10 @@ assert_not_root_user
 # Developer-visible flags.
 DEFINE_string board "amd64-host" \
   "The name of the board to set up."
-DEFINE_boolean force $FLAGS_FALSE \
+DEFINE_boolean force "${FLAGS_FALSE}" \
   "Force re-creating board root."
 
-FLAGS_HELP="usage: $(basename $0) [flags]
+FLAGS_HELP="usage: $(basename "$0") [flags]
 
 setup_host_board builds the chroot for the amd64-host (chroot) board.
 This should not need to be called except by the SDK Builder.
@@ -41,25 +41,19 @@ BOARD=${FLAGS_board}
 BOARD_ROOT="/build/${BOARD}"
 CHROMIUMOS_OVERLAY="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
 CHROMIUMOS_CONFIG="${CHROMIUMOS_OVERLAY}/chromeos/config"
-CHROMIUMOS_PROFILES="${CHROMIUMOS_OVERLAY}/profiles"
 BOARD_ETC="${BOARD_ROOT}/etc"
 BOARD_SETUP="${BOARD_ETC}/make.conf.board_setup"
 BOARD_PROFILE="${BOARD_ETC}/portage/profile"
 
-eval $(portageq envvar -v CHOST PKGDIR)
+eval "$(portageq envvar -v CHOST PKGDIR)"
 
-SYSROOT_EXISTS=false
 if [ -d "${BOARD_ROOT}" ]; then
   if [[ ${FLAGS_force} -eq ${FLAGS_TRUE} ]]; then
     echo "--force set.  Re-creating ${BOARD_ROOT}..."
     # Removal takes long. Make it asynchronous.
-    TEMP_DIR=`mktemp -d`
+    TEMP_DIR=$(mktemp -d)
     sudo mv "${BOARD_ROOT}" "${TEMP_DIR}"
     sudo rm -rf --one-file-system "${TEMP_DIR}" &
-  else
-    # The sysroot exists. Take note so that we can exit early once the
-    # configuration has been updated.
-    SYSROOT_EXISTS=true
   fi
 fi
 
@@ -115,9 +109,8 @@ if ! info_run cros_choose_profile --profile "" \
 fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
-TOOLCHAIN_PACKAGES=(
-  $("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host)
-)
+mapfile -t TOOLCHAIN_PACKAGES < \
+  <("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host)
 # Sanity check we got some valid results.
 if [[ ${#TOOLCHAIN_PACKAGES[@]} -eq 0 ]]; then
   die_notrace "cros_setup_toolchains failed"
@@ -125,7 +118,7 @@ fi
 PACKAGES=( system virtual/target-sdk )
 
 run_emerge() {
-  info_run sudo -E ${EMERGE_CMD} "$@"
+  info_run sudo -E "${EMERGE_CMD}" "$@"
 }
 
 # First, rebuild all packages from scratch. This is needed to make sure
@@ -142,16 +135,19 @@ run_emerge --verbose --emptytree --with-bdeps=y \
 info_run sudo eclean -d packages
 
 # Next, install our rebuilt packages into our separate root.
-HOST_FLAGS="--root=$BOARD_ROOT --update --verbose --deep --root-deps"
-HOST_FLAGS+=" --newuse --usepkgonly"
-run_emerge $HOST_FLAGS --with-bdeps=y "${PACKAGES[@]}"
+HOST_FLAGS=(
+  "--root=${BOARD_ROOT}" --update --verbose --deep --root-deps
+  --newuse --usepkgonly
+)
+run_emerge "${HOST_FLAGS[@]}" --with-bdeps=y "${PACKAGES[@]}"
 # Install our rebuilt packages from the nobdeps target into our separate root
 # without their build-time deps.  We also avoid adding this target to the
 # world set so that subsequent update_chroot commands won't re-import the
 # build deps.
-run_emerge $HOST_FLAGS --with-bdeps=n --oneshot \
+run_emerge "${HOST_FLAGS[@]}" --with-bdeps=n --oneshot \
   virtual/target-sdk-nobdeps
-info_run sudo cp -a "${PKGDIR}" $BOARD_ROOT/packages
+# shellcheck disable=SC2154  # PKGDIR is defined via eval above
+info_run sudo cp -a "${PKGDIR}" "${BOARD_ROOT}/packages"
 
 # Copy our chroot version into the newly packaged chroot.
 sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
