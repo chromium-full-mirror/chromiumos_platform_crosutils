@@ -156,6 +156,10 @@ sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
 sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
   sed -i -e "s|${BOARD_ROOT}/|/|g" {} +
 
+# Remove wrapper scripts left behind in the sysroot. These are not supposed to
+# be part of the final filesystem.
+sudo rm -rf "${BOARD_ROOT}/build"
+
 # Enable locale that some Chrome scripts assume exist.
 sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
 sudo mount --bind /dev "${BOARD_ROOT}/dev"
