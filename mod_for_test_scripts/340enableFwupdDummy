@@ -14,7 +14,7 @@ sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
 
 echo "Enabling dummy fwupd remote for tests."
 
-sed -e '/^DisabledPlugins=/s/^/#/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
+sed -e 's/^\(DisabledPlugins=\).*/\1/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
 
 cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
