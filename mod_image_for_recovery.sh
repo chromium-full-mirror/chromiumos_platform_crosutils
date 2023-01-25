@@ -291,7 +291,7 @@ find_sectors_needed() {
   local base_dir file_list in_use sectors_needed
 
   base_dir="$1"
-  read -a -r file_list <<< "$2"
+  read -r -a file_list <<< "$2"
 
   # Calculate space needed by the files we'll be copying, plus
   # a reservation for recovery logs or other runtime data.
