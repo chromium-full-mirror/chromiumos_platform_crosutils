@@ -297,7 +297,7 @@ echo
 echo "WARNING: $0 is deprecated and will be removed."
 echo "WARNING: If you rely on this script, please email go/cros-build-help."
 echo "NB: You can use losetup to efficiently access partitions:"
-echo "    losetup -f -P ${TARGET}"
+echo "    losetup --show -f -P ${TARGET}"
 echo
 sleep 1
 EOF
