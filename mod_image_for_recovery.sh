@@ -206,9 +206,28 @@ update_efi_partition() {
   loopback_detach "${RECOVERY_DEV}"
 }
 
+install_recovery_kernel_once() {
+  local kern_offset="$1"
+  local kern_size="$2"
+
+  local kernel_img_bytes
+  kernel_img_bytes="$(stat -c %s "${RECOVERY_KERNEL_IMAGE}")"
+  if [[ "${kernel_img_bytes}" -gt "$(( kern_size * 512 ))" ]]; then
+    die "Kernel image size ($(( kernel_img_bytes / 1048576)) MiB) is " \
+      "larger than kernel partition size ($(( kern_size * 512 / 1048576 )) MiB)"
+  fi
+
+  dd if="${RECOVERY_KERNEL_IMAGE}" of="${RECOVERY_IMAGE}" bs=512 \
+     seek="${kern_offset}" \
+     count="${kern_size}" \
+     conv=notrunc
+}
+
 install_recovery_kernel() {
-  local partition_num_kern_a kern_a_offset kern_a_size partition_num_kern_b \
-    kern_b_offset kern_b_size
+  local partition_num_kern_a kern_a_offset kern_a_size \
+        partition_num_kern_b kern_b_offset kern_b_size \
+        partition_num_kern_c kern_c_offset kern_c_size \
+        has_kern_c
 
   partition_num_kern_a=$(get_image_partition_number "${RECOVERY_IMAGE}" \
     "KERN-A")
@@ -226,6 +245,22 @@ install_recovery_kernel() {
     return 1
   fi
 
+  # Only some devices have a KERN-C. If it exists and has size > 1 sector,
+  # the same recovery kernel is installed as both KERN-A and KERN-C. If not,
+  # the recovery kernel is installed as KERN-A only. (See b/266502803).
+  has_kern_c="true"
+  partition_num_kern_c=$(get_image_partition_number "${RECOVERY_IMAGE}" \
+    "KERN-C")
+  if [[ -z "${partition_num_kern_c}" ]]; then
+    has_kern_c="false"
+  else
+    kern_c_offset=$(partoffset "${RECOVERY_IMAGE}" "${partition_num_kern_c}")
+    kern_c_size=$(partsize "${RECOVERY_IMAGE}" "${partition_num_kern_c}")
+    if [[ "${kern_c_size}" -le 1 ]]; then
+      has_kern_c="false"
+    fi
+  fi
+
   # We're going to use the real signing block.
   if [ "${FLAGS_sync_keys}" -eq "${FLAGS_TRUE}" ]; then
     dd if="${INSTALL_VBLOCK}" of="${RECOVERY_IMAGE}" bs=512 \
@@ -233,17 +268,11 @@ install_recovery_kernel() {
        conv=notrunc
   fi
 
-  local kernel_img_bytes
-  kernel_img_bytes="$(stat -c %s "${RECOVERY_KERNEL_IMAGE}")"
-  if [[ "${kernel_img_bytes}" -gt "$(( kern_a_size * 512 ))" ]]; then
-    die "Kernel image is larger than $(( kern_a_size * 512 / 1048576 )) MiB."
+  install_recovery_kernel_once "${kern_a_offset}" "${kern_a_size}"
+  if [[ "${has_kern_c}" == "true" ]]; then
+    install_recovery_kernel_once "${kern_c_offset}" "${kern_c_size}"
   fi
 
-  # Install the recovery kernel as primary.
-  dd if="${RECOVERY_KERNEL_IMAGE}" of="${RECOVERY_IMAGE}" bs=512 \
-     seek="${kern_a_offset}" \
-     count="${kern_a_size}" \
-     conv=notrunc
   # Force all of the file writes to complete, in case it's necessary for
   # crbug.com/954188
   sync
@@ -252,6 +281,12 @@ install_recovery_kernel() {
   # the 'Tries' flag).
   # shellcheck disable=SC2154
   sudo "${GPT}" add -i "${partition_num_kern_a}" -S 1 "${RECOVERY_IMAGE}"
+  if [[ "${has_kern_c}" == "true" ]]; then
+    sudo "${GPT}" add -i "${partition_num_kern_c}" -S 1 "${RECOVERY_IMAGE}"
+
+    # Set the KERN-C priority non-zero, otherwise the firmware won't try it.
+    sudo "${GPT}" add -i "${partition_num_kern_c}" -P 1 "${RECOVERY_IMAGE}"
+  fi
 
   # Repeat for the legacy bioses.
   # Replace vmlinuz.A with the recovery version we built.
