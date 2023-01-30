@@ -7,6 +7,7 @@
 
 DEFAULT_PRIVATE_KEY="${GCLIENT_ROOT}/src/scripts/mod_for_test_scripts/\
 ssh_keys/testing_rsa"
+PARTNER_PRIVATE_KEY="${GCLIENT_ROOT}/sshkeys/partner_testing_rsa"
 
 DEFINE_string remote "" "remote hostname/IP of running Chromium OS instance"
 DEFINE_string private_key "$DEFAULT_PRIVATE_KEY" \
@@ -59,6 +60,9 @@ ssh_connect_settings() {
       "ControlMaster=auto"
       "ControlPersist=45"
     )
+    if [[ -f "${TMP_PRIVATE_PARTNER_KEY}" ]]; then
+      settings+=("IdentityFile=${TMP_PRIVATE_PARTNER_KEY}")
+    fi
     printf -- '-o %s ' "${settings[@]}"
 
     if [[ "${FLAGS_ssh_port}" -ne 0 ]]; then
@@ -162,6 +166,10 @@ remote_sh_allow_changed_host_key() {
 set_up_remote_access() {
   cp $FLAGS_private_key $TMP_PRIVATE_KEY
   chmod 0400 $TMP_PRIVATE_KEY
+  if [[ -f "${PARTNER_PRIVATE_KEY}" ]]; then
+      cp "${PARTNER_PRIVATE_KEY}" "${TMP_PRIVATE_PARTNER_KEY}"
+      chmod 0400 "${TMP_PRIVATE_PARTNER_KEY}"
+  fi
 
   # Verify the client is reachable before continuing
   local output
@@ -269,6 +277,7 @@ cleanup_remote_access() {
 
 remote_access_init() {
   TMP_PRIVATE_KEY=$TMP/private_key
+  TMP_PRIVATE_PARTNER_KEY="${TMP}/partner_private_key"
   TMP_KNOWN_HOSTS=$TMP/known_hosts
   TMP_CONTROL_FILE="${TMP}/ssh_control-%C"
 
