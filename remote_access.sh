@@ -5,8 +5,7 @@
 
 # Library for setting up remote access and running remote commands.
 
-DEFAULT_PRIVATE_KEY="${GCLIENT_ROOT}/src/scripts/mod_for_test_scripts/\
-ssh_keys/testing_rsa"
+DEFAULT_PRIVATE_KEY="${GCLIENT_ROOT}/chromite/ssh_keys/testing_rsa"
 PARTNER_PRIVATE_KEY="${GCLIENT_ROOT}/sshkeys/partner_testing_rsa"
 
 DEFINE_string remote "" "remote hostname/IP of running Chromium OS instance"
