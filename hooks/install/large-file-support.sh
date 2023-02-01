@@ -160,6 +160,17 @@ known_bad_pkg() {
     ;;
   esac
 
+  # TODO(b/258669199): Ignore Rust packages for now.
+  case "${CATEGORY}/${PN}:${PV}" in
+  chromeos-base/crosvm:*|\
+  media-sound/adhd:*|\
+  media-sound/audio_processor:*|\
+  media-sound/audio_streams_conformance_test:*|\
+  media-sound/cras_tests:*)
+    return 0
+    ;;
+  esac
+
   # Do not add more packages here!
   case "${CATEGORY}/${PN}:${PV}" in
   app-accessibility/brltty:6.3|\
@@ -207,7 +218,6 @@ known_bad_pkg() {
   chromeos-base/croscomp:0.1.0|\
   chromeos-base/crosh:0.24.52|\
   chromeos-base/crostini_client:0.1.0|\
-  chromeos-base/crosvm:*|\
   chromeos-base/ec-devutils:0.0.2|\
   chromeos-base/ec-utils:0.0.2|\
   chromeos-base/ec-utils-test:0.0.1|\
@@ -346,11 +356,7 @@ known_bad_pkg() {
   media-libs/vulkan-loader:1.3.211|\
   media-libs/waffle:1.6.0|\
   media-plugins/alsa-plugins:1.1.6|\
-  media-sound/adhd:*|\
   media-sound/alsa-utils:1.2.1|\
-  media-sound/audio_processor:*|\
-  media-sound/audio_streams_conformance_test:*|\
-  media-sound/cras_tests:*|\
   media-sound/gsm:1.0.13|\
   media-sound/sound_card_init:*|\
   media-tv/v4l-utils:1.22.1|\
