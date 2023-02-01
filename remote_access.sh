@@ -5,6 +5,14 @@
 
 # Library for setting up remote access and running remote commands.
 
+case ${SCRIPT_NAME} in
+cros_show_stacks|update_kernel.sh)
+  ;;
+*)
+  echo "remote_access.sh: This script is deprecated and will be removed." >&2
+  ;;
+esac
+
 DEFAULT_PRIVATE_KEY="${GCLIENT_ROOT}/chromite/ssh_keys/testing_rsa"
 PARTNER_PRIVATE_KEY="${GCLIENT_ROOT}/sshkeys/partner_testing_rsa"
 
