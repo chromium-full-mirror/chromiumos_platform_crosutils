@@ -292,6 +292,45 @@ install_libc() {
   install_libc_for_abi "${root_fs_dir}" "${CHOST}"
 }
 
+inject_system_wide_scudo() {
+  local root_fs_dir="$1"
+  info "'system_wide_scudo' enabled; Injecting scudo..."
+  local arch
+  local libdir
+  case "${ARCH}" in
+    x86)
+      arch='i386'
+      libdir='lib'
+      ;;
+    amd64)
+      arch='x86_64'
+      libdir='lib64'
+      ;;
+    arm)
+      arch='armhf'
+      libdir="lib"
+      ;;
+    arm64)
+      arch='aarch64'
+      libdir="lib64"
+      ;;
+    *) die "Inject scudo: unknown ARCH '${ARCH}'";;
+  esac
+  local libname="libclang_rt.scudo_standalone-${arch}.so"
+  local rootfs_scudo_loc="/usr/${libdir}/${libname}"
+  local preload_file="${root_fs_dir}/etc/ld.so.preload"
+  if [[ -f "${preload_file}" ]]; then
+    die "Inject scudo: preload '${preload_file}' already exists"
+  fi
+  local absolute_scudo_loc="${root_fs_dir}${rootfs_scudo_loc}"
+  if [[ -f "${absolute_scudo_loc}" ]]; then
+    echo "${rootfs_scudo_loc}" | sudo tee "${preload_file}" > /dev/null
+    info "Wrote ${rootfs_scudo_loc} to ${preload_file}"
+  else
+    die "Inject scudo: lib '${absolute_scudo_loc}' does NOT exist"
+  fi
+}
+
 create_base_image() {
   local image_name=$1
   local rootfs_verification_enabled=$2
@@ -350,6 +389,16 @@ create_base_image() {
   # binary packages with runtime dependencies only.  We use INSTALL_MASK to
   # trim the image size as much as possible.
   emerge_to_image --root="${root_fs_dir}" ${BASE_PACKAGE}
+
+  # Inject scudo system wide if system_wide_scudo is enabled.
+  if has "system_wide_scudo" in "$(portageq-"${BOARD}" envvar USE)"; then
+    # We do inject at this stage (and not during build_packages) because
+    # some unit tests fail when tested with Scudo. This isn't an inherent
+    # problem with Scudo, but instead is a problem with shared memory regions
+    # between allocators. If the host is using GNU Allocator and the VM is
+    # using Scudo, we're going to end up with a lot of memory errors.
+    inject_system_wide_scudo "${root_fs_dir}"
+  fi
 
   # Run depmod to recalculate the kernel module dependencies.
   run_depmod "${BOARD_ROOT}" "${root_fs_dir}"
