@@ -163,6 +163,7 @@ known_bad_pkg() {
   # TODO(b/258669199): Ignore Rust packages for now.
   case "${CATEGORY}/${PN}:${PV}" in
   chromeos-base/crosvm:*|\
+  chromeos-base/resourced:*|\
   media-sound/adhd:*|\
   media-sound/audio_processor:*|\
   media-sound/audio_streams_conformance_test:*|\
@@ -241,7 +242,6 @@ known_bad_pkg() {
   chromeos-base/pixart_tpfwup:0.0.6|\
   chromeos-base/sirenia:0.24.52|\
   chromeos-base/sommelier:0.0.1|\
-  chromeos-base/resourced:0.1.0|\
   chromeos-base/tast-local-helpers-cros:0.0.1|\
   chromeos-base/telemetry:0.0.1|\
   chromeos-base/tensorflow-internal:2.8.0|\
