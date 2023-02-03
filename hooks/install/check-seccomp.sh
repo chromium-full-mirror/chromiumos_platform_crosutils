@@ -12,7 +12,8 @@ fi
 
 shopt -s nullglob
 if [[ -n "${D}" ]]; then
-  set -- "${D}"/usr/share/policy/*.policy
+  set -- "${D}"/usr/share/policy/*.policy \
+    "${D}"/opt/google/touch/policies/*.policy
 fi
 
 for policy in "$@"; do
