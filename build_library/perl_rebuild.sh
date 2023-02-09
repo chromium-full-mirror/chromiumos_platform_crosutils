@@ -29,6 +29,7 @@ perl_rebuild() {
       sudo qmerge -Uyq "${pkgs[@]}"
     fi
     sudo perl-cleaner --all -- --quiet
+    sudo find /usr/lib*/perl5/vendor_perl -type d -empty -delete
   fi
 }
 
