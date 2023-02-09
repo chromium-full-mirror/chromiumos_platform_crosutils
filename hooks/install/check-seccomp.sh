@@ -10,6 +10,11 @@ if [[ -z "${SYSROOT}" ]]; then
   exit 1
 fi
 
+if [[ ! -f "${SYSROOT}/build/share/constants.json" ]]; then
+  echo "SKIPPING: Cannot find constants.json" >&2
+  exit 0
+fi
+
 shopt -s nullglob
 if [[ -n "${D}" ]]; then
   set -- "${D}"/usr/share/policy/*.policy \
