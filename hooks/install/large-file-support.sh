@@ -129,6 +129,20 @@ known_good_pkg() {
   # packages that are themselves broken.
   sys-apps/sandbox) ;;
 
+  # https://bugs.gentoo.org/893656
+  # zlib is quite intelligent when it comes to the standard LFS flags. z_off_t
+  # is the only exported interface that uses off_t. In gzlib.c, a few APIs
+  # (e.g. gzseek) are defined in terms of z_off_t, so with a 32-bit ABI that
+  # splits values (e.g. arm 32-bit). This means the stack usage & return value
+  # are ABI incompatible.
+  #
+  # Annoyingly, the only thing tripping up the checker is the call to open() in
+  # gzlib.c, and zlib actually DTRT by using O_LARGEFILE when available.
+  # Unfortunately, it's impossible from a symbol analysis point of view to
+  # determine that. We would really need something that decompiles & analyzes
+  # the opcodes to detect that this particular usage is correct.
+  sys-libs/zlib) ;;
+
   *) return 1;;
   esac
 
@@ -464,7 +478,6 @@ known_bad_pkg() {
   sys-libs/libsepol:3.0|\
   sys-libs/mtdev:1.1.2|\
   sys-libs/pam:1.3.1|\
-  sys-libs/zlib:1.2.11|\
   sys-process/audit:3.0.6|\
   sys-process/htop:1.0.2|\
   sys-process/numactl:2.0.14|\
