@@ -388,7 +388,6 @@ known_bad_pkg() {
   net-dns/bind-tools:9.11.2_p1|\
   net-firewall/conntrack-tools:1.4.4|\
   net-firewall/ebtables:2.0.11|\
-  net-fs/samba:4.15.5|\
   net-libs/grpc:1.16.*|\
   net-libs/grpc:1.43.*|\
   net-libs/libiio:0.23|\
@@ -401,7 +400,6 @@ known_bad_pkg() {
   net-misc/bridge-utils:1.6|\
   net-misc/chrony:4.2|\
   net-misc/diag:0.1_p20210329|\
-  net-misc/dhcp:4.4.1|\
   net-misc/htpdate:1.0.4|\
   net-misc/iperf:2.0.9|\
   net-misc/iperf:3.7|\
@@ -415,7 +413,6 @@ known_bad_pkg() {
   net-misc/tlsdate:0.0.5|\
   net-misc/uftp:4.10.1|\
   net-misc/usbip:4.19|\
-  net-nds/openldap:2.4.57|\
   net-print/cups-filters:1.28.7|\
   net-print/dymo-cups-drivers:1.4.0|\
   net-print/epson-inkjet-printer-escpr:1.7.18|\
