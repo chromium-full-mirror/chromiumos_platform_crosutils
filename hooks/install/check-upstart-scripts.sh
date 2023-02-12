@@ -179,7 +179,6 @@ known_bad_oom() {
   media-libs/dlm|\
   media-libs/img-ddk|\
   media-libs/img-ddk-bin|\
-  media-sound/adhd|\
   net-dns/avahi-daemon|\
   net-firewall/conntrack-tools|\
   net-libs/libqrtr|\
