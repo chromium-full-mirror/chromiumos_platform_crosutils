@@ -134,12 +134,12 @@
     # Used for factory install images.
     "factory_install": [
       {
-        "num": 12,
-        "size": "32 MiB"
+        "num": 4,
+        "size": "1"
       },
       {
         "num": 5,
-        "size": "2 MiB"
+        "size": "1"
       },
       {
         "num": 3,
