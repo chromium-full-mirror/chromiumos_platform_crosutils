@@ -268,6 +268,13 @@ make_image_bootable() {
     info "Disabling r/w mount of the root filesystem"
     local rootfs_offset="$(partoffset ${image} 3)"
     disable_rw_mount "${image}" "$(( rootfs_offset * 512 ))"
+
+    # For factory_install images, override FLAGS_enable_rootfs_verification
+    # here, so the following build_img calls won't make kernel set up the
+    # device mapper on initialization.
+    if [[ "${FLAGS_image_type}" == "factory_install" ]]; then
+      FLAGS_enable_rootfs_verification=${FLAGS_FALSE}
+    fi
   fi
 
   trap "unmount_image ; die 'cros_make_image_bootable failed.'" EXIT
@@ -308,32 +315,56 @@ make_image_bootable() {
     "${FLAGS_image_type}" ROOT-A)"
   local rootfs_fs_size=$(get_filesystem_size "${FLAGS_image_type}" \
     "${partition_num_root_a}")
-  build_img "vmlinuz.image" "${root_dev}" "${rootfs_fs_size}" "${keyblock}" \
-            "recovery_kernel_data_key.vbprivk" "recovery_key.vbpubk"
-  build_img "hd_vmlinuz.image" "${root_dev}" "${rootfs_fs_size}" \
-            "kernel.keyblock" "kernel_data_key.vbprivk" "kernel_subkey.vbpubk" \
-            "vmlinuz_hd.vblock"
+
+  # Usually we need to ensure that there will always be a regular kernel on
+  # recovery and non-recovery images. But for factory shim, we need to
+  # support 2 kernels signed with different recovery key. b/269192903
+  local kern_a_image="vmlinuz.image"
+  build_img "${kern_a_image}" "${root_dev}" "${rootfs_fs_size}" \
+      "${keyblock}" "recovery_kernel_data_key.vbprivk" "recovery_key.vbpubk"
+  local kern_b_image="vmlinuz_b.image"
+  if [[ "${FLAGS_image_type}" == "factory_install" ]]; then
+    kern_b_image="vmlinuz.image"
+  else
+    build_img "${kern_b_image}" "${root_dev}" "${rootfs_fs_size}" \
+              "kernel.keyblock" "kernel_data_key.vbprivk" \
+              "kernel_subkey.vbpubk" "vmlinuz_hd.vblock"
+  fi
 
   # Check the size of kernel image and issue warning when image size is
   # near the limit.
-  local kernel_image_size_A=$(stat -c '%s' ${FLAGS_output_dir}/vmlinuz.image)
+  local kernel_image_size_A=$(stat -c '%s' ${FLAGS_output_dir}/${kern_a_image})
   info "Kernel image A   size is ${kernel_image_size_A} bytes."
-  local kernel_image_size_B=$(stat -c '%s' ${FLAGS_output_dir}/hd_vmlinuz.image)
+  local kernel_image_size_B=$(stat -c '%s' ${FLAGS_output_dir}/${kern_b_image})
   info "Kernel image B   size is ${kernel_image_size_B} bytes."
   local partition_num_kern_a="$(get_layout_partition_number \
     "${FLAGS_image_type}" KERN-A)"
   check_kernel_size ${kernel_image_size_A} ${partition_num_kern_a} A
   local partition_num_kern_b="$(get_layout_partition_number \
     "${FLAGS_image_type}" KERN-B)"
-  check_kernel_size ${kernel_image_size_B} ${partition_num_kern_b} B
+
+  # Since the kernel-b of factory shim is optional, ignore kernel-b if the size
+  # of kernel-b is less than or equal to the default value 1MiB.
+  local need_kern_b=${FLAGS_TRUE}
+  if [[ "${FLAGS_image_type}" == "factory_install" ]]; then
+    local kernel_partition_size=$(get_partition_size ${FLAGS_image_type} \
+                                                   ${partition_num_kern_b})
+    local block_size="$(get_block_size)"
+    if [[ "${kernel_partition_size}" -le "${block_size}" ]]; then
+      need_kern_b=${FLAGS_FALSE}
+      warn "Kernel partition B is skipped!"
+    fi
+  fi
+  if [[ ${need_kern_b} -eq ${FLAGS_TRUE} ]]; then
+    check_kernel_size ${kernel_image_size_B} ${partition_num_kern_b} B
+  fi
 
   local rootfs_hash_size=$(stat -c '%s' ${FLAGS_rootfs_hash})
   local rootfs_partition_size=$(get_partition_size ${FLAGS_image_type} \
       ${partition_num_root_a})
   local rootfs_hash_pad=$(( rootfs_partition_size - rootfs_fs_size ))
   info "Appending rootfs.hash (${rootfs_hash_size} bytes) to the root fs"
-  if [[ ${rootfs_hash_size} -gt ${rootfs_hash_pad} ]]
-  then
+  if [[ ${rootfs_hash_size} -gt ${rootfs_hash_pad} ]]; then
     die "rootfs_partition_size - rootfs_fs_size is less than the needed " \
         "rootfs_hash_size (${rootfs_hash_size}), update your disk layout " \
         "configuration"
@@ -362,14 +393,15 @@ make_image_bootable() {
             "${FLAGS_statefulfs_mountpoint}"
   fi
 
-  # Install the kernel to both slots A and B so there will always be a regular
-  # kernel in slot B on recovery and non-recovery images.
+  # Install the kernel to both slots A and B.
   local koffset="$(partoffset ${image} ${partition_num_kern_a})"
-  sudo dd if="${FLAGS_output_dir}/vmlinuz.image" of="${image}" \
+  sudo dd if="${FLAGS_output_dir}/${kern_a_image}" of="${image}" \
     conv=notrunc bs=512 seek=${koffset} status=none
-  koffset="$(partoffset ${image} ${partition_num_kern_b})"
-  sudo dd if="${FLAGS_output_dir}/hd_vmlinuz.image" of="${image}" \
-    conv=notrunc bs=512 seek=${koffset} status=none
+  if [[ ${need_kern_b} -eq ${FLAGS_TRUE} ]]; then
+    koffset="$(partoffset ${image} ${partition_num_kern_b})"
+    sudo dd if="${FLAGS_output_dir}/${kern_b_image}" of="${image}" \
+      conv=notrunc bs=512 seek=${koffset} status=none
+  fi
 
   # Update the bootloaders.  The EFI system partition will be updated.
   local kernel_part=
@@ -388,7 +420,7 @@ make_image_bootable() {
 
   if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
     # Use the kernel partition to acquire configuration flags.
-    kernel_part="--kernel_partition='${FLAGS_output_dir}/vmlinuz.image'"
+    kernel_part="--kernel_partition='${FLAGS_output_dir}/${kern_a_image}'"
     # Install syslinux on the EFI System Partition.
     kernel_part="${kernel_part} --install_syslinux"
   elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips" ]]; then
@@ -415,12 +447,21 @@ make_image_bootable() {
   fi
 
   # We don't need to keep these files around anymore.
-  sudo rm -f "${FLAGS_rootfs_hash}" "${FLAGS_output_dir}/vmlinuz.image" \
-             "${FLAGS_output_dir}/hd_vmlinuz.image" \
+  sudo rm -f "${FLAGS_rootfs_hash}" "${FLAGS_output_dir}/${kern_a_image}" \
+             "${FLAGS_output_dir}/${kern_b_image}" \
              "${FLAGS_output_dir}/vmlinuz_hd.vblock"
 
   sudo losetup -d ${image_dev}
   unmount_image
+
+  # Since the kern-b will be signed with another recovery key, need to make
+  # kern-b bootable.
+  # TODO(b/270262345) Remove it after updating GPT flags.
+  if [[ "${FLAGS_image_type}" == "factory_install" \
+    && ${need_kern_b} -eq ${FLAGS_TRUE} ]]
+  then
+    sudo cgpt add -i "${partition_num_kern_b}" -P 15 -S 1 -T 15 "${IMAGE}"
+  fi
   trap - EXIT
 }
 
