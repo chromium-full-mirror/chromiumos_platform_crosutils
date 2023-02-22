@@ -242,6 +242,7 @@ known_bad_pkg() {
   chromeos-base/gdix_hid_firmware_update:1.7.6|\
   chromeos-base/glbench:0.0.1|\
   chromeos-base/google-breakpad:2022.*|\
+  chromeos-base/google-breakpad:2023.0[12]*|\
   chromeos-base/hps-firmware-tools:0.0.1|\
   chromeos-base/infineon-firmware-updater:1.1.2459.0|\
   chromeos-base/ippusb_bridge:0.0.1|\
