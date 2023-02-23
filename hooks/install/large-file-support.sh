@@ -466,7 +466,7 @@ known_bad_pkg() {
   sys-devel/llvm:12.0.1|\
   sys-devel/llvm-img:9.0.0|\
   sys-fs/btrfs-progs:5.4.1|\
-  sys-fs/e2fsprogs:1.46.5|\
+  sys-fs/e2fsprogs:1.47.0|\
   sys-fs/fuse:2.9.8|\
   sys-libs/gcc-libs:10.2.0|\
   sys-libs/libcap-ng:0.8.2|\
