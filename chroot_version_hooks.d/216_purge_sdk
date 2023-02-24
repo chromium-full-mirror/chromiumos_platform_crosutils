@@ -1,0 +1,10 @@
+#!/bin/bash
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Force clean up some SDK packages that have been removed.
+sudo emerge --rage -q \
+  dev-python/autopep8 \
+  dev-python/pep8 \
+  dev-python/pycodestyle
