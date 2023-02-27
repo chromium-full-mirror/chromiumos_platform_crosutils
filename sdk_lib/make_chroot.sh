@@ -142,11 +142,6 @@ EOF
    # Fix bad group for some.
    chown -R root:root "${FLAGS_chroot}/etc/"sudoers*
 
-   info "Setting up hosts/resolv..."
-   # Copy config from outside chroot into chroot.
-   cp /etc/{hosts,resolv.conf} "$FLAGS_chroot/etc/"
-   chmod 0644 "$FLAGS_chroot"/etc/{hosts,resolv.conf}
-
    # Setup host make.conf. This includes any overlay that we may be using
    # and a pointer to pre-built packages.
    # TODO: This should really be part of a profile in the portage.
@@ -192,40 +187,10 @@ EOF
    # these are defined as w/in the chroot.
    bare_chroot chown "${SUDO_USER}:portage" /var/cache/chromeos-chrome
 
-   # Add chromite/bin and depot_tools into the path globally; note that the
-   # chromite wrapper itself might also be found in depot_tools.
-   # We rely on 'env-update' getting called below.
-   target="${FLAGS_chroot}/etc/env.d/99chromiumos"
-   cat <<EOF > "${target}"
-PATH="${CHROOT_TRUNK_DIR}/chromite/bin:${DEPOT_TOOLS_DIR}"
-CROS_WORKON_SRCROOT="${CHROOT_TRUNK_DIR}"
-PORTAGE_USERNAME="${SUDO_USER}"
-EOF
-
    # TODO(zbehan): Configure stuff that is usually configured in postinst's,
    # but wasn't. Fix the postinst's.
    info "Running post-inst configuration hacks"
    early_enter_chroot env-update
-
-   target="${FLAGS_chroot}/etc/profile.d"
-   mkdir -p "${target}"
-   ln -sfT \
-     "/mnt/host/source/chromite/sdk/etc/profile.d/50-chromiumos-niceties.sh" \
-     "${target}/50-chromiumos-niceties.sh"
-
-   # Select a small set of locales for the user if they haven't done so
-   # already.  This makes glibc upgrades cheap by only generating a small
-   # set of locales.  The ones listed here are basically for the buildbots
-   # which always assume these are available.  This works in conjunction
-   # with `cros_sdk --enter`.
-   # http://crosbug.com/20378
-   local localegen="$FLAGS_chroot/etc/locale.gen"
-   if ! grep -q -v -e '^#' -e '^$' "${localegen}" ; then
-     cat <<EOF >> "${localegen}"
-en_US ISO-8859-1
-en_US.UTF-8 UTF-8
-EOF
-   fi
 }
 
 CHROOT_TRUNK="${CHROOT_TRUNK_DIR}"
