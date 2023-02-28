@@ -4,7 +4,12 @@
 # found in the LICENSE file.
 
 # Force clean up some SDK packages that have been removed.
-sudo emerge --rage -q \
-  dev-python/autopep8 \
-  dev-python/pep8 \
+pkgs=(
+  dev-python/autopep8
+  dev-python/pep8
   dev-python/pycodestyle
+)
+mapfile -t installed_pkgs < <(qlist -IC "${pkgs[@]}" || :)
+if [[ ${#installed_pkgs[@]} -gt 0 ]]; then
+  sudo emerge --rage -q "${installed_pkgs[@]}"
+fi
