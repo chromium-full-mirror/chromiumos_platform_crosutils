@@ -85,8 +85,8 @@ ENTER_CHROOT_ARGS=(
 # Invoke enter_chroot.  This can only be used after sudo has been installed.
 enter_chroot() {
   echo "$(date +%H:%M:%S) [enter_chroot] $*"
-  "$ENTER_CHROOT" --cache_dir "${FLAGS_cache_dir}" --chroot "$FLAGS_chroot" \
-    -- "${ENTER_CHROOT_ARGS[@]}" "$@"
+  "${ENTER_CHROOT}" --cache_dir "${FLAGS_cache_dir}" --chroot \
+    "${FLAGS_chroot}" --nopivot_root -- "${ENTER_CHROOT_ARGS[@]}" "$@"
 }
 
 # Invoke enter_chroot running the command as root, and w/out sudo.
@@ -94,8 +94,8 @@ enter_chroot() {
 early_env=()
 early_enter_chroot() {
   echo "$(date +%H:%M:%S) [early_enter_chroot] $*"
-  "$ENTER_CHROOT" --chroot "$FLAGS_chroot" --early_make_chroot \
-    --cache_dir "${FLAGS_cache_dir}" \
+  "${ENTER_CHROOT}" --chroot "${FLAGS_chroot}" --early_make_chroot \
+    --cache_dir "${FLAGS_cache_dir}" --nopivot_root \
     -- "${ENTER_CHROOT_ARGS[@]}" "${early_env[@]}" "$@"
 }
 
