@@ -42,6 +42,8 @@ DEFINE_boolean ssh_agent "${FLAGS_TRUE}" "Import ssh agent."
 DEFINE_boolean early_make_chroot "${FLAGS_FALSE}" \
   "Internal flag.  If set, the command is run as root without sudo."
 DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
+DEFINE_boolean pivot_root "${FLAGS_TRUE}" \
+  "Use pivot_root to change the root file system."
 
 # More useful help
 FLAGS_HELP="USAGE: $0 [flags] [VAR=value] [-- command [arg1] [arg2] ...]
@@ -680,6 +682,9 @@ setup_env() {
     if [ -d "${gsutil_dir}" ]; then
       chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
     fi
+
+    # Wait for background jobs before exiting this subshell.
+    wait
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
 
   # shellcheck disable=SC2086
@@ -737,4 +742,16 @@ else
 fi
 
 cmd+=( "${CHROOT_PASSTHRU[@]}" "$@" )
-exec chroot "${FLAGS_chroot}" "${cmd[@]}"
+
+if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
+  # See pivot_root(8) man page for the safe usage of pivot_root.
+  # See also pivot_root(".", ".") section of pivot_roo(2) man page.
+  cd "${FLAGS_chroot}" || exit 1
+  pivot_root . .
+  umount -l .
+  chroot="."
+else
+  chroot=${FLAGS_chroot}
+fi
+
+exec chroot "${chroot}" "${cmd[@]}"
