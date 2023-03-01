@@ -9,7 +9,7 @@ case ${SCRIPT_NAME} in
 cros_show_stacks|update_kernel.sh)
   ;;
 *)
-  echo "remote_access.sh: This script is deprecated and will be removed." >&2
+  echo "remote_access.sh: This script will be removed by July 2022." >&2
   ;;
 esac
 
