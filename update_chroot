@@ -87,6 +87,12 @@ fi
 info "Bootstrapping depot_tools"
 ensure_bootstrap
 
+# Clean outdated packages in SDK.
+if [[ -e ~/.config/chromite/autocop ]]; then
+  # Use "|| true" to not exit on errors for one command.
+  cros clean-outdated-pkgs --host || true
+fi
+
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
 
 info "Rebuilding Portage cache"
