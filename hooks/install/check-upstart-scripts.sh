@@ -44,7 +44,6 @@ known_bad_oom() {
   chromeos-base/arc-sslh-init|\
   chromeos-base/arcvm-common-scripts|\
   chromeos-base/arcvm-forward-pstore|\
-  chromeos-base/arcvm-gce-l1-prebuilts|\
   chromeos-base/arcvm-launch|\
   chromeos-base/arcvm-mojo-proxy|\
   chromeos-base/arcvm-vsock-proxy|\
