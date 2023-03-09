@@ -181,6 +181,7 @@ known_bad_pkg() {
   media-sound/adhd:*|\
   media-sound/audio_processor:*|\
   media-sound/audio_streams_conformance_test:*|\
+  media-sound/cras-client:*|\
   media-sound/cras_rust:*|\
   media-sound/cras_tests:*)
     return 0
