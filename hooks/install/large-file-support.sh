@@ -453,7 +453,7 @@ known_bad_pkg() {
   sys-apps/nvme-cli:1.6|\
   sys-apps/pv:1.6.20|\
   sys-apps/restorecon:2.7|\
-  sys-apps/smartmontools:7.1|\
+  sys-apps/smartmontools:7.3|\
   sys-apps/toybox:0.8.6|\
   sys-apps/usbguard:20210927|\
   sys-apps/usbutils:014|\
