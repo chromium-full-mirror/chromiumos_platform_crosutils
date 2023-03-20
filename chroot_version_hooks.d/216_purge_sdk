@@ -3,13 +3,4 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Force clean up some SDK packages that have been removed.
-pkgs=(
-  dev-python/autopep8
-  dev-python/pep8
-  dev-python/pycodestyle
-)
-mapfile -t installed_pkgs < <(qlist -IC "${pkgs[@]}" || :)
-if [[ ${#installed_pkgs[@]} -gt 0 ]]; then
-  sudo emerge --rage -q "${installed_pkgs[@]}"
-fi
+# Merged into 222_purge_sdk.
