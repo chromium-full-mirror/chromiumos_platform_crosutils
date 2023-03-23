@@ -177,6 +177,7 @@ known_bad_pkg() {
   # TODO(b/258669199): Ignore Rust packages for now.
   case "${CATEGORY}/${PN}:${PV}" in
   chromeos-base/crosvm:*|\
+  chromeos-base/hwsec-utils:*|\
   chromeos-base/resourced:*|\
   media-sound/adhd:*|\
   media-sound/audio_processor:*|\
