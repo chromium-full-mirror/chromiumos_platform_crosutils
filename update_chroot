@@ -17,7 +17,7 @@ assert_not_root_user
 DEFINE_boolean usepkg "${FLAGS_TRUE}" \
   "Use binary packages to bootstrap."
 
-FLAGS_HELP="usage: $(basename $0) [flags]
+FLAGS_HELP="usage: $(basename "$0") [flags]
 Performs an update of the chroot. This script is called as part of
 build_packages, so there is typically no need to call this script directly.
 "
@@ -80,12 +80,12 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
     TOOLCHAIN_FLAGS+=( --nousepkg )
   fi
   # Expand the path before sudo, as root doesn't have the same path magic.
-  info_run sudo -E $(type -p cros_setup_toolchains) "${TOOLCHAIN_FLAGS[@]}"
+  info_run sudo -E "$(type -p cros_setup_toolchains)" "${TOOLCHAIN_FLAGS[@]}"
 fi
 
 # Make sure depot_tools is bootstrapped, so that it can build chromeos-chrome.
 info "Bootstrapping depot_tools"
-ensure_bootstrap
+"${DEPOT_TOOLS_DIR}"/ensure_bootstrap
 
 # Clean outdated packages in SDK.
 if [[ -e ~/.config/chromite/autocop ]]; then
