@@ -289,6 +289,9 @@ DEFAULT_IMG_SUITE=${CHROMEOS_IMG_SUITE:-"karmic"}
 # Default location for chroot
 DEFAULT_CHROOT_DIR=${CHROMEOS_CHROOT_DIR:-"${GCLIENT_ROOT}/chroot"}
 
+# Default output directory location
+DEFAULT_OUT_DIR=${CHROMEOS_OUT_DIR:-"${GCLIENT_ROOT}/out"}
+
 # All output files from build should go under ${DEFAULT_BUILD_ROOT}, so that
 # they don't pollute the source directory.
 DEFAULT_BUILD_ROOT=${CHROMEOS_BUILD_ROOT:-"${SRC_ROOT}/build"}

@@ -20,6 +20,8 @@ assert_root_user
 # See http://code.google.com/p/shflags/wiki/Documentation10x
 DEFINE_string chroot "${DEFAULT_CHROOT_DIR}" \
   "The destination dir for the chroot environment." "d"
+DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
+  "The destination dir for build output and state."
 DEFINE_string trunk "${GCLIENT_ROOT}" \
   "The source trunk to bind mount within the chroot." "s"
 DEFINE_string build_number "" \
