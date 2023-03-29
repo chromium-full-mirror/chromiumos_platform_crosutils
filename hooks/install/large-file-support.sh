@@ -197,7 +197,6 @@ known_bad_pkg() {
   app-benchmarks/blktests:20190430|\
   app-benchmarks/blogbench:1.1.20200218|\
   app-benchmarks/bootchart:0.9.2|\
-  app-benchmarks/lmbench:3.0_alpha9|\
   app-benchmarks/pjdfstest:20190822|\
   app-crypt/nss:3.68.2|\
   app-crypt/tpm-tools:1.3.9.1|\
