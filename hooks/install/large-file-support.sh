@@ -292,7 +292,6 @@ known_bad_pkg() {
   dev-libs/confuse:2.7|\
   dev-libs/flatbuffers:2.0.0|\
   dev-libs/fribidi:1.0.9|\
-  dev-libs/hidapi:0.8.0*|\
   dev-libs/iniparser:3.1|\
   dev-libs/json-c:0.14|\
   dev-libs/leveldb:1.23|\
