@@ -124,6 +124,12 @@ SYMBOLS_REGEX="^(${SYMBOLS_REGEX%|})$"
 known_good_pkg() {
   case "${CATEGORY}/${PN}" in
 
+  # All of the binaries provided by v4l-utils are built with LFS flags enabled,
+  # except libv4l2tracer.so. This library wraps the interfaces for open, open64,
+  # mmap, and mmap64 for tracing purposes which means they're only called when
+  # the tracee program is not built with LFS.
+  media-tv/v4l-utils) ;;
+
   # Provides wrappers to every C library interface, both LFS & non-LFS.
   # Internally it handles LFS correctly.  Its non-LFS references are only via
   # packages that are themselves broken.
@@ -346,7 +352,6 @@ known_bad_pkg() {
   media-libs/lcms:2.12|\
   media-libs/libjpeg-turbo:2.1.1|\
   media-libs/libpng:1.6.37|\
-  media-libs/libv4l:1.22.1|\
   media-libs/libv4lplugins:0.0.1|\
   media-libs/libvorbis:1.3.7|\
   media-libs/libyuv-test:1774|\
@@ -374,7 +379,6 @@ known_bad_pkg() {
   media-sound/alsa-utils:1.2.1|\
   media-sound/gsm:1.0.13|\
   media-sound/sound_card_init:*|\
-  media-tv/v4l-utils:1.22.1|\
   media-video/yavta:0.0.1|\
   net-analyzer/netcat:110.20180111|\
   net-analyzer/netdata:1.34.1|\
