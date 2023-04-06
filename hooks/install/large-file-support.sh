@@ -430,10 +430,10 @@ known_bad_pkg() {
   net-wireless/bluez:5.54|\
   net-wireless/crda:3.18|\
   net-wireless/floss:0.0.2|\
-  net-wireless/hostapd:2.10_pre|\
+  net-wireless/hostapd:2.11_pre|\
   net-wireless/iw:5.9|\
   net-wireless/wireless-tools:30_pre9|\
-  net-wireless/wpa_supplicant-cros:2.10*|\
+  net-wireless/wpa_supplicant-cros:2.11_pre|\
   sci-geosciences/gpsd:3.17|\
   sci-libs/tensorflow:2.8.0|\
   sys-apps/coreboot-utils:0.0.1|\
