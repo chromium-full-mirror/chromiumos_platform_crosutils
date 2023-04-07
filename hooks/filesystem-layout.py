@@ -134,7 +134,6 @@ BAD_VAR_PACKAGES = {
     "net-misc/openssh",
     "net-print/cups",
     "sys-apps/dbus",
-    "sys-apps/fwupd",
     "sys-apps/iproute2",
     "sys-apps/portage",
     "sys-apps/sandbox",

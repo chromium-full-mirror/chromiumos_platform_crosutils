@@ -199,7 +199,6 @@ known_bad_oom() {
   sys-apps/haveged|\
   sys-apps/huddly-falcon-updater|\
   sys-apps/huddly-monitor|\
-  sys-apps/fwupd|\
   sys-apps/mimo-houston-mcu-updater|\
   sys-apps/mimo-monitor|\
   sys-apps/moblab|\
