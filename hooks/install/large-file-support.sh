@@ -196,6 +196,11 @@ known_bad_pkg() {
     ;;
   esac
 
+  # Packages in upstream discussion.  Must link to an upstream tracker.
+  case "${CATEGORY}/${PN}:${PV}" in
+  dev-libs/expat:2.5*) return 0;;  # https://bugs.gentoo.org/904190
+  esac
+
   # Do not add more packages here!
   case "${CATEGORY}/${PN}:${PV}" in
   app-accessibility/brltty:6.3|\
@@ -284,7 +289,6 @@ known_bad_pkg() {
   dev-lang/tcl:8.6.12|\
   dev-libs/boost:1.79.0|\
   dev-libs/confuse:2.7|\
-  dev-libs/expat:2.4.8|\
   dev-libs/flatbuffers:2.0.0|\
   dev-libs/fribidi:1.0.9|\
   dev-libs/hidapi:0.8.0*|\
