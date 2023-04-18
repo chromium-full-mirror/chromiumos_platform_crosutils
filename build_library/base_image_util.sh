@@ -406,13 +406,15 @@ create_base_image() {
   # Generate the license credits page for the packages installed on this
   # image in a location that will be used by Chrome.
   info "Generating license credits page. Time:"
-  sudo mkdir -p "${root_fs_dir}/opt/google/chrome/resources"
-  local license_path="${root_fs_dir}/opt/google/chrome/resources/about_os_credits.html"
+  local dir_name="${root_fs_dir}/opt/google/chrome/resources"
+  sudo mkdir -p "${dir_name}"
+  local license_path="${dir_name}/about_os_credits.html.gz"
   time info_run sudo "${GCLIENT_ROOT}/chromite/licensing/licenses" \
     --board="${BOARD}" \
     --log-level error \
     --generate-licenses \
-    --output "${license_path}"
+    --output "${license_path}" \
+    --compress-output
   # Copy the license credits file to ${BUILD_DIR} so that is will be uploaded
   # as artifact later in ArchiveStage.
   if [[ -r "${license_path}" ]]; then
