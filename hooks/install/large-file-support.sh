@@ -190,7 +190,8 @@ known_bad_pkg() {
   media-sound/audio_streams_conformance_test:*|\
   media-sound/cras-client:*|\
   media-sound/cras_rust:*|\
-  media-sound/cras_tests:*)
+  media-sound/cras_tests:*|\
+  sys-apps/kexec-lite:*)
     return 0
     ;;
   esac
