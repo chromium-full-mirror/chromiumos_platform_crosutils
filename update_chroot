@@ -88,7 +88,7 @@ info "Bootstrapping depot_tools"
 "${DEPOT_TOOLS_DIR}"/ensure_bootstrap
 
 # Clean outdated packages in SDK.
-if [[ -e ~/.config/chromite/autocop ]]; then
+if [[ -e ~/.config/chromite/autocop ]] || [[ "${USER}" == "chrome-bot" ]]; then
   # Use "|| true" to not exit on errors for one command.
   cros clean-outdated-pkgs --host || true
 fi
