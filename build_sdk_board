@@ -166,6 +166,11 @@ sudo mount --bind /dev "${BOARD_ROOT}/dev"
 sudo chroot "${BOARD_ROOT}" locale-gen -u
 sudo umount "${BOARD_ROOT}/dev"
 
+# b/278101251: /build/amd64-host doesn't include ccache's link tree by default,
+# which makes `FEATURES=ccache` quietly fail for host packages. Ensure it's
+# built here.
+sudo ROOT="${BOARD_ROOT}" "${BOARD_ROOT}/usr/bin/ccache-config" --install-links
+
 command_completed
 echo "Done!"
 echo "The SYSROOT is: ${BOARD_ROOT}"
