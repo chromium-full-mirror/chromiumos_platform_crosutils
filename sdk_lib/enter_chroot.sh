@@ -618,9 +618,12 @@ setup_env() {
       mkdir -p -m 2775 "${ccache_dir}"
     fi
     (
-      find -H "${ccache_dir}" '(' -type d -a '!' -perm 2775 ')' \
-        -exec chmod 2775 {} +
-      find -H "${ccache_dir}" -gid 0 -exec chgrp 250 {} +
+      # Walking ccache dir can be expensive, so only do it once, but make sure
+      # to run both sets of tests+execs independently.
+      find -H "${ccache_dir}" \
+        '(' -type d -a '!' -perm 2775 ')' -exec chmod 2775 {} + \
+        , \
+        -gid 0 -exec chgrp 250 {} +
       # These settings are kept in sync with the gcc ebuild.
       chroot "${FLAGS_chroot}" env CCACHE_DIR=/var/cache/distfiles/ccache \
         CCACHE_UMASK=002 ccache -F 0 -M 11G >/dev/null
