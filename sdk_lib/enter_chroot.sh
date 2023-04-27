@@ -617,17 +617,8 @@ setup_env() {
       # shellcheck disable=SC2174
       mkdir -p -m 2775 "${ccache_dir}"
     fi
-    (
-      # Walking ccache dir can be expensive, so only do it once, but make sure
-      # to run both sets of tests+execs independently.
-      find -H "${ccache_dir}" \
-        '(' -type d -a '!' -perm 2775 ')' -exec chmod 2775 {} + \
-        , \
-        -gid 0 -exec chgrp 250 {} +
-      # These settings are kept in sync with the gcc ebuild.
-      chroot "${FLAGS_chroot}" env CCACHE_DIR=/var/cache/distfiles/ccache \
-        CCACHE_UMASK=002 ccache -F 0 -M 11G >/dev/null
-    ) &
+    unshare --mount "${SCRIPT_ROOT}/sdk_lib/fix_ccache.sh" --chroot \
+      "${FLAGS_chroot}" &
 
     # Certain files get copied into the chroot when entering.
     for fn in "${FILES_TO_COPY_TO_CHROOT[@]}"; do
@@ -685,9 +676,6 @@ setup_env() {
     if [ -d "${gsutil_dir}" ]; then
       chown -R "${SUDO_UID}:${SUDO_GID}" "${gsutil_dir}"
     fi
-
-    # Wait for background jobs before exiting this subshell.
-    wait
   ) 200>>"${LOCKFILE}" || die "setup_env failed"
 
   # shellcheck disable=SC2086
