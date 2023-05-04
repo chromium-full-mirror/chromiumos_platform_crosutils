@@ -139,7 +139,6 @@ known_bad_oom() {
   chromeos-base/modemfwd-helpers-octopus|\
   chromeos-base/modemfwd-helpers-sarien|\
   chromeos-base/modemfwd-helpers-zork|\
-  chromeos-base/mri_package|\
   chromeos-base/mtpd|\
   chromeos-base/nodejs-scripts|\
   chromeos-base/oobe_config|\
