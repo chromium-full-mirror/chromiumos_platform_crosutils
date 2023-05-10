@@ -650,28 +650,17 @@ create_base_image() {
   # the bootable partitions later.
   mkdir -p "${BUILD_DIR}/boot_images"
 
-  # Bootable kernel image for ManaTEE enabled targets is located at directory
-  # ${BOARD_ROOT}/build/manatee/boot and included only in bootable partition.
-  # If no manatee USE flag is specified the standard /boot location is used,
-  # optionally including kernel image in final build image:
+  # The standard /boot location may be optionally including kernel image in
+  # final build image iff:
+  #
   # - boards that boot with legacy bioses need the kernel on the boot image
   # - boards with coreboot/depthcharge boot from a boot partition.
-  local boot_dir
   local cpmv
-  if has "manatee" "$(portageq-"${BOARD}" envvar USE)"; then
-    boot_dir="${BOARD_ROOT}/build/manatee/boot"
+  local boot_dir="${root_fs_dir}/boot"
+  if has "include_vmlinuz" "$(portageq-"${BOARD}" envvar USE)"; then
     cpmv="cp"
-    # The CrOS VM (guest) kernel goes into initramfs, so we should drop it
-    # from rootfs to save space.
-    sudo rm "${root_fs_dir}"/boot/vmlinuz-*
-    sudo rm "${root_fs_dir}"/boot/vmlinuz
   else
-    boot_dir="${root_fs_dir}/boot"
-    if has "include_vmlinuz" "$(portageq-"${BOARD}" envvar USE)"; then
-      cpmv="cp"
-    else
-      cpmv="mv"
-    fi
+    cpmv="mv"
   fi
 
   [ -e "${boot_dir}"/Image-* ] && \
