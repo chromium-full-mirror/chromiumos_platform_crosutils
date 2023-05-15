@@ -30,7 +30,6 @@ DEFINE_string rootoff "" "Override root offset"
 DEFINE_string rootfs "" "Override rootfs partition reported by target"
 DEFINE_string arch "" "Override architecture reported by target"
 DEFINE_boolean clean "${FLAGS_TRUE}" "Remove old files before sending new files"
-DEFINE_boolean hv "${FLAGS_TRUE}" "Use hypervisor kernel if available."
 DEFINE_boolean ignore_verity "${FLAGS_FALSE}" "Update kernel even if system \
 is using verity (WARNING: likely to make the system unable to boot)"
 DEFINE_boolean reboot "${FLAGS_TRUE}" "Reboot system after update"
@@ -172,15 +171,9 @@ learn_arch() {
 make_kernelimage() {
   local bootloader_path
   local kernel_image
-  local boot_path="/build/${FLAGS_board}"
+  local boot_path="/build/${FLAGS_board}/boot"
   local config_path
   config_path="$(mktemp /tmp/config.txt.XXXXX)"
-  if [[ "${FLAGS_hv}" -eq "${FLAGS_TRUE}" && \
-        -d "${boot_path}/build/manatee/boot" ]]; then
-    boot_path+="/build/manatee/boot"
-  else
-    boot_path+="/boot"
-  fi
   kernel_image="${boot_path}/vmlinuz"
   if [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "arm64" ]]; then
     name="bootloader.bin"
