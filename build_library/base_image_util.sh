@@ -354,6 +354,7 @@ create_base_image() {
   get_disk_layout_path
   info "Using disk layout ${DISK_LAYOUT_PATH}"
   root_fs_dir="${BUILD_DIR}/rootfs"
+  root_cros_vdb_strip_prefix="${root_fs_dir}"
   stateful_fs_dir="${BUILD_DIR}/stateful"
   esp_fs_dir="${BUILD_DIR}/esp"
 

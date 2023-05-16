@@ -121,8 +121,8 @@ delete_prompt() {
 # Arguments to this command are passed as addition options/arguments
 # to the basic emerge command.
 emerge_to_image() {
-  set -- ${EMERGE_BOARD_CMD} --root-deps=rdeps --usepkgonly -v --with-bdeps=n \
-    "$@" ${EMERGE_JOBS}
+  set -- ${EMERGE_BOARD_CMD} --root-cros-vdb-strip-prefix="${root_cros_vdb_strip_prefix}" \
+    --root-deps=rdeps --usepkgonly -v --with-bdeps=n "$@" ${EMERGE_JOBS}
   info_run sudo -E "$@"
 }
 
