@@ -123,11 +123,6 @@ DEFINE_boolean use_dev_keys "${FLAGS_FALSE}" \
 DEFINE_boolean fsck_rootfs "${FLAGS_FALSE}" \
   "Check integrity of the rootfs on the modified image."
 
-# TODO(pkumar): Remove once known that no images are using this flag
-# shellcheck disable=SC2034
-DEFINE_boolean crosbug12352_arm_kernel_signing "${FLAGS_FALSE}" \
-  "This flag is deprecated but the bots still need parse old images."
-
 DEFINE_boolean force_developer_mode "${FLAGS_FALSE}" \
   "Add cros_debug to boot args."
 
