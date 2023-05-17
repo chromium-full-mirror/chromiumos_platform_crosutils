@@ -128,10 +128,6 @@ DEFINE_boolean fsck_rootfs "${FLAGS_FALSE}" \
 DEFINE_boolean crosbug12352_arm_kernel_signing "${FLAGS_FALSE}" \
   "This flag is deprecated but the bots still need parse old images."
 
-# TODO(sosa):  Remove once known images no longer use this in their config.
-# shellcheck disable=SC2034
-DEFINE_string arm_extra_bootargs "" "DEPRECATED FLAG.  Do not use."
-
 DEFINE_boolean force_developer_mode "${FLAGS_FALSE}" \
   "Add cros_debug to boot args."
 
