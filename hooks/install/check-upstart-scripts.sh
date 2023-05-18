@@ -167,7 +167,6 @@ known_bad_oom() {
   chromeos-base/viking-hid|\
   chromeos-base/virtual-file-provider|\
   chromeos-base/virtual-usb-printer|\
-  chromeos-base/vm_host_tools|\
   chromeos-base/vpd|\
   chromeos-base/weaveauth|\
   chromeos-base/whining|\
