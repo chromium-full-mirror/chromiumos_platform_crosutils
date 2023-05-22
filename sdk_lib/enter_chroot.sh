@@ -739,6 +739,12 @@ if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
   # See also pivot_root(".", ".") section of pivot_roo(2) man page.
   cd "${FLAGS_chroot}" || exit 1
   pivot_root . .
+  # After pivot_root, we're running inside the CrOS sdk.  Reset PATH to match
+  # so we don't rely on the host distro's PATH bleeding in and requiring it be
+  # compatible. Once PATH has changed, force bash to clear its lookup cache
+  # just in case a program later is installed differently.
+  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+  hash -r
   umount -l .
   chroot="."
 else
