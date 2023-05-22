@@ -254,7 +254,7 @@ vt.global_cursor_default=0
 kern_guid=%U
 EOF
 
-WORK="${WORK} ${FLAGS_working_dir}/boot.config"
+WORK=("${FLAGS_working_dir}/boot.config")
 info "Emitted cross-platform boot params to ${FLAGS_working_dir}/boot.config"
 
 # Add common boot options first.
@@ -290,6 +290,7 @@ cros_secure
 drm.trace=0x106
 EOF
 
+WORK+=("${config}")
 if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
   # Legacy BIOS will use the kernel in the rootfs (via syslinux), as will
   # standard EFI BIOS (via grub, from the EFI System Partition). Chrome OS
@@ -301,15 +302,12 @@ noresume
 noswap
 i915.modeset=1
 EOF
-  WORK="${WORK} ${config}"
 
   bootloader_path="/lib64/bootstub/bootstub.efi"
 elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips"  || "${FLAGS_arch}" == "arm64" ]]; then
-  WORK="${WORK} ${config}"
-
   # arm does not need/have a bootloader in kernel partition
   dd if="/dev/zero" of="${FLAGS_working_dir}/bootloader.bin" bs=512 count=1
-  WORK="${WORK} ${FLAGS_working_dir}/bootloader.bin"
+  WORK+=("${FLAGS_working_dir}/bootloader.bin")
 
   bootloader_path="${FLAGS_working_dir}/bootloader.bin"
 else
@@ -377,8 +375,8 @@ fi
 set +e  # cleanup failure is a-ok
 
 if [[ ${FLAGS_keep_work} -eq ${FLAGS_FALSE} ]]; then
-  info "Cleaning up temporary files: ${WORK}"
-  rm ${WORK}
+  info "Cleaning up temporary files: ${WORK[*]}"
+  rm "${WORK[@]}"
   rmdir "${FLAGS_working_dir}"
 fi
 
