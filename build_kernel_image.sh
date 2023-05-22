@@ -288,6 +288,8 @@ loglevel=${FLAGS_loglevel}
 init=/sbin/init
 cros_secure
 drm.trace=0x106
+kexec_load_limit_reboot=0
+kexec_load_limit_panic=0
 EOF
 
 WORK+=("${config}")
