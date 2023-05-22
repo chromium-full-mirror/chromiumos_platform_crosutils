@@ -88,8 +88,10 @@ info "Bootstrapping depot_tools"
 "${DEPOT_TOOLS_DIR}"/ensure_bootstrap
 
 # Clean outdated packages in SDK.
-# Use "|| true" to not exit on errors for one command.
-cros clean-outdated-pkgs --host || true
+if [[ ! -e ~/.config/chromite/autocop-off ]]; then
+  # Use "|| true" to not exit on errors for one command.
+  cros clean-outdated-pkgs --host || true
+fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
 
