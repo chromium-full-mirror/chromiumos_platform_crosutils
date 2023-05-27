@@ -88,7 +88,12 @@ info "Bootstrapping depot_tools"
 "${DEPOT_TOOLS_DIR}"/ensure_bootstrap
 
 # Clean outdated packages in SDK.
-if [[ ! -e ~/.config/chromite/autocop-off ]]; then
+CONFIG_DIR="${HOME}/.config"
+if [[ "${USER}" == "chrome-bot" ]]; then
+  CONFIG_DIR=$(python -c "import tempfile; print(tempfile.gettempdir())")
+  CONFIG_DIR+="/.config/"
+fi
+if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]]; then
   # Use "|| true" to not exit on errors for one command.
   cros clean-outdated-pkgs --host || true
 fi
