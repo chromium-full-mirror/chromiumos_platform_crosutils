@@ -185,6 +185,7 @@ known_bad_pkg() {
   chromeos-base/crosvm:*|\
   chromeos-base/hwsec-utils:*|\
   chromeos-base/resourced:*|\
+  media-gfx/deqp-runner:*|\
   media-sound/adhd:*|\
   media-sound/audio_processor:*|\
   media-sound/audio_streams_conformance_test:*|\
