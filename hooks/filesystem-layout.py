@@ -44,6 +44,7 @@ VALID_BOARD_ROOT = {
     "boot",
     "build",
     "dev",
+    "efi",
     "firmware",
     # TODO(): We should clean this up.
     "postinst",
