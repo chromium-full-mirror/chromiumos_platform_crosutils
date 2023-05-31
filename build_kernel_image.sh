@@ -63,6 +63,8 @@ DEFINE_string verity_salt "" \
   "Salt to use for rootfs hash (Default: \"\")"
 DEFINE_boolean enable_rootfs_verification "${FLAGS_TRUE}" \
   "Enable kernel-based root fs integrity checking. (Default: true)"
+DEFINE_string version_attestation_hash "" \
+  "The hash of the /etc/lsb-release file for version attestation"
 DEFINE_boolean enable_bootcache "${FLAGS_FALSE}" \
   "Enable boot cache to accelerate booting. (Default: false)"
 DEFINE_string enable_serial "" \
@@ -252,7 +254,19 @@ vt.global_cursor_default=0
 kern_guid=%U
 EOF
 
+# Append the lsb-release hash to config for version attestation.
+if [[ -n "${FLAGS_version_attestation_hash}" ]]; then
+  # Note that this kernel commandline parameter is not used by the kernel, it
+  # is only present here because this is the logical location whereby the boot
+  # loader is able to access the version to facilitate ChromeOS version
+  # attestation. See platform2/libarc-attestation for where this is used.
+  cat <<EOF >> "${FLAGS_working_dir}/boot.config"
+cros_lsb_release_hash=${FLAGS_version_attestation_hash}
+EOF
+fi
+
 WORK=("${FLAGS_working_dir}/boot.config")
+
 info "Emitted cross-platform boot params to ${FLAGS_working_dir}/boot.config"
 
 # Add common boot options first.
