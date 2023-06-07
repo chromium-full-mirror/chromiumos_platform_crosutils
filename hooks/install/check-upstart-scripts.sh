@@ -49,7 +49,6 @@ known_bad_oom() {
   chromeos-base/arcvm-vsock-proxy|\
   chromeos-base/atrusctl|\
   chromeos-base/attestation|\
-  chromeos-base/authpolicy|\
   chromeos-base/biod|\
   chromeos-base/bluetooth|\
   chromeos-base/bootcomplete-embedded|\
