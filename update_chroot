@@ -93,7 +93,8 @@ if [[ "${USER}" == "chrome-bot" ]]; then
   CONFIG_DIR=$(python -c "import tempfile; print(tempfile.gettempdir())")
   CONFIG_DIR+="/.config/"
 fi
-if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]]; then
+if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]] && \
+   [[ "${CROS_CLEAN_OUTDATED_PKGS}" != "0" ]]; then
   # Use "|| true" to not exit on errors for one command.
   cros clean-outdated-pkgs --host || true
 fi
