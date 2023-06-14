@@ -4,17 +4,19 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if [[ ! -f ${ROOT_FS_DIR}/etc/fwupd/daemon.conf ]]; then
+CONFIG_FILE="${ROOT_FS_DIR}/etc/fwupd/fwupd.conf"
+
+if [[ ! -f ${CONFIG_FILE} ]]; then
   exit 0
 fi
 
 echo "Enabling verbose debug output for fwupd."
 
-sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
+sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${CONFIG_FILE}"
 
 echo "Enabling dummy fwupd remote for tests."
 
-sed -e 's/^\(DisabledPlugins=\).*/\1/' -i "${ROOT_FS_DIR}/etc/fwupd/daemon.conf"
+sed -e 's/^\(DisabledPlugins=\).*/\1/' -i "${CONFIG_FILE}"
 
 cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
