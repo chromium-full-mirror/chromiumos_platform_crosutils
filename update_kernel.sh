@@ -80,22 +80,7 @@ learn_device() {
 
 # Ask the target what the kernel partition is
 learn_partition_and_ro() {
-  remote_sh rootdev || die_notrace
-  if [ "${REMOTE_OUT%%-*}" == "/dev/dm" ]; then
-    remote_sh rootdev -s
-    REMOTE_VERITY=${FLAGS_TRUE}
-    if [[ "${FLAGS_ignore_verity}" -eq "${FLAGS_TRUE}" ]]; then
-        warn "System is using verity: not updating firmware/modules"
-    else
-        warn "System is using verity: First remove rootfs verification using"
-        warn "/usr/share/vboot/bin/make_dev_ssd.sh --remove_rootfs_verification"
-        warn "on the DUT."
-        die_notrace
-    fi
-  else
-    REMOTE_VERITY=${FLAGS_FALSE}
-    info "System is not using verity: updating firmware and modules"
-  fi
+  remote_sh rootdev -s || die_notrace
   if [[ "${FLAGS_ab_update}" -eq "${FLAGS_TRUE}" ]]; then
     if [[ "${REMOTE_OUT}" == "${FLAGS_device}${PARTITION_NUM_ROOT_A}" ]]; then
       FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_B}"
@@ -104,25 +89,45 @@ learn_partition_and_ro() {
       FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_A}"
       FLAGS_rootfs="${FLAGS_device}${PARTITION_NUM_ROOT_A}"
     fi
+  else
+    if [[ -z "${FLAGS_rootfs}" ]]; then
+      FLAGS_rootfs="${REMOTE_OUT}"
+    fi
+
+    if [[ -z "${FLAGS_partition}" ]]; then
+      if [ "${REMOTE_OUT}" == "${FLAGS_device}${PARTITION_NUM_ROOT_A}" ]; then
+        FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_A}"
+      else
+        FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_B}"
+      fi
+    fi
   fi
-  if [[ -z "${FLAGS_rootfs}" ]]; then
-    FLAGS_rootfs="${REMOTE_OUT}"
-  fi
+
   # If rootfs is for different partition than we're currently running on
   # mount it manually to update the right modules, firmware, etc.
   REMOTE_NEEDS_ROOTFS_MOUNTED=${FLAGS_FALSE}
   if [[ "${REMOTE_OUT}" != "${FLAGS_rootfs}" ]]; then
     REMOTE_NEEDS_ROOTFS_MOUNTED=${FLAGS_TRUE}
   fi
-  [ -n "${FLAGS_partition}" ] && return
-  if [ "${REMOTE_OUT}" == "${FLAGS_device}${PARTITION_NUM_ROOT_A}" ]; then
-    FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_A}"
+
+  # Check if the partition has removed rootfs verification
+  remote_sh dump_kernel_config "${FLAGS_partition}"
+  if [[ "${REMOTE_OUT}" =~ root=/dev/dm-[0-9] ]]; then
+    REMOTE_VERITY=${FLAGS_TRUE}
+    if [[ "${FLAGS_ignore_verity}" -eq "${FLAGS_TRUE}" ]]; then
+        warn "System is using verity: not updating firmware/modules"
+    else
+        warn "System is using verity: First remove rootfs verification using"
+        warn "/usr/share/vboot/bin/make_dev_ssd.sh \\"
+        warn "  --remove_rootfs_verification --partitions ${FLAGS_partition: -1}"
+        warn "on the DUT."
+        die_notrace
+    fi
   else
-    FLAGS_partition="${FLAGS_device}${PARTITION_NUM_KERN_B}"
+    REMOTE_VERITY=${FLAGS_FALSE}
+    info "System is not using verity: updating firmware and modules"
   fi
-  if [ -z "${FLAGS_partition}" ]; then
-    die_notrace "Partition required"
-  fi
+
   if [[ "${REMOTE_VERITY}" -eq "${FLAGS_TRUE}" ]]; then
     info "Target reports kernel partition is ${FLAGS_partition}"
     if [[ "${FLAGS_vboot}" -eq "${FLAGS_FALSE}" ]]; then
