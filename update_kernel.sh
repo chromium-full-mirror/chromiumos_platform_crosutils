@@ -169,33 +169,17 @@ learn_arch() {
 }
 
 make_kernelimage() {
-  local bootloader_path
   local kernel_image
   local boot_path="/build/${FLAGS_board}/boot"
   local config_path
   config_path="$(mktemp /tmp/config.txt.XXXXX)"
   kernel_image="${boot_path}/vmlinuz"
-  if [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "arm64" ]]; then
-    name="bootloader.bin"
-    bootloader_path="${SRC_ROOT}/build/images/${FLAGS_board}/latest/${name}"
-    # If there is no local bootloader stub, create a dummy file.  This matches
-    # build_kernel_image.sh.  If we wanted to be super paranoid, we could copy
-    # and extract it from the remote image, if it had one.
-    if [[ ! -e "${bootloader_path}" ]]; then
-      warn "Bootloader does not exist; creating a stub"
-      bootloader_path="${TMP}/${name}"
-      truncate -s 512 "${bootloader_path}"
-    fi
-  else
-    bootloader_path="/lib64/bootstub/bootstub.efi"
-  fi
   get_bootargs > "${config_path}"
   vbutil_kernel --pack "${TMP}"/new_kern.bin \
     --keyblock /usr/share/vboot/devkeys/kernel.keyblock \
     --signprivate /usr/share/vboot/devkeys/kernel_data_key.vbprivk \
     --version 1 \
     --config "${config_path}" \
-    --bootloader "${bootloader_path}" \
     --vmlinuz "${kernel_image}" \
     --arch "${FLAGS_arch}"
   rm "${config_path}"

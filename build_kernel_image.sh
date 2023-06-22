@@ -302,15 +302,7 @@ noresume
 noswap
 i915.modeset=1
 EOF
-
-  bootloader_path="/lib64/bootstub/bootstub.efi"
-elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips"  || "${FLAGS_arch}" == "arm64" ]]; then
-  # arm does not need/have a bootloader in kernel partition
-  dd if="/dev/zero" of="${FLAGS_working_dir}/bootloader.bin" bs=512 count=1
-  WORK+=("${FLAGS_working_dir}/bootloader.bin")
-
-  bootloader_path="${FLAGS_working_dir}/bootloader.bin"
-else
+elif [[ "${FLAGS_arch}" != "arm" && "${FLAGS_arch}" != "mips"  && "${FLAGS_arch}" != "arm64" ]]; then
   error "Unknown arch: ${FLAGS_arch}"
 fi
 kernel_image="${FLAGS_vmlinuz}"
@@ -359,7 +351,6 @@ vbutil_kernel \
   --signprivate "${FLAGS_keys_dir}/${FLAGS_private}" \
   --version 1 \
   --config "${config}" \
-  --bootloader "${bootloader_path}" \
   --vmlinuz "${kernel_image}" \
   --arch "${FLAGS_arch}"
 
