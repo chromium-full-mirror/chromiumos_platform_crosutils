@@ -299,7 +299,6 @@ if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
 add_efi_memmap
 boot=local
 noresume
-noswap
 i915.modeset=1
 EOF
 elif [[ "${FLAGS_arch}" != "arm" && "${FLAGS_arch}" != "mips"  && "${FLAGS_arch}" != "arm64" ]]; then

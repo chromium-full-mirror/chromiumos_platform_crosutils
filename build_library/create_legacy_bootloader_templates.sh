@@ -74,7 +74,6 @@ boot=local
 rootwait
 ro
 noresume
-noswap
 loglevel=${FLAGS_loglevel}
 ${FLAGS_boot_args}
 console=${FLAGS_enable_serial}
