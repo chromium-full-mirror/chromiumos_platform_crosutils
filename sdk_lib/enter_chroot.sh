@@ -455,23 +455,6 @@ setup_env() {
     setup_mount "${FLAGS_cache_dir}" "${chroot_cache}"
     # Create /var/log/asan directory (b/222311476).
     user_mkdir "${FLAGS_chroot}/var/log/asan"
-    # TODO(build): remove this as of 12/01/12.
-    # Because of how distfiles -> cache_dir was deployed, if this isn't
-    # a symlink, we *know* the ondisk pathways aren't compatible- thus
-    # fix it now.
-    distfiles_path="${FLAGS_chroot}/var/cache/distfiles"
-    if [ ! -L "${distfiles_path}" ]; then
-      # While we're at it, ensure the var is exported w/in the chroot; it
-      # won't exist if distfiles isn't a symlink.
-      p="${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
-      rm -rf "${distfiles_path}"
-      ln -s chromeos-cache/distfiles "${distfiles_path}"
-      # shellcheck disable=SC2174
-      mkdir -p -m 775 "${p%/*}"
-      # shellcheck disable=SC2016
-      echo 'export CHROMEOS_CACHEDIR=${chroot_cache}' > "${p}"
-      chmod 0644 "${p}"
-    fi
 
     if [ -d "${SUDO_HOME}/.cidb_creds" ]; then
       setup_mount "${SUDO_HOME}/.cidb_creds" \
