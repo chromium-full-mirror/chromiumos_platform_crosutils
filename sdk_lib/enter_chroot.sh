@@ -20,6 +20,7 @@ assert_root_user
 # See http://code.google.com/p/shflags/wiki/Documentation10x
 DEFINE_string chroot "${DEFAULT_CHROOT_DIR}" \
   "The destination dir for the chroot environment." "d"
+# shellcheck disable=SC2034 # Mostly here for plumbing. Not used.
 DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
   "The destination dir for build output and state."
 DEFINE_string trunk "${GCLIENT_ROOT}" \
@@ -95,6 +96,7 @@ FILES_TO_COPY_TO_CHROOT=(
 
   .gdata_cred.txt             # User/password for Google Docs on chromium.org
   .gdata_token                # Auth token for Google Docs on chromium.org
+  .googleapikeys              # Google API keys for Chrome
   .goma_client_oauth2_config  # Auth token for Goma
   .inputrc                    # Preserve command line customizations
 )
@@ -287,35 +289,6 @@ copy_into_chroot_if_exists() {
       user_mkdir "${dir}"
     fi
     user_cp "$1" "${FLAGS_chroot}/$2"
-  fi
-}
-
-# Usage: promote_api_keys
-# This takes care of getting the developer API keys into the chroot where
-# chrome can build with them.  It needs to take it from the places a dev
-# is likely to put them, and recognize that older chroots may or may not
-# have been used since the concept of keys got added, as well as before
-# and after the developer deciding to grab their own keys.
-promote_api_keys() {
-  local destination="${FLAGS_chroot}/home/${SUDO_USER}/.googleapikeys"
-  # Don't disturb existing keys.  They could be set differently
-  if [[ -s "${destination}" ]]; then
-    return 0
-  fi
-  if [[ -r "${SUDO_HOME}/.googleapikeys" ]]; then
-    cp -p "${SUDO_HOME}/.googleapikeys" "${destination}"
-    if [[ -s "${destination}" ]] ; then
-      info "Copied Google API keys into chroot."
-    fi
-  elif [[ -r "${SUDO_HOME}/.gyp/include.gypi" ]]; then
-    local NAME="('google_(api_key|default_client_(id|secret))')"
-    local WS="[[:space:]]*"
-    local CONTENTS="('[^\\\\']*')"
-    sed -nr -e "/^${WS}${NAME}${WS}[:=]${WS}${CONTENTS}.*/{s//\1: \4,/;p;}" \
-         "${SUDO_HOME}/.gyp/include.gypi" | user_clobber "${destination}"
-    if [[ -s "${destination}" ]]; then
-      info "Put discovered Google API keys into chroot."
-    fi
   fi
 }
 
@@ -631,9 +604,7 @@ setup_env() {
     copy_into_chroot_if_exists "${log_cert_dir}${log_cert_file}" \
       "/home/${SUDO_USER}/${log_cert_file}"
 
-
     setup_git
-    promote_api_keys
 
     # Fix permissions on shared memory to allow non-root users access to POSIX
     # semaphores. Take special care to only change the permissions on the
