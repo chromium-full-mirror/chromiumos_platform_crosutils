@@ -34,6 +34,7 @@ DEFINE_boolean ignore_verity "${FLAGS_FALSE}" "Update kernel even if system \
 is using verity (WARNING: likely to make the system unable to boot)"
 DEFINE_boolean reboot "${FLAGS_TRUE}" "Reboot system after update"
 DEFINE_boolean vboot "${FLAGS_TRUE}" "Update the vboot kernel"
+DEFINE_boolean vmlinux "${FLAGS_FALSE}" "Update the vmlinux.debug symbol"
 DEFINE_boolean syslinux "${FLAGS_TRUE}" \
   "Update the syslinux kernel (including /boot)"
 DEFINE_boolean bootonce "${FLAGS_FALSE}" "Mark kernel partition as boot once"
@@ -238,6 +239,18 @@ copy_kernelimage() {
   remote_sh dd of="${FLAGS_partition}" bs=4K < "${TMP}/new_kern.bin"
 }
 
+copy_vmlinux() {
+  local symbol_dir="/usr/lib/debug/boot"
+  local symbol="/build/${FLAGS_board}/${symbol_dir}/vmlinux.debug"
+  if [[ ! -f "${symbol}" ]]; then
+    warn "Can't find vmlinux.debug. Skipping update vmlinux.debug."
+    return
+  fi
+
+  remote_sh mkdir -p "${symbol_dir}"
+  remote_cp_to "${symbol}" "${symbol_dir}"/vmlinux.debug
+}
+
 check_kernelbuildtime() {
   local version="$1"
   local build_dir
@@ -411,6 +424,13 @@ main() {
     copy_kernelimage
   else
     info "Skipping update of vboot (per request)"
+  fi
+
+  if [[ "${FLAGS_vmlinux}" -eq "${FLAGS_TRUE}" ]]; then
+    info "Copying vmlinux.debug symbol to /usr/lib/debug/boot/ (per request)"
+    copy_vmlinux
+  else
+    info "Skipping update of vmlinux.debug symbol"
   fi
 
   if [[ "${FLAGS_bootonce}" -eq "${FLAGS_TRUE}" || \
