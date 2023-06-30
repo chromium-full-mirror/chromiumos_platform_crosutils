@@ -199,7 +199,12 @@ known_bad_pkg() {
 
   # Packages in upstream discussion.  Must link to an upstream tracker.
   case "${CATEGORY}/${PN}:${PV}" in
-  dev-libs/expat:2.5*) return 0;;  # https://bugs.gentoo.org/904190
+  # https://bugs.gentoo.org/904190
+  dev-libs/expat:2.5*) return 0;;
+  # https://github.com/alsa-project/alsa-lib/pull/333
+  media-libs/alsa-lib:*) return 0;;
+  # https://github.com/alsa-project/alsa-utils/pull/223
+  media-sound/alsa-utils:*) return 0;;
   esac
 
   # Do not add more packages here!
@@ -345,7 +350,6 @@ known_bad_pkg() {
   media-gfx/qrencode:3.4.4|\
   media-gfx/"sa"ne-backends:1.1.1|\
   media-gfx/zbar:0.23.1|\
-  media-libs/alsa-lib:1.2.1.2|\
   media-libs/clvk:0.0.1|\
   media-libs/cros-camera-hal-qti:0.0.1|\
   media-libs/cros-camera-libfs:0.0.1|\
@@ -380,7 +384,6 @@ known_bad_pkg() {
   media-libs/vulkan-loader:1.3.211|\
   media-libs/waffle:1.6.0|\
   media-plugins/alsa-plugins:1.1.6|\
-  media-sound/alsa-utils:1.2.1|\
   media-sound/gsm:1.0.13|\
   media-sound/sound_card_init:*|\
   media-video/yavta:0.0.1|\
