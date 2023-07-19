@@ -76,59 +76,57 @@ part_index_to_uuid() {
 # boot loader files (both A and B) with the data pulled
 # from the kernel_partition.  The default boot target should
 # be set when the rootfs is stuffed.
-if ! type -p update_x86_bootloaders; then
-  update_x86_bootloaders() {
-    local old_root="$1"  # e.g., /dev/sd%D%P or %U+1
-    local kernel_cmdline="$2"
-    local esp_fs_dir="$3"
-    local template_dir="$4"
-    local to="$5"
+update_x86_bootloaders() {
+  local old_root="$1"  # e.g., /dev/sd%D%P or %U+1
+  local kernel_cmdline="$2"
+  local esp_fs_dir="$3"
+  local template_dir="$4"
+  local to="$5"
 
-    # Pull out the dm="" values
-    dm_table=
-    if echo "$kernel_cmdline" | grep -q 'dm="'; then
-      dm_table=$(echo "$kernel_cmdline" | sed -s 's/.*dm="\([^"]*\)".*/\1/')
-    fi
+  # Pull out the dm="" values
+  dm_table=
+  if echo "$kernel_cmdline" | grep -q 'dm="'; then
+    dm_table=$(echo "$kernel_cmdline" | sed -s 's/.*dm="\([^"]*\)".*/\1/')
+  fi
 
-    # Discover last known partition numbers.
-    local partition_num_root_a="$(get_layout_partition_number \
-      "${FLAGS_image_type}" ROOT-A)"
-    local partition_num_root_b="$(get_layout_partition_number \
-      "${FLAGS_image_type}" ROOT-B)"
-    root_a_uuid="PARTUUID=$(part_index_to_uuid "$to" ${partition_num_root_a})"
-    root_b_uuid="PARTUUID=$(part_index_to_uuid "$to" ${partition_num_root_b})"
+  # Discover last known partition numbers.
+  local partition_num_root_a="$(get_layout_partition_number \
+    "${FLAGS_image_type}" ROOT-A)"
+  local partition_num_root_b="$(get_layout_partition_number \
+    "${FLAGS_image_type}" ROOT-B)"
+  root_a_uuid="PARTUUID=$(part_index_to_uuid "$to" ${partition_num_root_a})"
+  root_b_uuid="PARTUUID=$(part_index_to_uuid "$to" ${partition_num_root_b})"
 
-    # Rewrite grub table
-    grub_dm_table_a=${dm_table//${old_root}/${root_a_uuid}}
-    grub_dm_table_b=${dm_table//${old_root}/${root_b_uuid}}
-    sed -e "s|DMTABLEA|${grub_dm_table_a}|g" \
-        -e "s|DMTABLEB|${grub_dm_table_b}|g" \
-        -e "s|/dev/\\\$linuxpartA|${root_a_uuid}|g" \
-        -e "s|/dev/\\\$linuxpartB|${root_b_uuid}|g" \
-        -e "s|HDROOTUSB|${root_a_uuid}|g" \
-        "${template_dir}"/efi/boot/grub.cfg |
-        sudo dd of="${esp_fs_dir}"/efi/boot/grub.cfg status=none
+  # Rewrite grub table
+  grub_dm_table_a=${dm_table//${old_root}/${root_a_uuid}}
+  grub_dm_table_b=${dm_table//${old_root}/${root_b_uuid}}
+  sed -e "s|DMTABLEA|${grub_dm_table_a}|g" \
+      -e "s|DMTABLEB|${grub_dm_table_b}|g" \
+      -e "s|/dev/\\\$linuxpartA|${root_a_uuid}|g" \
+      -e "s|/dev/\\\$linuxpartB|${root_b_uuid}|g" \
+      -e "s|HDROOTUSB|${root_a_uuid}|g" \
+      "${template_dir}"/efi/boot/grub.cfg |
+      sudo dd of="${esp_fs_dir}"/efi/boot/grub.cfg status=none
 
-    # Rewrite syslinux DM_TABLE and HDROOTUSB for USB booting.
-    syslinux_dm_table_usb=${dm_table//${old_root}/${root_a_uuid}}
-    sed -e "s|DMTABLEA|${syslinux_dm_table_usb}|g" \
-        -e "s|HDROOTUSB|${root_a_uuid}|g" \
-        "${template_dir}"/syslinux/usb.A.cfg |
-        sudo dd of="${esp_fs_dir}"/syslinux/usb.A.cfg status=none
+  # Rewrite syslinux DM_TABLE and HDROOTUSB for USB booting.
+  syslinux_dm_table_usb=${dm_table//${old_root}/${root_a_uuid}}
+  sed -e "s|DMTABLEA|${syslinux_dm_table_usb}|g" \
+      -e "s|HDROOTUSB|${root_a_uuid}|g" \
+      "${template_dir}"/syslinux/usb.A.cfg |
+      sudo dd of="${esp_fs_dir}"/syslinux/usb.A.cfg status=none
 
-    # Note DMTABLE for root.A and root.B does not need to be updated because
-    # postinst will discard all changes in EFI partition and copy from
-    # rootfs:boot/syslinux/root.?.cfg again after installation or AU, because
-    # new rootfs will be apparently different.
+  # Note DMTABLE for root.A and root.B does not need to be updated because
+  # postinst will discard all changes in EFI partition and copy from
+  # rootfs:boot/syslinux/root.?.cfg again after installation or AU, because
+  # new rootfs will be apparently different.
 
-    # Copy the vmlinuz's into place for syslinux
-    sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.A
-    sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.B
+  # Copy the vmlinuz's into place for syslinux
+  sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.A
+  sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.B
 
-    # The only work left for the installer is to pick the correct defaults
-    # and replace HDROOTA and HDROOTB with the correct /dev/sd%D%P/%U+1
-  }
-fi
+  # The only work left for the installer is to pick the correct defaults
+  # and replace HDROOTA and HDROOTB with the correct /dev/sd%D%P/%U+1
+}
 
 ESP_DEV_OURS=
 ESP_DEV=
