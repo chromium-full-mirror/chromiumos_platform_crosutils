@@ -124,8 +124,6 @@ get_base_root() {
   echo 'PARTUUID=%U/PARTNROFF=1'
 }
 
-load_board_specific_script "build_kernel_image.sh"
-
 base_root=$(get_base_root)
 
 device_mapper_args=
@@ -341,7 +339,11 @@ for image_type in $(get_image_types); do
   done
 done
 
-modify_kernel_command_line "${config}"
+(
+  # Run in a subshell so we know build_kernel_image.sh can't set env vars.
+  load_board_specific_script "build_kernel_image.sh"
+  modify_kernel_command_line "${config}"
+)
 
 # Create and sign the kernel blob
 vbutil_kernel \

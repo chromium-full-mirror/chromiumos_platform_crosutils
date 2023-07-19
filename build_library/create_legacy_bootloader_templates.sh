@@ -91,8 +91,11 @@ modify_kernel_command_line() {
 
 # shellcheck source=board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
-load_board_specific_script "build_kernel_image.sh"
-modify_kernel_command_line "${config_file}"
+(
+  # Run in a subshell so we know build_kernel_image.sh can't set env vars.
+  load_board_specific_script "build_kernel_image.sh"
+  modify_kernel_command_line "${config_file}"
+)
 # Read back the config_file; translate newlines to space
 common_args="$(tr "\n" " " < "${config_file}")"
 cleanup
