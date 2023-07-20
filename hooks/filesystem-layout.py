@@ -111,7 +111,7 @@ BAD_HOST_USR_LOCAL_PACKAGES = {
 # Ignore some packages installing into /var for now.
 # NB: Do *not* add more packages here.
 BAD_VAR_PACKAGES = {
-    "app-accessibility/brltty",
+    ("app-accessibility/brltty", "6.5"),
     "app-admin/eselect",
     "app-admin/rsyslog",
     "app-admin/sudo",
@@ -150,9 +150,18 @@ BAD_VAR_PACKAGES = {
 # Ignore some packages installing into /run for now.
 # NB: Do *not* add more packages here.
 BAD_RUN_PACKAGES = {
-    "app-accessibility/brltty",
+    ("app-accessibility/brltty", "6.5"),
     "net-fs/samba",
 }
+
+
+def is_known_bad(allowlist):
+    """See if the current package is allowed."""
+    atom = get_current_package()
+    if atom in allowlist:
+        return True
+
+    return (atom, os.environ.get("PV")) in allowlist
 
 
 def has_subdirs(path):
@@ -188,7 +197,6 @@ def check_usr(usr, host=False):
     if not os.path.exists(usr):
         return ret
 
-    atom = get_current_package()
     paths = set(os.listdir(usr))
     unknown = paths - VALID_USR
     for target in KNOWN_TARGETS:
@@ -196,7 +204,7 @@ def check_usr(usr, host=False):
     if host:
         unknown -= VALID_HOST_USR
 
-        if atom in BAD_HOST_USR_LOCAL_PACKAGES:
+        if is_known_bad(BAD_HOST_USR_LOCAL_PACKAGES):
             logging.warning("Ignoring known bad /usr/local install for now")
             unknown -= {"local"}
     else:
@@ -222,7 +230,6 @@ def check_root(root, host=False):
     """Check the filesystem |root|."""
     ret = True
 
-    atom = get_current_package()
     paths = set(os.listdir(root))
     unknown = paths - VALID_ROOT
     if host:
@@ -245,7 +252,7 @@ def check_root(root, host=False):
 
     # Special case /var due to so many misuses currently.
     if os.path.exists(os.path.join(root, "var")):
-        if atom in BAD_VAR_PACKAGES:
+        if is_known_bad(BAD_VAR_PACKAGES):
             logging.warning("Ignoring known bad /var install for now")
         elif os.environ.get("PORTAGE_REPO_NAME") == "portage-stable":
             logging.warning(
@@ -259,14 +266,14 @@ def check_root(root, host=False):
             )
             ret = False
     else:
-        if atom in BAD_VAR_PACKAGES:
+        if is_known_bad(BAD_VAR_PACKAGES):
             logging.warning(
                 "Package has improved; please update BAD_VAR_PACKAGES"
             )
 
     # Special case /run due to so many misuses currently.
     if os.path.exists(os.path.join(root, "run")):
-        if atom in BAD_RUN_PACKAGES:
+        if is_known_bad(BAD_RUN_PACKAGES):
             logging.warning("Ignoring known bad /run install for now")
         elif os.environ.get("PORTAGE_REPO_NAME") == "portage-stable":
             logging.warning(
@@ -280,7 +287,7 @@ def check_root(root, host=False):
             )
             ret = False
     else:
-        if atom in BAD_RUN_PACKAGES:
+        if is_known_bad(BAD_RUN_PACKAGES):
             logging.warning(
                 "Package has improved; please update BAD_RUN_PACKAGES"
             )
