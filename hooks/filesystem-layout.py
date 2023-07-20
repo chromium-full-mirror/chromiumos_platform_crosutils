@@ -202,10 +202,6 @@ def check_usr(usr, host=False):
     else:
         unknown -= VALID_BOARD_USR
 
-        if atom in {"chromeos-base/ap-daemons"}:
-            logging.warning("Ignoring known bad /usr install for now")
-            unknown -= {"www"}
-
     if unknown:
         logging.error(
             "Paths are not allowed in the /usr dir: %s", sorted(unknown)

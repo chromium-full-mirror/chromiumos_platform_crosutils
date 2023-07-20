@@ -21,13 +21,6 @@ known_bad_oom() {
   app-accessibility/googletts|\
   app-benchmarks/bootchart|\
   app-crypt/trousers|\
-  chromeos-base/actions|\
-  chromeos-base/ap-daemons|\
-  chromeos-base/ap-infra|\
-  chromeos-base/ap-net|\
-  chromeos-base/ap-scm|\
-  chromeos-base/ap-security|\
-  chromeos-base/ap-wireless|\
   chromeos-base/apollo-ptp|\
   chromeos-base/arc-adbd|\
   chromeos-base/arc-apk-cache|\
@@ -113,7 +106,6 @@ known_bad_oom() {
   chromeos-base/factory_installer|\
   chromeos-base/fastrpc|\
   chromeos-base/feedback|\
-  chromeos-base/gdisp|\
   chromeos-base/goldfishd|\
   chromeos-base/hammerd|\
   chromeos-base/hermes|\
@@ -148,8 +140,6 @@ known_bad_oom() {
   chromeos-base/pdfc-scripts|\
   chromeos-base/permission_broker|\
   chromeos-base/quickoffice|\
-  chromeos-base/rialto-cellular-autoconnect|\
-  chromeos-base/rialto-modem-watchdog|\
   chromeos-base/runtime_probe|\
   chromeos-base/sirenia|\
   chromeos-base/smbprovider|\
@@ -167,8 +157,6 @@ known_bad_oom() {
   chromeos-base/virtual-file-provider|\
   chromeos-base/virtual-usb-printer|\
   chromeos-base/vpd|\
-  chromeos-base/weaveauth|\
-  chromeos-base/whining|\
   dev-util/hdctools|\
   media-libs/arc-camera-service|\
   media-libs/cros-camera-libcab|\
@@ -207,8 +195,7 @@ known_bad_oom() {
   sys-power/dptf|\
   sys-process/audit|\
   virtual/chromeos-bootcomplete|\
-  virtual/chromeos-firewall|\
-  virtual/target-jetstream-test-root)
+  virtual/chromeos-firewall)
     return 0
     ;;
   chromeos-base/arc-keymaster)  # We don't control the package name.  nocheck
