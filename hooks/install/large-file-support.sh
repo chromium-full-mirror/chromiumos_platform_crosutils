@@ -509,7 +509,10 @@ check_lfs()
     return
   fi
 
-  files=$(scanelf -F '%s %p' -qyRgs "-${SYMBOLS_REGEX}" "$@")
+  # Exclude /build, since such files don't go into the final image.
+  files="$(for d in "$@"; do \
+           find "${d}" -path "${d}/build" -prune -o -type f -print0; done | \
+           xargs -0 scanelf -F '%s %p' -qyRgs "-${SYMBOLS_REGEX}")"
   if [[ -n "${files}" ]]; then
     echo
     eqawarn "QA Notice: The following files were not built with LFS support:"
