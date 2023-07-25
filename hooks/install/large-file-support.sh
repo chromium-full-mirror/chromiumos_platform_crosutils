@@ -329,7 +329,6 @@ known_bad_pkg() {
   dev-rust/bindgen:0.59.2|\
   dev-rust/s9:0.1.0|\
   dev-util/android-tools:9.0.0_p3|\
-  dev-util/apitrace:9.0|\
   dev-util/glslang:1.3.211|\
   dev-util/hdctools:0.0.1|\
   dev-rust/manatee-client:0.24.52|\
