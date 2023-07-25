@@ -373,7 +373,6 @@ known_bad_pkg() {
   media-libs/mesa-img:21.3*|\
   media-libs/opencl-cts:0.0.1|\
   media-libs/opencv:4.5.5|\
-  media-libs/openjpeg:2.3.0|\
   media-libs/qti-7c-camera-bins:20220401|\
   media-libs/rockchip-isp1-3a-libs-bin:2018.06.28|\
   media-libs/sbc:1.3|\
