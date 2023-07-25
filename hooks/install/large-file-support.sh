@@ -211,7 +211,6 @@ known_bad_pkg() {
   case "${CATEGORY}/${PN}:${PV}" in
   app-accessibility/brltty:6.3|\
   app-admin/sysstat:11.7.4|\
-  app-arch/brotli:1.0.9|\
   app-benchmarks/blktests:20190430|\
   app-benchmarks/blogbench:1.1.20200218|\
   app-benchmarks/bootchart:0.9.2|\
