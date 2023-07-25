@@ -288,7 +288,6 @@ known_bad_pkg() {
   chromeos-base/wacom_fw_flash:1.4.0|\
   chromeos-base/weida_wdt_util:0.9.9|\
   dev-cpp/abseil-cpp:20211102.0|\
-  dev-cpp/gtest:1.10.0|\
   dev-embedded/dfu-programmer:0.7.2|\
   dev-lang/tcl:8.6.12|\
   dev-libs/boost:1.79.0|\
