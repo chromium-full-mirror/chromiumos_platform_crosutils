@@ -329,13 +329,10 @@ known_bad_pkg() {
   dev-rust/bindgen:0.59.2|\
   dev-rust/s9:0.1.0|\
   dev-util/android-tools:9.0.0_p3|\
-  dev-util/glslang:1.3.211|\
   dev-util/hdctools:0.0.1|\
   dev-rust/manatee-client:0.24.52|\
   dev-util/perf:5.15*|\
   dev-util/rt-tests:2.2|\
-  dev-util/spirv-tools:1.3.211|\
-  dev-util/vulkan-tools:1.3.211|\
   dev-util/xdelta:3.0.11|\
   dev-util/xxd:1.10|\
   games-util/joystick:1.4.2|\
@@ -374,8 +371,6 @@ known_bad_pkg() {
   media-libs/shaderc:2022.1|\
   media-libs/skia:106|\
   media-libs/tiff:4.3.0|\
-  media-libs/vulkan-layers:1.3.211|\
-  media-libs/vulkan-loader:1.3.211|\
   media-libs/waffle:1.6.0|\
   media-plugins/alsa-plugins:1.1.6|\
   media-sound/gsm:1.0.13|\
