@@ -72,11 +72,8 @@ part_index_to_uuid() {
   cgpt show -i "$index" -u "$image"
 }
 
-# If not provided by chromeos-common.sh, this will update all of the
-# boot loader files (both A and B) with the data pulled
-# from the kernel_partition.  The default boot target should
-# be set when the rootfs is stuffed.
-update_x86_bootloaders() {
+# Common logic on x86/arm64 to replace placeholders in bootloader configs.
+update_bootloaders() {
   local old_root="$1"  # e.g., /dev/sd%D%P or %U+1
   local kernel_cmdline="$2"
   local esp_fs_dir="$3"
@@ -108,21 +105,19 @@ update_x86_bootloaders() {
       "${template_dir}"/efi/boot/grub.cfg |
       sudo dd of="${esp_fs_dir}"/efi/boot/grub.cfg status=none
 
-  # Rewrite syslinux DM_TABLE and HDROOTUSB for USB booting.
-  syslinux_dm_table_usb=${dm_table//${old_root}/${root_a_uuid}}
-  sed -e "s|DMTABLEA|${syslinux_dm_table_usb}|g" \
-      -e "s|HDROOTUSB|${root_a_uuid}|g" \
-      "${template_dir}"/syslinux/usb.A.cfg |
-      sudo dd of="${esp_fs_dir}"/syslinux/usb.A.cfg status=none
+  if [[ ${FLAGS_install_syslinux} -eq ${FLAGS_TRUE} ]]; then
+    # Rewrite syslinux DM_TABLE and HDROOTUSB for USB booting.
+    syslinux_dm_table_usb=${dm_table//${old_root}/${root_a_uuid}}
+    sed -e "s|DMTABLEA|${syslinux_dm_table_usb}|g" \
+        -e "s|HDROOTUSB|${root_a_uuid}|g" \
+        "${template_dir}"/syslinux/usb.A.cfg |
+        sudo dd of="${esp_fs_dir}"/syslinux/usb.A.cfg status=none
+  fi
 
   # Note DMTABLE for root.A and root.B does not need to be updated because
   # postinst will discard all changes in EFI partition and copy from
   # rootfs:boot/syslinux/root.?.cfg again after installation or AU, because
   # new rootfs will be apparently different.
-
-  # Copy the vmlinuz's into place for syslinux
-  sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.A
-  sudo cp -f "${FLAGS_vmlinuz}" "${esp_fs_dir}"/syslinux/vmlinuz.B
 
   # The only work left for the installer is to pick the correct defaults
   # and replace HDROOTA and HDROOTB with the correct /dev/sd%D%P/%U+1
@@ -180,7 +175,9 @@ cleanup() {
 trap cleanup EXIT
 sudo mount "${ESP_DEV}" "${ESP_FS_DIR}"
 
-if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
+if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" || \
+      ( "${FLAGS_arch}" == "arm64" && \
+        -d "/build/${FLAGS_board}/lib64/grub/arm64-efi/" ) ]]; then
   # Populate the EFI bootloader configuration
   sudo mkdir -p "${ESP_FS_DIR}/efi/boot"
   sudo cp -r "${FLAGS_from}"/efi/boot/. "${ESP_FS_DIR}"/efi/boot
@@ -204,11 +201,12 @@ if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
     info "Extracting the kernel command line from ${FLAGS_kernel_partition}"
     kernel_cfg=$(dump_kernel_config "${FLAGS_kernel_partition}")
   fi
-  update_x86_bootloaders "${old_root}" \
-                         "${kernel_cfg}" \
-                         "${ESP_FS_DIR}" \
-                         "${FLAGS_from}" \
-                         "${FLAGS_to}"
+
+  update_bootloaders "${old_root}" \
+                     "${kernel_cfg}" \
+                     "${ESP_FS_DIR}" \
+                     "${FLAGS_from}" \
+                     "${FLAGS_to}"
 
   # Install the syslinux loader on the ESP image (part 12) so it is ready when
   # we cut over from rootfs booting (extlinux).
@@ -218,7 +216,7 @@ if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
     # mount again for cleanup to free resource gracefully
     sudo mount -o ro "${ESP_DEV}" "${ESP_FS_DIR}"
   fi
-elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips" ]]; then
+elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips" ]]; then
   # Copy u-boot script to ESP partition
   if [ -r "${FLAGS_from}/boot-A.scr.uimg" ]; then
     sudo mkdir -p "${ESP_FS_DIR}/u-boot"

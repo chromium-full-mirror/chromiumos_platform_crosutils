@@ -427,12 +427,16 @@ make_image_bootable() {
   esp_size="$(partsize "${image}" "${partition_num_efi_system}")"
   esp_size=$((esp_size * 512))  # sectors to bytes
 
-  if [[ "${FLAGS_arch}" = "x86" || "${FLAGS_arch}" = "amd64" ]]; then
+  if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
     # Use the kernel partition to acquire configuration flags.
     kernel_part=("--kernel_partition='${FLAGS_output_dir}/${kern_a_image}'")
     # Install syslinux on the EFI System Partition.
     kernel_part+=(--install_syslinux)
-  elif [[ "${FLAGS_arch}" = "arm" || "${FLAGS_arch}" = "mips" ]]; then
+  elif [[ "${FLAGS_arch}" == "arm64" ]] && \
+       [[ -d "/build/${FLAGS_board}/lib64/grub/arm64-efi/" ]]; then
+    # Use the kernel partition to acquire configuration flags.
+    kernel_part=("--kernel_partition='${FLAGS_output_dir}/${kern_a_image}'")
+  elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips" ]]; then
     # These flags are not used for ARM / MIPS update_bootloaders.sh
     kernel_part=()
   fi
