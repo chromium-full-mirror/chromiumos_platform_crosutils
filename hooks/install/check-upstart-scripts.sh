@@ -154,7 +154,6 @@ known_bad_oom() {
   chromeos-base/viking-hid|\
   chromeos-base/virtual-file-provider|\
   chromeos-base/virtual-usb-printer|\
-  chromeos-base/vpd|\
   dev-util/hdctools|\
   media-libs/arc-camera-service|\
   media-libs/cros-camera-libcab|\
