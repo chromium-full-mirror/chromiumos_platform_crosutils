@@ -200,21 +200,6 @@ build_img() {
     extra_arguments+=(--hd_vblock="${FLAGS_output_dir}/${vblock}")
   fi
 
-  # Generate the sha256 hash of /etc/lsb-release for version attestation.
-  local lsb_hash_all
-  local lsb_hash_raw
-  local lsb_hash_base64
-  # First we capture the output of sha256sum of the lsb-release file, it'll
-  # look something like this:
-  # 1c01ef(...)8d3ec5 */etc/lsb-release
-  lsb_hash_all=$(sha256sum -b "${FLAGS_rootfs_mountpoint}/etc/lsb-release")
-  # We only want the hash and not the file name, so we split by space to get
-  # the hex-encoded hash.
-  lsb_hash_raw=$(echo "${lsb_hash_all}" | cut -d' ' -f1)
-  # To conserve the space used in kernel cmdline, we encode the hash in base64
-  # instead to reduce its size.
-  lsb_hash_base64=$(echo "${lsb_hash_raw}" | xxd -r -p | base64)
-
   "${SCRIPTS_DIR}"/build_kernel_image.sh \
     --board="${FLAGS_board}" \
     --arch="${FLAGS_arch}" \
@@ -235,7 +220,6 @@ build_img() {
     --private="${private}" \
     --public="${public}" \
     --enable_serial="${FLAGS_enable_serial}" \
-    --version_attestation_hash="${lsb_hash_base64}" \
     "${extra_arguments[@]}"
 }
 
