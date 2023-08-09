@@ -409,7 +409,6 @@ known_bad_pkg() {
   net-misc/iperf:3.7|\
   net-misc/iputils:20171016_pre|\
   net-misc/pps-tools:0.0.20120407|\
-  net-misc/qc-netmgr:0.1_p20220118|\
   net-misc/radvd:2.17|\
   net-misc/rmtfs:0.3_p20210408|\
   net-misc/socat:1.7.3.2|\
