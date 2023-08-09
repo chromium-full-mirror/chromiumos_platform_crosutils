@@ -118,8 +118,7 @@ learn_partition_and_ro() {
         warn "System is using verity: not updating firmware/modules"
     else
         warn "System is using verity: First remove rootfs verification using"
-        warn "/usr/share/vboot/bin/make_dev_ssd.sh \\"
-        warn "  --remove_rootfs_verification --partitions ${FLAGS_partition: -1}"
+        warn "/usr/share/vboot/bin/make_dev_ssd.sh --remove_rootfs_verification --partitions ${FLAGS_partition: -1}"
         warn "on the DUT."
         die_notrace
     fi
