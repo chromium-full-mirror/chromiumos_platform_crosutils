@@ -143,7 +143,6 @@ known_bad_oom() {
   chromeos-base/runtime_probe|\
   chromeos-base/sirenia|\
   chromeos-base/smbprovider|\
-  chromeos-base/swap-init|\
   chromeos-base/thermald|\
   chromeos-base/timberslide|\
   chromeos-base/tpm_manager|\
