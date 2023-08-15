@@ -183,6 +183,9 @@ known_bad_pkg() {
   # TODO(b/258669199): Ignore Rust packages for now.
   case "${CATEGORY}/${PN}:${PV}" in
   chromeos-base/crosvm:*|\
+  chromeos-base/chunnel:*|\
+  dev-rust/s9:*|\
+  chromeos-base/ippusb_bridge:*|\
   chromeos-base/hwsec-utils:*|\
   chromeos-base/resourced:*|\
   media-gfx/deqp-runner:*|\
@@ -244,7 +247,6 @@ known_bad_pkg() {
   chromeos-base/autotest-tests-graphics:0.0.1|\
   chromeos-base/chromeos-chrome:*|\
   chromeos-base/chromeos-cr50-dev:0.0.1|\
-  chromeos-base/chunnel:0.1.0|\
   chromeos-base/crash-reporter:0.0.1|\
   chromeos-base/cronista:0.24.52|\
   chromeos-base/cros-camera:0.0.1|\
@@ -264,7 +266,6 @@ known_bad_pkg() {
   chromeos-base/google-breakpad:2023.0[12]*|\
   chromeos-base/hps-firmware-tools:0.0.1|\
   chromeos-base/infineon-firmware-updater:1.1.2459.0|\
-  chromeos-base/ippusb_bridge:0.0.1|\
   chromeos-base/libevdev:0.0.1|\
   chromeos-base/libhwsec:0.0.1|\
   chromeos-base/manatee-runtime:0.1.0|\
@@ -327,7 +328,6 @@ known_bad_pkg() {
   dev-python/python-uinput:0.11.2|\
   dev-python/selenium:3.0.2|\
   dev-rust/bindgen:0.59.2|\
-  dev-rust/s9:0.1.0|\
   dev-util/android-tools:9.0.0_p3|\
   dev-util/apitrace:9.0|\
   dev-util/hdctools:0.0.1|\
