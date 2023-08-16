@@ -334,7 +334,6 @@ inject_system_wide_scudo() {
 create_base_image() {
   local image_name=$1
   local rootfs_verification_enabled=$2
-  local bootcache_enabled=$3
   local image_type="usb"
 
   info "Entering create_base_image $*"
@@ -571,10 +570,6 @@ create_base_image() {
   if [[ ${rootfs_verification_enabled} -eq ${FLAGS_TRUE} ]]; then
     enable_rootfs_verification="--enable_rootfs_verification"
   fi
-  local enable_bootcache=
-  if [[ ${bootcache_enabled} -eq ${FLAGS_TRUE} ]]; then
-    enable_bootcache="--enable_bootcache"
-  fi
 
   # If the KERN-A partition is of type "reserved", there is no kernel.
   # Skip the preparation of a bootable kernel partition.
@@ -594,8 +589,7 @@ create_base_image() {
       --boot_args="${FLAGS_boot_args}" \
       --enable_serial="${FLAGS_enable_serial}" \
       --loglevel="${FLAGS_loglevel}" \
-      ${enable_rootfs_verification} \
-      ${enable_bootcache}
+      ${enable_rootfs_verification}
   fi
 
   # Run board-specific build image function, if available.

@@ -63,8 +63,6 @@ DEFINE_string verity_salt "" \
   "Salt to use for rootfs hash (Default: \"\")"
 DEFINE_boolean enable_rootfs_verification "${FLAGS_TRUE}" \
   "Enable kernel-based root fs integrity checking. (Default: true)"
-DEFINE_boolean enable_bootcache "${FLAGS_FALSE}" \
-  "Enable boot cache to accelerate booting. (Default: false)"
 DEFINE_string enable_serial "" \
   "Enable serial port for printks. Example values: ttyS0"
 DEFINE_integer loglevel 7 \
@@ -193,27 +191,10 @@ with --rootfs_image_size."
   # Don't claim the root device unless verity is enabled.
   # Doing so will claim /dev/sdDP out from under the system.
   if [[ ${FLAGS_enable_rootfs_verification} -eq ${FLAGS_TRUE} ]]; then
-    if [[ ${FLAGS_enable_bootcache} -eq ${FLAGS_TRUE} ]]; then
-      base_root='254:0'  # major:minor numbers for /dev/dm-0
-    fi
     table=${table//HASH_DEV/${base_root}}
     table=${table//ROOT_DEV/${base_root}}
   fi
-  verity_dev="vroot none ro 1,${table}"
-  if [[ ${FLAGS_enable_bootcache} -eq ${FLAGS_TRUE} ]]; then
-    signature=$(rootdigest)
-    cachestart=$(($(hashstart) + $(veritysize)))
-    size_limit=512
-    max_trace=20000
-    max_pages=100000
-    bootcache_args="PARTUUID=%U/PARTNROFF=1"
-    bootcache_args+=" ${cachestart} ${signature} ${size_limit}"
-    bootcache_args+=" ${max_trace} ${max_pages}"
-    bootcache_dev="vboot none ro 1,0 ${cachestart} bootcache ${bootcache_args}"
-    device_mapper_args="dm=\"2 ${bootcache_dev}, ${verity_dev}\""
-  else
-    device_mapper_args="dm=\"1 ${verity_dev}\""
-  fi
+  device_mapper_args="dm=\"1 vroot none ro 1,${table}\""
   info "device mapper configuration: ${device_mapper_args}"
 fi
 
@@ -227,15 +208,7 @@ dev_wait=0
 root_dev=${base_root}
 if [[ ${FLAGS_enable_rootfs_verification} -eq ${FLAGS_TRUE} ]]; then
   dev_wait=1
-  if [[ ${FLAGS_enable_bootcache} -eq ${FLAGS_TRUE} ]]; then
-    root_dev=/dev/dm-1
-  else
-    root_dev=/dev/dm-0
-  fi
-else
-  if [[ ${FLAGS_enable_bootcache} -eq ${FLAGS_TRUE} ]]; then
-    die "Having bootcache without verity is not supported"
-  fi
+  root_dev=/dev/dm-0
 fi
 
 # kern_guid should eventually be changed to use PARTUUID

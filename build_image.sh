@@ -28,8 +28,6 @@ DEFINE_string board "${DEFAULT_BOARD}" \
   "The board to build an image for."
 DEFINE_string boot_args "noinitrd" \
   "Additional boot arguments to pass to the commandline"
-DEFINE_boolean enable_bootcache ${FLAGS_FALSE} \
-  "Default all bootloaders to NOT use boot cache."
 DEFINE_boolean enable_rootfs_verification ${FLAGS_TRUE} \
   "Default all bootloaders to use kernel-based root fs integrity checking." \
   r
@@ -110,8 +108,7 @@ load_board_specific_script "board_specific_setup.sh"
 # TODO: <prebuild hook>
 
 # Create the base image.
-create_base_image "${PRISTINE_IMAGE_NAME}" \
-  "${FLAGS_enable_rootfs_verification}" "${FLAGS_enable_bootcache}"
+create_base_image "${PRISTINE_IMAGE_NAME}" "${FLAGS_enable_rootfs_verification}"
 
 # Running board-specific setup if any exists.
 if type board_setup &>/dev/null; then

@@ -92,12 +92,8 @@ DEFINE_string boot_args "noinitrd" \
 
 DEFINE_string rootfs_hash "/tmp/rootfs.hash" \
   "Path where the rootfs hash should be stored."
-# TODO(taysom): when we turn on boot cache, both verification and
-# bootcache should have their default be FLAGS_TRUE.
 DEFINE_boolean enable_rootfs_verification "${FLAGS_FALSE}" \
   "Default all bootloaders to NOT use kernel-based root fs integrity checking."
-DEFINE_boolean enable_bootcache "${FLAGS_FALSE}" \
-  "Default all bootloaders to NOT use bootcache."
 DEFINE_integer verity_error_behavior 3 \
   "Kernel verified boot error behavior (0: I/O errors, 1: reboot, 2: nothing)"
 DEFINE_integer verity_max_ios -1 \
@@ -189,11 +185,6 @@ build_img() {
   else
     # Default to non-verified
     extra_arguments+=(--noenable_rootfs_verification)
-  fi
-  if [[ "${FLAGS_enable_bootcache}" -eq "${FLAGS_TRUE}" ]]; then
-    extra_arguments+=(--enable_bootcache)
-  else
-    extra_arguments+=(--noenable_bootcache)
   fi
 
   if [[ -n "${vblock}" ]]; then
