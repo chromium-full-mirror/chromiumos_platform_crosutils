@@ -130,6 +130,7 @@ setup_etc_shadow() {
   local passwd="${root}/etc/passwd"
   local line
   local cmds
+  local sed_cmd
 
   # Remove the file completely so we know it is fully initialized
   # with the correct permissions.  Note: we're just making it writable
@@ -140,6 +141,8 @@ setup_etc_shadow() {
   )
   sudo_multi "${cmds[@]}"
 
+  # Clear cmds before we read through the passwd file.
+  cmds=()
   # Create shadow entries for all accounts in /etc/passwd that says
   # they expect it.  Otherwise, pam will not let people even log in
   # via ssh keyauth.  http://crbug.com/361864
@@ -166,9 +169,22 @@ setup_etc_shadow() {
     # Password is set directly.
     *)
       echo "${acct}:${pass}:::::::" >> "${shadow}"
+
+      # This is a sed command to replace the password field with an 'x' instead
+      # of the existing hashed password. We use ! as the sed separator because
+      # it's guaranteed not to appear in a password field.
+      sed_cmd="s!^${acct}:${pass}:!${acct}:x:!"
+
+      # Add a quoted sed command to the list. We use printf %q instead of
+      # directly using bash string interpolation to handle quoting for us.
+      cmds+=("$(printf 'sed %q -i %q' "${sed_cmd}" "${passwd}")")
       ;;
     esac
   done <"${passwd}"
+
+  if [[ "${#cmds[@]}" -gt 0 ]]; then
+    sudo_multi "${cmds[@]}"
+  fi
 
   # Now make the settings sane.
   cmds=(
