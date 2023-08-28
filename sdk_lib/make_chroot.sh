@@ -9,11 +9,11 @@
 # setup for development. Once created, the password is set to PASSWORD (below).
 # One can enter the chrooted environment for work by running enter_chroot.sh.
 
-SCRIPT_ROOT=$(readlink -f $(dirname "$0")/..)
+SCRIPT_ROOT=$(readlink -f "$(dirname "$0")/..")
 # shellcheck source=../common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 
-ENTER_CHROOT=$(readlink -f $(dirname "$0")/enter_chroot.sh)
+ENTER_CHROOT=$(readlink -f "$(dirname "$0")/enter_chroot.sh")
 
 if [ -n "${USE}" ]; then
   echo "$SCRIPT_NAME: Building with a non-empty USE: ${USE}"

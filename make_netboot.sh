@@ -10,7 +10,7 @@
 # included as initramfs. Generated image, along with the netboot firmware
 # are placed in a "netboot" subfolder.
 
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 # shellcheck source=build_library/build_common.sh
 . "${SCRIPT_ROOT}/build_library/build_common.sh" || exit 1
 

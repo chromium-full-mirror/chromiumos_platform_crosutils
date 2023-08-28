@@ -6,8 +6,7 @@
 
 # Script to generate stackdumps from a machine or dmp files.
 
-
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 # shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 # shellcheck source=remote_access.sh

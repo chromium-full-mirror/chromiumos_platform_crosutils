@@ -7,7 +7,7 @@
 # Helper script that generates the legacy/efi bootloader partitions.
 # It does not populate the templates, but can update a loop device.
 
-SCRIPT_ROOT=$(dirname $(readlink -f "$0"))
+SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 # shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 # shellcheck source=build_library/disk_layout_util.sh
