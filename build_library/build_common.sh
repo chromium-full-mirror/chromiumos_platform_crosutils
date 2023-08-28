@@ -73,6 +73,9 @@ emerge_custom_kernel() {
   local root=/build/${FLAGS_board}
   local tmp_pkgdir=${root}/custom-packages
 
+  info "Emerging custom kernel into ${install_root}"
+  info "Setting PKGDIR=${tmp_pkgdir} to avoid conflicts in ${root}"
+
   # Clean up any leftover state in custom directories.
   sudo rm -rf "${tmp_pkgdir}"
 
