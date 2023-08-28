@@ -626,7 +626,11 @@ create_base_image() {
     info_run sudo tar -cf "${BOARD_ROOT}/packages/dev-only-extras.tar.xz" \
       -I 'xz -9 -T0' --exclude=var -C "${root_fs_dir}/usr/local" .
 
-    create_dev_install_lists "${root_fs_dir}"
+    if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+      info "Skipping dev-install lists for factory shim images."
+    else
+      create_dev_install_lists "${root_fs_dir}"
+    fi
   fi
 
   # Generate DLCs and copy their metadata to the rootfs + factory install DLC
