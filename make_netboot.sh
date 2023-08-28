@@ -34,9 +34,9 @@ SYSROOT="/build/${FLAGS_board}"
 # build_image artifact output.
 
 if [ -n "${FLAGS_image_dir}" ]; then
-  cd ${FLAGS_image_dir}
+  cd "${FLAGS_image_dir}" || die
 else
-  cd "${CHROOT_TRUNK_DIR}"/src/build/images/"${FLAGS_board}"/latest
+  cd "${CHROOT_TRUNK_DIR}/src/build/images/${FLAGS_board}/latest" || die
 fi
 
 # Generate staging dir for netboot files.
