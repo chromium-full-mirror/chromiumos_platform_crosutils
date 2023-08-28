@@ -25,8 +25,6 @@ DEFINE_string image_dir "" "Path to the folder to store netboot images."
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 
-# shellcheck source=build_library/build_common.sh
-. "${SCRIPT_ROOT}/build_library/build_common.sh" || exit 1
 # shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 
