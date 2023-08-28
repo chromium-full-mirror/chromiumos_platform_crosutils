@@ -42,8 +42,8 @@ else
 fi
 
 # Generate staging dir for netboot files.
-sudo rm -rf netboot
-mkdir -p netboot
+info_run sudo rm -rf netboot
+info_run mkdir -p netboot
 
 # Get netboot firmware.
 FIRMWARE_PATTERN="firmware/image*.net.bin"
@@ -52,23 +52,19 @@ FIRMWARE_PATHS=("${SYSROOT}"/${FIRMWARE_PATTERN})
 # array still contains the original pattern string, so we need to check if the
 # first file in the array actually exists to know if we find any firmware.
 if [ -e "${FIRMWARE_PATHS[0]}" ]; then
+  info "Copying netboot firmware"
   for firmware_path in "${FIRMWARE_PATHS[@]}"; do
-    echo "Copying netboot firmware ${firmware_path}..."
-    cp -v "${firmware_path}" netboot/
+    info_run cp "${firmware_path}" netboot/
   done
 else
-  echo "Skipping netboot firmware: ${SYSROOT}/${FIRMWARE_PATTERN} not present?"
+  warn "Skipping netboot firmware: ${SYSROOT}/${FIRMWARE_PATTERN} not present?"
 fi
 
 # Create temporary emerge root
-temp_build_path="$(mktemp -d bk_XXXXXXXX)"
-if ! [ -d "${temp_build_path}" ]; then
-  echo "Failed to create temporary directory."
-  exit 1
-fi
+temp_build_path="$(mktemp -d bk_XXXXXXXX)" || die "Failed to create tempdir."
 
 # Build initramfs network boot image
-echo "Building kernel"
+info "Building kernel"
 export USE="fbconsole vtconsole factory_netboot_ramfs tpm i2cdev vfat"
 export EMERGE_BOARD_CMD="emerge-${FLAGS_board}"
 emerge_custom_kernel ${temp_build_path}
@@ -76,10 +72,10 @@ emerge_custom_kernel ${temp_build_path}
 # Place kernel image under 'netboot'
 KERNEL_PATH="/boot/vmlinuz"
 if [ -f "${temp_build_path}${KERNEL_PATH}" ]; then
-  echo "Generating netboot kernel ${KERNEL_PATH}"
-  cp -v "${temp_build_path}${KERNEL_PATH}" netboot/
+  info "Generating netboot kernel ${KERNEL_PATH}"
+  info_run cp "${temp_build_path}${KERNEL_PATH}" netboot/
 else
-  echo "No ${KERNEL_PATH} found in your board."
+  warn "No ${KERNEL_PATH} found in your board."
 fi
 
-sudo rm -rf "${temp_build_path}"
+info_run sudo rm -rf "${temp_build_path}"
