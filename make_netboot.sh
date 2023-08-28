@@ -65,7 +65,7 @@ temp_build_path="$(mktemp -d bk_XXXXXXXX)" || die "Failed to create tempdir."
 info "Building kernel"
 export USE="fbconsole vtconsole factory_netboot_ramfs tpm i2cdev vfat"
 export EMERGE_BOARD_CMD="emerge-${FLAGS_board}"
-emerge_custom_kernel ${temp_build_path}
+emerge_custom_kernel "${temp_build_path}"
 
 # Place kernel image under 'netboot'
 KERNEL_PATH="/boot/vmlinuz"
