@@ -195,7 +195,8 @@ known_bad_pkg() {
   media-sound/cras-client:*|\
   media-sound/cras_rust:*|\
   media-sound/cras_tests:*|\
-  sys-apps/kexec-lite:*)
+  sys-apps/kexec-lite:*|\
+  sys-firmware/sunplus-fwverify:*)
     return 0
     ;;
   esac
