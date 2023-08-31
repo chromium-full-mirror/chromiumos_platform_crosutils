@@ -86,10 +86,6 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
   info_run sudo -E "$(type -p cros_setup_toolchains)" "${TOOLCHAIN_FLAGS[@]}"
 fi
 
-# Make sure depot_tools is bootstrapped, so that it can build chromeos-chrome.
-info "Bootstrapping depot_tools"
-"${DEPOT_TOOLS_DIR}"/ensure_bootstrap
-
 # Clean outdated packages in SDK.
 CONFIG_DIR="${HOME}/.config"
 if [[ "${USER}" == "chrome-bot" ]]; then
