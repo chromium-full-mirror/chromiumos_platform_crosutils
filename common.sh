@@ -411,12 +411,6 @@ sudo_multi() {
   fi
 }
 
-# Clears out stale shadow-utils locks in the given target root.
-sudo_clear_shadow_locks() {
-  info "Clearing shadow utils lockfiles under $1"
-  sudo rm -f "$1/etc/"{passwd,group,shadow,gshadow}.lock*
-}
-
 # Locate all mounts below a specified directory.
 #
 # $1 - The root tree.

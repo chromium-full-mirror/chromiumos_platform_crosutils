@@ -69,8 +69,6 @@ info "Updating chroot"
 #    overlay, the file may need to be regenerated.
 create_host_setup
 
-sudo_clear_shadow_locks /
-
 # First update the cross-compilers.
 # Note that this uses binpkgs only, unless we pass --nousepkg below.
 if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
