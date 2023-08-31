@@ -53,9 +53,6 @@ switch_to_strict_mode
 # shellcheck source=sdk_lib/make_conf_util.sh
 . "${SCRIPTS_DIR}"/sdk_lib/make_conf_util.sh
 
-# Run version hooks as pre-update
-run_chroot_version_hooks
-
 info "Updating chroot"
 
 # Create /etc/make.conf.host_setup.  The file content is regenerated
