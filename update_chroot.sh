@@ -183,8 +183,4 @@ if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
   get_eclean_exclusions | sudo eclean -e /dev/stdin -d packages
 fi
 
-# Generate /usr/bin/remote_toolchain_inputs file for Reclient used by Chrome
-# for distributed builds, go/rbe/dev/x/reclient .
-info_run generate_reclient_inputs
-
 command_completed
