@@ -48,7 +48,7 @@ if [ -d "${BOARD_ROOT}" ]; then
   if [[ ${FLAGS_force} -eq ${FLAGS_TRUE} ]]; then
     echo "--force set.  Re-creating ${BOARD_ROOT}..."
     # Removal takes long. Make it asynchronous.
-    TEMP_DIR=$(mktemp -d)
+    TEMP_DIR=$(mktemp -d -p "$(dirname "${BOARD_ROOT}")")
     sudo mv "${BOARD_ROOT}" "${TEMP_DIR}"
     sudo rm -rf --one-file-system "${TEMP_DIR}" &
   fi
