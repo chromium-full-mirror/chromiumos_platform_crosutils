@@ -98,7 +98,38 @@ sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
 
 # Remove wrapper scripts and any home directory contents left behind in the
 # sysroot. These are not supposed to be part of the final filesystem.
-sudo rm -rf "${BOARD_ROOT}/build" "${BOARD_ROOT}"/home/*
+sudo rm -rf \
+  "${BOARD_ROOT}/build" \
+  "${BOARD_ROOT}"/home/* \
+  "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \}
+  "${BOARD_ROOT}/etc/make.conf.user"
+
+# Setup host make.conf. This includes any overlay that we may be using and a
+# pointer to pre-built packages.
+cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
+sudo mkdir -p "${BOARD_ROOT}/etc/portage"
+sudo ln -sf \
+  "${cros_overlay}/chromeos/config/make.conf.amd64-host" \
+  "${BOARD_ROOT}/etc/make.conf"
+sudo ln -sf \
+  "${cros_overlay}/profiles/default/linux/amd64/10.0/sdk" \
+  "${BOARD_ROOT}/etc/portage/make.profile"
+
+# Create make.conf.user.
+cat <<EOF | sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
+# This file is useful for doing global (chroot and all board) changes.
+# Tweak emerge settings, ebuild env, etc...
+#
+# Make sure to append variables unless you really want to clobber all
+# existing settings.  e.g. You most likely want:
+#   FEATURES="${FEATURES} ..."
+#   USE="${USE} foo"
+# and *not*:
+#   USE="foo"
+#
+# This also is a good place to setup ACCEPT_LICENSE.
+EOF
+sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
 
 # Enable locale that some Chrome scripts assume exist.
 sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
