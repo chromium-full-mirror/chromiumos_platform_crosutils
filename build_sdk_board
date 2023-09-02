@@ -86,8 +86,6 @@ run_emerge "${HOST_FLAGS[@]}" --with-bdeps=y "${PACKAGES[@]}"
 # build deps.
 run_emerge "${HOST_FLAGS[@]}" --with-bdeps=n --oneshot \
   virtual/target-sdk-nobdeps
-# shellcheck disable=SC2154  # PKGDIR is defined via eval above
-info_run sudo cp -a "${PKGDIR}" "${BOARD_ROOT}/packages"
 
 # Copy our chroot version into the newly packaged chroot.
 sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
