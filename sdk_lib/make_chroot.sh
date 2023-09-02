@@ -133,36 +133,6 @@ EOF
    # Fix bad group for some.
    chown -R root:root "${FLAGS_chroot}/etc/"sudoers*
 
-   # Setup host make.conf. This includes any overlay that we may be using
-   # and a pointer to pre-built packages.
-   # TODO: This should really be part of a profile in the portage.
-   info "Setting up /etc/make.*..."
-   rm -f "${FLAGS_chroot}"/etc/{,portage/}make.{conf,profile}{,.catalyst}
-   mkdir -p "${FLAGS_chroot}/etc/portage"
-   ln -sf "${CHROOT_CONFIG}/make.conf.amd64-host" \
-     "${FLAGS_chroot}/etc/make.conf"
-   local cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
-   ln -sf \
-     "${cros_overlay}/profiles/default/linux/amd64/10.0/sdk" \
-     "${FLAGS_chroot}/etc/portage/make.profile"
-
-   # Create make.conf.user .
-   rm -f "${FLAGS_chroot}"/etc/make.conf.user
-   cat <<\EOF > "${FLAGS_chroot}"/etc/make.conf.user
-# This file is useful for doing global (chroot and all board) changes.
-# Tweak emerge settings, ebuild env, etc...
-#
-# Make sure to append variables unless you really want to clobber all
-# existing settings.  e.g. You most likely want:
-#   FEATURES="${FEATURES} ..."
-#   USE="${USE} foo"
-# and *not*:
-#   USE="foo"
-#
-# This also is a good place to setup ACCEPT_LICENSE.
-EOF
-   chmod 0644 "${FLAGS_chroot}"/etc/make.conf.user
-
    # Create directories referred to by our conf files.
    echo "export CHROMEOS_CACHEDIR=/var/cache/chromeos-cache" > \
      "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
@@ -179,10 +149,6 @@ EOF
 }
 
 CHROOT_TRUNK="${CHROOT_TRUNK_DIR}"
-PORTAGE="${SRC_ROOT}/third_party/portage"
-OVERLAY="${SRC_ROOT}/third_party/chromiumos-overlay"
-CONFIG_DIR="${OVERLAY}/chromeos/config"
-CHROOT_CONFIG="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay/chromeos/config"
 OVERLAYS_ROOT="/usr/local/portage"
 CROSSDEV_OVERLAY="${OVERLAYS_ROOT}/crossdev"
 
