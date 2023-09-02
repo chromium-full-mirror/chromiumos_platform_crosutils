@@ -486,12 +486,6 @@ setup_env() {
       fi
     done
 
-    # A reference to the DEPOT_TOOLS path may be passed in by cros_sdk.
-    if [ -n "${DEPOT_TOOLS}" ]; then
-      debug "Setting up depot_tools"
-      symlink_or_bind "${DEPOT_TOOLS}" "${DEPOT_TOOLS_DIR}"
-    fi
-
     if [[ -n "${FLAGS_reclient_dir}" ]]; then
       debug "Mounting re-client"
       setup_mount "${FLAGS_reclient_dir}" "/home/${SUDO_USER}/reclient"

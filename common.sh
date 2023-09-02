@@ -192,7 +192,6 @@ has() { [[ " ${*:2} " == *" $1 "* ]]; }
 
 # Directory locations inside the dev chroot.
 CHROOT_TRUNK_DIR="/mnt/host/source"
-DEPOT_TOOLS_DIR="/mnt/host/depot_tools"
 
 # Construct a list of possible locations for the source tree.  This list is
 # based on various environment variables and globals that may have been set
