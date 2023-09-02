@@ -146,6 +146,12 @@ info_run sudo umount "${BOARD_ROOT}/dev"
 info_run sudo ROOT="${BOARD_ROOT}" \
   "${BOARD_ROOT}/usr/bin/ccache-config" --install-links
 
+# Add chromite into python path.
+for python_path in "${BOARD_ROOT}/usr/lib/"python*.*/site-packages; do
+  info_run sudo mkdir -p "${python_path}"
+  info_run sudo ln -sfT "${CHROOT_TRUNK_DIR}"/chromite "${python_path}"/chromite
+done
+
 command_completed
 echo "Done!"
 echo "The SYSROOT is: ${BOARD_ROOT}"
