@@ -171,7 +171,9 @@ EOF
 # Setup stable paths.
 info_run sudo mkdir -p -m 755 \
   "${BOARD_ROOT}/run" \
-  "${BOARD_ROOT}/mnt/host"
+  "${BOARD_ROOT}/mnt/host" \
+  "${BOARD_ROOT}/mnt/host/out" \
+  "${BOARD_ROOT}/mnt/host/source"
 
 info_run sudo ln -sfT \
   /mnt/host/source/src/chromium/depot_tools \
