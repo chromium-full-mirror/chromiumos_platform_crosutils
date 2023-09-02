@@ -103,6 +103,7 @@ info_run sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
 # sysroot. These are not supposed to be part of the final filesystem.
 info_run sudo rm -rf \
   "${BOARD_ROOT}/build" \
+  "${BOARD_ROOT}"/run/* \
   "${BOARD_ROOT}"/home/* \
   "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \
   "${BOARD_ROOT}/etc/make.conf.user"
@@ -166,6 +167,10 @@ repo-name = crossdev
 use-manifests = true
 thin-manifests = true
 EOF
+
+# Setup stable paths.
+info_run sudo mkdir -p -m 755 \
+  "${BOARD_ROOT}/run"
 
 command_completed
 echo "Done!"
