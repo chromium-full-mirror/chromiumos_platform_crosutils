@@ -208,12 +208,6 @@ if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   info "Updating portage"
   early_enter_chroot emerge -uNv --quiet --ignore-world portage
 fi
-# Add chromite into python path.
-for python_path in "${FLAGS_chroot}/usr/lib/"python*.*; do
-  python_path+="/site-packages"
-  sudo mkdir -p "${python_path}"
-  sudo ln -s -fT "${CHROOT_TRUNK_DIR}"/chromite "${python_path}"/chromite
-done
 
 if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   # Now that many of the fundamental packages should be in a good state, update
