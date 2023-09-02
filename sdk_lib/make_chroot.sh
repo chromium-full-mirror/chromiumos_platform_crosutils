@@ -41,7 +41,6 @@ DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
 DEFINE_boolean usepkg $FLAGS_TRUE "Use binary packages to bootstrap."
 DEFINE_integer jobs -1 "How many packages to build in parallel at maximum."
 DEFINE_string cache_dir "" "Directory to store caches within."
-DEFINE_boolean eclean "${FLAGS_TRUE}" "Run eclean to delete old binpkgs."
 
 # Parse command line flags.
 FLAGS_HELP="usage: $SCRIPT_NAME [flags]"
@@ -208,16 +207,6 @@ create_bootstrap_host_setup "${FLAGS_chroot}"
 
 # Run all the init stuff to setup the env.
 init_setup
-
-# Clean out any stale binpkgs that might be in a warm cache. This is done
-# immediately after unpacking the tarball in case ebuilds have been removed
-# (e.g. from a revert).
-if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
-  info "Cleaning stale binpkgs"
-  early_enter_chroot /bin/bash -c '
-    source /mnt/host/source/src/scripts/common.sh &&
-    eclean -e <(get_eclean_exclusions) packages'
-fi
 
 if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   info "Updating portage"
