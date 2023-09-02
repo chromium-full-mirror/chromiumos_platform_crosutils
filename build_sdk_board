@@ -41,7 +41,8 @@ CREATE_SDK_BOARD_ROOT_ARGS=("--board" "${BOARD}")
 if [[ ${FLAGS_force} -eq ${FLAGS_TRUE} ]]; then
   CREATE_SDK_BOARD_ROOT_ARGS+=("--force")
 fi
-"${SCRIPTS_DIR}/create_sdk_board_root" "${CREATE_SDK_BOARD_ROOT_ARGS[@]}"
+info_run "${SCRIPTS_DIR}/create_sdk_board_root" \
+  "${CREATE_SDK_BOARD_ROOT_ARGS[@]}"
 
 # Locations we will need
 BOARD_ROOT="/build/${BOARD}"
@@ -88,15 +89,17 @@ run_emerge "${HOST_FLAGS[@]}" --with-bdeps=n --oneshot \
   virtual/target-sdk-nobdeps
 
 # Copy our chroot version into the newly packaged chroot.
-sudo cp -a "${CHROOT_VERSION_FILE}" "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
+info_run sudo cp -a \
+  "${CHROOT_VERSION_FILE}" \
+  "${BOARD_ROOT}${CHROOT_VERSION_FILE}"
 
 # Now cleanup paths referencing the ROOT from the *.la files.
-sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
+info_run sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
   sed -i -e "s|${BOARD_ROOT}/|/|g" {} +
 
 # Remove wrapper scripts and any home directory contents left behind in the
 # sysroot. These are not supposed to be part of the final filesystem.
-sudo rm -rf \
+info_run sudo rm -rf \
   "${BOARD_ROOT}/build" \
   "${BOARD_ROOT}"/home/* \
   "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \
@@ -105,16 +108,16 @@ sudo rm -rf \
 # Setup host make.conf. This includes any overlay that we may be using and a
 # pointer to pre-built packages.
 cros_overlay="${CHROOT_TRUNK_DIR}/src/third_party/chromiumos-overlay"
-sudo mkdir -p "${BOARD_ROOT}/etc/portage"
-sudo ln -sf \
+info_run sudo mkdir -p "${BOARD_ROOT}/etc/portage"
+info_run sudo ln -sf \
   "${cros_overlay}/chromeos/config/make.conf.amd64-host" \
   "${BOARD_ROOT}/etc/make.conf"
-sudo ln -sf \
+info_run sudo ln -sf \
   "${cros_overlay}/profiles/default/linux/amd64/10.0/sdk" \
   "${BOARD_ROOT}/etc/portage/make.profile"
 
 # Create make.conf.user.
-cat <<\EOF | sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
+cat <<\EOF | info_run sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
 # This file is useful for doing global (chroot and all board) changes.
 # Tweak emerge settings, ebuild env, etc...
 #
@@ -127,18 +130,19 @@ cat <<\EOF | sudo tee "${BOARD_ROOT}/etc/make.conf.user" >/dev/null
 #
 # This also is a good place to setup ACCEPT_LICENSE.
 EOF
-sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
+info_run sudo chmod 0644 "${BOARD_ROOT}/etc/make.conf.user"
 
 # Enable locale that some Chrome scripts assume exist.
-sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
-sudo mount --bind /dev "${BOARD_ROOT}/dev"
-sudo chroot "${BOARD_ROOT}" locale-gen -u
-sudo umount "${BOARD_ROOT}/dev"
+info_run sudo sed -i -e '/^#en_US.UTF-8/s:#::' "${BOARD_ROOT}/etc/locale.gen"
+info_run sudo mount --bind /dev "${BOARD_ROOT}/dev"
+info_run sudo chroot "${BOARD_ROOT}" locale-gen -u
+info_run sudo umount "${BOARD_ROOT}/dev"
 
 # b/278101251: /build/amd64-host doesn't include ccache's link tree by default,
 # which makes `FEATURES=ccache` quietly fail for host packages. Ensure it's
 # built here.
-sudo ROOT="${BOARD_ROOT}" "${BOARD_ROOT}/usr/bin/ccache-config" --install-links
+info_run sudo ROOT="${BOARD_ROOT}" \
+  "${BOARD_ROOT}/usr/bin/ccache-config" --install-links
 
 command_completed
 echo "Done!"

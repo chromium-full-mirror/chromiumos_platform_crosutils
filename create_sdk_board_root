@@ -49,8 +49,8 @@ if [ -d "${BOARD_ROOT}" ]; then
     echo "--force set.  Re-creating ${BOARD_ROOT}..."
     # Removal takes long. Make it asynchronous.
     TEMP_DIR=$(mktemp -d -p "$(dirname "${BOARD_ROOT}")")
-    sudo mv "${BOARD_ROOT}" "${TEMP_DIR}"
-    sudo rm -rf --one-file-system "${TEMP_DIR}" &
+    info_run sudo mv "${BOARD_ROOT}" "${TEMP_DIR}"
+    info_run sudo rm -rf --one-file-system "${TEMP_DIR}" &
   fi
 fi
 
@@ -101,7 +101,7 @@ info_run cros_sysroot_utils create-wrappers --sysroot="${BOARD_ROOT}" \
 # Choose the profile.
 if ! info_run cros_choose_profile --profile "${FLAGS_profile}" \
       --board-root "${BOARD_ROOT}" --board "${BOARD}"; then
-  sudo rm -rf --one-file-system "${BOARD_ROOT}"
+  info_run sudo rm -rf --one-file-system "${BOARD_ROOT}"
   die "Selecting profile failed, removing incomplete board directory!"
 fi
 
