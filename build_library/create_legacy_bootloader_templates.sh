@@ -65,7 +65,6 @@ trap cleanup EXIT
 
 cat <<EOF > "${config_file}"
 init=/sbin/init
-boot=local
 rootwait
 ro
 noresume

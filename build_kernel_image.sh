@@ -268,7 +268,6 @@ if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
   # BIOS will use a separate signed kernel partition, which we'll create now.
   cat <<EOF >> "${config}"
 add_efi_memmap
-boot=local
 noresume
 i915.modeset=1
 EOF
