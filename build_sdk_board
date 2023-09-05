@@ -101,7 +101,7 @@ sudo find "${BOARD_ROOT}" -type f -name '*.la' -exec \
 sudo rm -rf \
   "${BOARD_ROOT}/build" \
   "${BOARD_ROOT}"/home/* \
-  "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \}
+  "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \
   "${BOARD_ROOT}/etc/make.conf.user"
 
 # Setup host make.conf. This includes any overlay that we may be using and a
