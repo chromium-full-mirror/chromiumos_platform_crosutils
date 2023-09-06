@@ -281,7 +281,7 @@ if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   if [[ "${FLAGS_jobs}" -ne -1 ]]; then
     UPDATE_ARGS+=( --jobs="${FLAGS_jobs}" )
   fi
-  enter_chroot "${CHROOT_TRUNK_DIR}/src/scripts/update_chroot" \
+  enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/update_chroot" \
     "${UPDATE_ARGS[@]}"
 else
   warn "SDK and toolchain update were skipped. It will eventually stop working."
