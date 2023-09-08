@@ -129,7 +129,6 @@ BAD_VAR_PACKAGES = {
     "net-dns/dnsmasq",
     "net-firewall/iptables",
     "net-firewall/nftables",
-    "net-fs/samba",
     "net-misc/chrony",
     "net-misc/dhcpcd",
     "net-misc/openssh",
@@ -151,7 +150,6 @@ BAD_VAR_PACKAGES = {
 # NB: Do *not* add more packages here.
 BAD_RUN_PACKAGES = {
     ("app-accessibility/brltty", "6.5"),
-    "net-fs/samba",
 }
 
 
