@@ -185,6 +185,7 @@ known_bad_pkg() {
   chromeos-base/crosvm:*|\
   chromeos-base/chunnel:*|\
   dev-rust/s9:*|\
+  chromeos-base/factory_fai:*|\
   chromeos-base/ippusb_bridge:*|\
   chromeos-base/hwsec-utils:*|\
   chromeos-base/resourced:*|\
