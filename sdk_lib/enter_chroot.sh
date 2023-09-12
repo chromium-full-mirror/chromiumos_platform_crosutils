@@ -129,14 +129,6 @@ user_cp() {
   cp -p "$@" 2>/dev/null || sudo -u "${SUDO_USER}" -- cp -p "$@"
 }
 
-# Appends stdin to the given file name as the sudo user.
-#
-# $1 - The output file name.
-user_append() {
-  cat >> "$1"
-  chown "${SUDO_UID}:${SUDO_GID}" "$1"
-}
-
 # Create the specified directory, along with parents, as the sudo user.
 #
 # $@ - The directories to create.

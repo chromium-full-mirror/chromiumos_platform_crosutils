@@ -110,14 +110,6 @@ bare_chroot() {
     chroot "${FLAGS_chroot}" "$@"
 }
 
-# Appends stdin to the given file name as the sudo user.
-#
-# $1 - The output file name.
-user_append() {
-  cat >> "$1"
-  chown ${SUDO_UID}:${SUDO_GID} "$1"
-}
-
 init_setup () {
    info "Running init_setup()..."
    mkdir -p -m 755 "${FLAGS_chroot}/usr" \
