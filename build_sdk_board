@@ -168,8 +168,16 @@ use-manifests = true
 thin-manifests = true
 EOF
 
+PORTAGE_CACHE_DIRS=(
+  "${BOARD_ROOT}/var/lib/portage/pkgs"
+  "${BOARD_ROOT}/var/cache/"chromeos-{cache,chrome}
+)
+
 # Setup stable paths.
 info_run sudo mkdir -p -m 755 \
+  "${PORTAGE_CACHE_DIRS[@]}" \
+  "${BOARD_ROOT}/var/cache" \
+  "${BOARD_ROOT}/etc/profile.d" \
   "${BOARD_ROOT}/run" \
   "${BOARD_ROOT}/mnt/host" \
   "${BOARD_ROOT}/mnt/host/out" \
@@ -178,6 +186,9 @@ info_run sudo mkdir -p -m 755 \
 info_run sudo ln -sfT \
   /mnt/host/source/src/chromium/depot_tools \
   "${BOARD_ROOT}/mnt/host/depot_tools"
+
+# Setup cache dirs.
+info_run sudo chmod 775 "${PORTAGE_CACHE_DIRS[@]}"
 
 command_completed
 echo "Done!"
