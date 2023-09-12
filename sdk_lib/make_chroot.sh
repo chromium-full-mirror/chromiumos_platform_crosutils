@@ -164,10 +164,6 @@ EOF
    chmod 0644 "${FLAGS_chroot}"/etc/make.conf.user
 
    # Create directories referred to by our conf files.
-   mkdir -p -m 775 "${FLAGS_chroot}/var/lib/portage/pkgs" \
-     "${FLAGS_chroot}/var/cache/"chromeos-{cache,chrome} \
-     "${FLAGS_chroot}/etc/profile.d"
-
    echo "export CHROMEOS_CACHEDIR=/var/cache/chromeos-cache" > \
      "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
    chmod 0644 "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
