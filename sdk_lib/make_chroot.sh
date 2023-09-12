@@ -167,8 +167,6 @@ EOF
    echo "export CHROMEOS_CACHEDIR=/var/cache/chromeos-cache" > \
      "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
    chmod 0644 "${FLAGS_chroot}/etc/profile.d/chromeos-cachedir.sh"
-   rm -rf "${FLAGS_chroot}/var/cache/distfiles"
-   ln -s chromeos-cache/distfiles "${FLAGS_chroot}/var/cache/distfiles"
 
    # Run this from w/in the chroot so we use whatever uid/gid
    # these are defined as w/in the chroot.
