@@ -615,7 +615,7 @@ setup_env() {
     boto='src/private-overlays/chromeos-overlay/googlestorage_account.boto'
     if [ -s "${FLAGS_trunk}/${boto}" ]; then
       if [ ! -e "${chroot_user_boto}" ]; then
-        user_symlink "trunk/${boto}" "${chroot_user_boto}"
+        user_symlink "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_user_boto}"
       fi
       if [ ! -e "${chroot_root_boto}" ]; then
         ln -sf "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_root_boto}"
