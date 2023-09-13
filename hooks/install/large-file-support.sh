@@ -464,7 +464,7 @@ known_bad_pkg() {
   sys-auth/pam_pwdfile:0.99|\
   sys-cluster/libqb:0.17.2|\
   sys-devel/bc:1.07.1|\
-  sys-devel/binutils:2.36.1|\
+  sys-devel/binutils:2.39*|\
   sys-devel/flex:2.6.4|\
   sys-devel/gdb:9.2.20200923|\
   sys-devel/llvm:12.0.1|\
