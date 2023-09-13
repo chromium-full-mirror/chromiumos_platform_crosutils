@@ -120,7 +120,6 @@ known_bad_oom() {
   chromeos-base/lorgnette|\
   chromeos-base/metrics|\
   chromeos-base/midis|\
-  chromeos-base/ml|\
   chromeos-base/modemfwd|\
   chromeos-base/modemfwd-helpers-coral|\
   chromeos-base/modemfwd-helpers-dedede|\
