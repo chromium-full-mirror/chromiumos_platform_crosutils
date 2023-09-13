@@ -208,7 +208,7 @@ known_bad_oom() {
 # Require an oom score line.
 check_oom() {
   local config="$1"
-  local relconfig="${config#${D}}"
+  local relconfig="${config#"${D}"}"
 
   if ! grep -q '^oom score ' "${config}"; then
     local msg="${relconfig}: missing 'oom score' line."
