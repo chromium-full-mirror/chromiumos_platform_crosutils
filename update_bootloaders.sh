@@ -64,7 +64,6 @@ switch_to_strict_mode
 
 # shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
-load_board_specific_script "board_specific_setup.sh"
 
 part_index_to_uuid() {
   local image="$1"
@@ -227,10 +226,6 @@ elif [[ "${FLAGS_arch}" == "arm" || "${FLAGS_arch}" == "mips" ]]; then
       sudo cp -f "${FLAGS_zimage}" "${ESP_FS_DIR}"/vmlinuz.A
     fi
   fi
-fi
-
-if type board_update_bootloaders >&/dev/null; then
-  board_update_bootloaders "${BOARD_ROOT}" "${ESP_FS_DIR}"
 fi
 
 set +e
