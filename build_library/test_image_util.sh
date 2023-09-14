@@ -25,6 +25,10 @@ mod_image_for_test () {
   trap "check_full_disk ; unmount_image ; delete_prompt" EXIT
   mount_image "${BUILD_DIR}/${image_name}" "${root_fs_dir}" "${stateful_fs_dir}"
 
+  if type board_finalize_test_image &>/dev/null; then
+    board_finalize_test_image
+  fi
+
   emerge_chromeos_test
 
   local mod_test_script="${SCRIPTS_DIR}/mod_for_test_scripts/test_setup.sh"
