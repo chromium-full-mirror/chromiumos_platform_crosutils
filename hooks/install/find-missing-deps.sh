@@ -12,6 +12,8 @@ if [[ "${PV}" == "9999" ]]; then
   args=()
   if [[ "${SYSROOT}" == "/build/"* ]]; then
     args+=( "--board=${SYSROOT##*/}" )
+  else
+    args+=( --no-default-board )
   fi
   args+=( --match --build-info="${T}/../build-info/" )
   einfo "Checking dependencies: ${args[*]}"
