@@ -556,17 +556,18 @@ setup_env() {
       setup_mount "${modules_dir}" "${modules_dir}" --bind -o ro
     fi
 
-    # Fix permissions on ccache tree.  If this is a fresh chroot, then they
-    # might not be set up yet.  Or if the user manually `rm -rf`-ed things,
-    # we need to reset it.  Otherwise, gcc itself takes care of fixing things
-    # on demand, but only when it updates.
+    # Set up ccache tree. If this is a fresh or wiped chroot, then things might
+    # not be set up yet.
     ccache_dir="${FLAGS_chroot}/var/cache/distfiles/ccache"
     if [[ ! -d ${ccache_dir} ]]; then
       # shellcheck disable=SC2174
       mkdir -p -m 2775 "${ccache_dir}"
+      chgrp 250 "${ccache_dir}"
     fi
-    unshare --mount "${SCRIPT_ROOT}/sdk_lib/fix_ccache.sh" --chroot \
-      "${FLAGS_chroot}" &
+    if [[ ! -e ${ccache_dir}/ccache.conf ]]; then
+      chroot "${FLAGS_chroot}" env CCACHE_DIR=/var/cache/distfiles/ccache \
+        CCACHE_UMASK=002 ccache -F 0 -M 11G >/dev/null
+    fi
 
     # Certain files get copied into the chroot when entering.
     for fn in "${FILES_TO_COPY_TO_CHROOT[@]}"; do
