@@ -8,7 +8,9 @@
 # Set ebuild vars to make shellcheck happy.
 : "${PV:=}" "${SYSROOT:=/}" "${T:=}"
 
-if [[ "${PV}" == "9999" ]]; then
+# b/301462588 - The bazel stage2 tarball doesn't include `equery`, so skip this
+# hook.
+if [[ "${PV}" == "9999" ]] && type -P equery >/dev/null; then
   args=()
   if [[ "${SYSROOT}" == "/build/"* ]]; then
     args+=( "--board=${SYSROOT##*/}" )
