@@ -18,7 +18,17 @@ if [[ "${PV}" == "9999" ]] && type -P equery >/dev/null; then
     args+=( --no-default-board )
   fi
   args+=( --match --build-info="${T}/../build-info/" )
+
   einfo "Checking dependencies: ${args[*]}"
-  /mnt/host/source/chromite/scripts/package_has_missing_deps \
-    "${args[@]}" || die 'found missing dependencies'
+  mapfile -t missing < <(
+    /mnt/host/source/chromite/scripts/package_has_missing_deps \
+    "${args[@]}"
+  )
+  if [[ -n "${missing[*]}" ]]; then
+    eerror "Missing dependencies were found:"
+    for line in "${missing[@]}"; do
+      eerror "${line}"
+    done
+    die "Please correct the missing dependencies."
+  fi
 fi
