@@ -145,6 +145,13 @@ user_symlink() {
   chown -h "${SUDO_UID}:${SUDO_GID}" "$2"
 }
 
+# Return 0 if $1 is mounted read-only.
+mount_is_ro() {
+  awk -v mount="$1" '
+    $5 == mount && ","$6"," ~ /,ro,/ { exit 1 }
+  ' /proc/self/mountinfo && return 1 || return 0
+}
+
 setup_mount() {
   # If necessary, mount $source in the host FS at $target inside the
   # chroot directory with $mount_args. We don't write to /etc/mtab because
@@ -630,7 +637,16 @@ setup_env() {
   unset -v LANGUAGE ${!LC_*}
 }
 
-setup_env
+# We might have a read-only chroot mount, to help enforce state separation in
+# the SDK; if so, temporarily remount it read/write some ephemeral and
+# regularly-synced pieces of the environment.
+if mount_is_ro "${FLAGS_chroot}"; then
+  mount -o bind,remount,rw "${FLAGS_chroot}"
+  setup_env
+  mount -o bind,remount,ro "${FLAGS_chroot}"
+else
+  setup_env
+fi
 
 CHROOT_PASSTHRU=(
   "BUILDBOT_BUILD=${FLAGS_build_number}"
