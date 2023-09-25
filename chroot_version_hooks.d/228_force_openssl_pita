@@ -1,0 +1,26 @@
+#!/bin/bash
+# Copyright 2023 The ChromiumOS Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Forcibly replace <dev-libs/openssl-1.1.1u-r2 with >=dev-libs/openssl-1.1.1-r2
+# and openssl-3. `-r2` introduced the `PITA` slot for openssl-1.1.1u.
+set -u
+
+equery --quiet l '=dev-libs/openssl-1*:0'
+exit_code="$?"
+case "${exit_code}" in
+  0 )
+    exec sudo emerge -j2 -gu \
+      '=dev-libs/openssl-1*:PITA' '=dev-libs/openssl-3*:0'
+    ;;
+
+  # `equery` will exit with 3 if it completed successfully but found no matches.
+  3 )
+    exit 0
+    ;;
+
+  * )
+    exit "${exit_code}"
+    ;;
+esac
