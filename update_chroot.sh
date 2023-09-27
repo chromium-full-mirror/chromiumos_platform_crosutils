@@ -66,6 +66,18 @@ info "Updating chroot"
 #    overlay, the file may need to be regenerated.
 create_host_setup
 
+# Clean outdated packages in SDK.
+CONFIG_DIR="${HOME}/.config"
+if [[ "${USER}" == "chrome-bot" ]]; then
+  CONFIG_DIR=$(python -c "import tempfile; print(tempfile.gettempdir())")
+  CONFIG_DIR+="/.config/"
+fi
+if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]] && \
+   [[ "${CROS_CLEAN_OUTDATED_PKGS}" != "0" ]]; then
+  # Use "|| true" to not exit on errors for one command.
+  cros clean-outdated-pkgs --host || true
+fi
+
 # First update the cross-compilers.
 # Note that this uses binpkgs only, unless we pass --nousepkg below.
 if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
@@ -84,18 +96,6 @@ if [ "${FLAGS_skip_toolchain_update}" -eq "${FLAGS_FALSE}" ]; then
   fi
   # Expand the path before sudo, as root doesn't have the same path magic.
   info_run sudo -E "$(type -p cros_setup_toolchains)" "${TOOLCHAIN_FLAGS[@]}"
-fi
-
-# Clean outdated packages in SDK.
-CONFIG_DIR="${HOME}/.config"
-if [[ "${USER}" == "chrome-bot" ]]; then
-  CONFIG_DIR=$(python -c "import tempfile; print(tempfile.gettempdir())")
-  CONFIG_DIR+="/.config/"
-fi
-if [[ ! -e "${CONFIG_DIR}/chromite/autocop-off" ]] && \
-   [[ "${CROS_CLEAN_OUTDATED_PKGS}" != "0" ]]; then
-  # Use "|| true" to not exit on errors for one command.
-  cros clean-outdated-pkgs --host || true
 fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
