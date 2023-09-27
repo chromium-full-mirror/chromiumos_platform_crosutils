@@ -135,7 +135,6 @@ known_bad_oom() {
   chromeos-base/openssh-server-init|\
   chromeos-base/os_install_service|\
   chromeos-base/p2p|\
-  chromeos-base/patchpanel|\
   chromeos-base/pdfc-scripts|\
   chromeos-base/permission_broker|\
   chromeos-base/quickoffice|\
