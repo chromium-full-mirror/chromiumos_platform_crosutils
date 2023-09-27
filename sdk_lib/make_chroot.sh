@@ -243,11 +243,11 @@ if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   # Update chroot.
   # Skip toolchain update because it already happened above, and the chroot is
   # not ready to emerge all cross toolchains.
-  UPDATE_ARGS=( --skip_toolchain_update --noeclean )
+  UPDATE_ARGS=( --skip-toolchain-update --no-eclean )
   if [[ "${FLAGS_usepkg}" == "${FLAGS_TRUE}" ]]; then
     UPDATE_ARGS+=( --usepkg )
   else
-    UPDATE_ARGS+=( --nousepkg )
+    UPDATE_ARGS+=( --no-usepkg )
   fi
   if [[ "${FLAGS_jobs}" -ne -1 ]]; then
     UPDATE_ARGS+=( --jobs="${FLAGS_jobs}" )
