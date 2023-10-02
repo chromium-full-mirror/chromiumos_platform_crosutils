@@ -179,12 +179,12 @@ with --rootfs_image_size."
 
   info "Generating root fs hash tree (salt '${FLAGS_verity_salt}')."
   # Runs as sudo in case the image is a block device.
-  table=$(sudo verity mode=create \
-                      alg="${FLAGS_verity_hash_alg}" \
-                      payload="${FLAGS_rootfs_image}" \
-                      payload_blocks="${root_fs_blocks}" \
-                      hashtree="${FLAGS_rootfs_hash}" \
-                      salt="${FLAGS_verity_salt}")
+  table=$(sudo verity --mode=create \
+                      --alg="${FLAGS_verity_hash_alg}" \
+                      --payload="${FLAGS_rootfs_image}" \
+                      --payload_blocks="${root_fs_blocks}" \
+                      --hashtree="${FLAGS_rootfs_hash}" \
+                      --salt="${FLAGS_verity_salt}")
   if [[ -f "${FLAGS_rootfs_hash}" ]]; then
     sudo chmod a+r "${FLAGS_rootfs_hash}"
   fi
