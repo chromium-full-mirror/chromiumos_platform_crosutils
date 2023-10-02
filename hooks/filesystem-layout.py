@@ -102,12 +102,6 @@ KNOWN_TARGETS = {
     "*-cros-linux-gnu*",
 }
 
-# These SDK packages need cleanup.
-# NB: Do *not* add more packages here.
-BAD_HOST_USR_LOCAL_PACKAGES = {
-    "app-crypt/nss",
-}
-
 # Ignore some packages installing into /var for now.
 # NB: Do *not* add more packages here.
 BAD_VAR_PACKAGES = {
@@ -201,10 +195,6 @@ def check_usr(usr, host=False):
         unknown = set(x for x in unknown if not fnmatch.fnmatch(x, target))
     if host:
         unknown -= VALID_HOST_USR
-
-        if is_known_bad(BAD_HOST_USR_LOCAL_PACKAGES):
-            logging.warning("Ignoring known bad /usr/local install for now")
-            unknown -= {"local"}
     else:
         unknown -= VALID_BOARD_USR
 
