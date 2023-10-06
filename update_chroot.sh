@@ -100,11 +100,6 @@ fi
 
 EMERGE_CMD="${CHROMITE_BIN}/parallel_emerge"
 
-info "Rebuilding Portage cache"
-# Before running any emerge operations, regenerate the Portage dependency cache
-# in parallel.
-info_run "${EMERGE_CMD[@]}" --regen --quiet
-
 # Clean out any stale binpkgs we've accumulated. This is done immediately after
 # regenerating the cache in case ebuilds have been removed (e.g. from a revert).
 if [[ "${FLAGS_eclean}" -eq "${FLAGS_TRUE}" ]]; then
