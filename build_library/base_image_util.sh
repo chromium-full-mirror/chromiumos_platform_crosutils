@@ -411,6 +411,8 @@ create_base_image() {
   local license_path="${dir_name}/about_os_credits.html.gz"
   time info_run sudo "${GCLIENT_ROOT}/chromite/licensing/licenses" \
     --board="${BOARD}" \
+    --os-version="${CHROMEOS_VERSION_STRING}" \
+    --milestone-version="${CHROME_BRANCH}" \
     --log-level error \
     --generate-licenses \
     --output "${license_path}" \
