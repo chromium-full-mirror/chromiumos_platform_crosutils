@@ -107,7 +107,8 @@ info_run sudo rm -rf \
   "${BOARD_ROOT}"/home/* \
   "${BOARD_ROOT}"/etc/{,portage/}make.{conf,profile} \
   "${BOARD_ROOT}/etc/make.conf.user" \
-  "${BOARD_ROOT}/var/cache/distfiles"
+  "${BOARD_ROOT}/var/cache/distfiles" \
+  "${BOARD_ROOT}/var/lock"
 
 # Setup host make.conf. This includes any overlay that we may be using and a
 # pointer to pre-built packages.
