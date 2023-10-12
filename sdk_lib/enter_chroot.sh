@@ -88,9 +88,6 @@ switch_to_strict_mode
 # These config files are to be copied into chroot if they exist in home dir.
 # Additionally, git relevant files are copied by setup_git.
 FILES_TO_COPY_TO_CHROOT=(
-  # Creds used to authenticate with LUCI services.
-  .config/chrome_infra/auth/creds.json
-
   # Creds used to authenticate with GCP services.
   .config/gcloud/application_default_credentials.json
 
@@ -482,10 +479,12 @@ setup_env() {
       fi
     fi
 
-    if [[ -d "${SUDO_HOME}/.config/chromite" ]]; then
-      setup_mount "${SUDO_HOME}/.config/chromite" \
-        "/home/${SUDO_USER}/.config/chromite"
-    fi
+    for x in chromite chrome_infra; do
+      if [[ -d "${SUDO_HOME}/.config/${x}" ]]; then
+        setup_mount "${SUDO_HOME}/.config/${x}" \
+          "/home/${SUDO_USER}/.config/${x}"
+      fi
+    done
 
     # A reference to the DEPOT_TOOLS path may be passed in by cros_sdk.
     if [ -n "${DEPOT_TOOLS}" ]; then
