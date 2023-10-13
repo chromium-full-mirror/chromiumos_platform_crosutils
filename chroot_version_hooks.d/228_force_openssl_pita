@@ -11,9 +11,18 @@ equery --quiet l '=dev-libs/openssl-1*:0'
 exit_code="$?"
 case "${exit_code}" in
   0 )
-    sudo emerge --rage-clean '=dev-libs/openssl-1.1.1u-r2'
-    exec sudo emerge -j2 -gu \
-      '=dev-libs/openssl-1*:PITA' '=dev-libs/openssl-3*:0'
+    # Purge old packages.
+    sudo emerge --rage-clean \
+      '=dev-libs/openssl-1.1.1u-r2' \
+      'dev-lang/python:3.6'
+    # Force update for packages that use openssl-3.
+    exec sudo emerge -j2 -gu --verbose-conflicts \
+      app-admin/sudo \
+      '=dev-libs/openssl-1*:PITA' \
+      '=dev-libs/openssl-3*:0' \
+      dev-vcs/git \
+      net-libs/nghttp2 \
+      net-misc/curl
     ;;
 
   # `equery` will exit with 3 if it completed successfully but found no matches.
