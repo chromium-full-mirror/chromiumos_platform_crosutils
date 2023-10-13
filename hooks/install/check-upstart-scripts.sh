@@ -41,14 +41,12 @@ known_bad_oom() {
   chromeos-base/arcvm-mojo-proxy|\
   chromeos-base/arcvm-vsock-proxy|\
   chromeos-base/atrusctl|\
-  chromeos-base/attestation|\
   chromeos-base/biod|\
   chromeos-base/bluetooth|\
   chromeos-base/bootcomplete-embedded|\
   chromeos-base/bootcomplete-login|\
   chromeos-base/buffet|\
   chromeos-base/cdm-oemcrypto|\
-  chromeos-base/chaps|\
   chromeos-base/chromeos-accelerometer-init|\
   chromeos-base/chromeos-activate-date|\
   chromeos-base/chromeos-activate-date-ultima|\
@@ -97,7 +95,6 @@ known_bad_oom() {
   chromeos-base/cros-disks|\
   chromeos-base/crosdns|\
   chromeos-base/croslog|\
-  chromeos-base/cryptohome|\
   chromeos-base/debugd|\
   chromeos-base/diagnostics|\
   chromeos-base/disk_updater|\
@@ -143,10 +140,7 @@ known_bad_oom() {
   chromeos-base/smbprovider|\
   chromeos-base/thermald|\
   chromeos-base/timberslide|\
-  chromeos-base/tpm_manager|\
-  chromeos-base/trunks|\
   chromeos-base/tty|\
-  chromeos-base/u2fd|\
   chromeos-base/update_engine|\
   chromeos-base/usb_bouncer|\
   chromeos-base/userfeedback|\
