@@ -194,6 +194,9 @@ info_run sudo ln -sfT \
 # Setup cache dirs.
 info_run sudo chmod 775 "${PORTAGE_CACHE_DIRS[@]}"
 
+# Make sure some paths always exist so we can mount on top.
+info_run sudo touch "${BOARD_ROOT}"/etc/{hosts,resolv.conf}
+
 command_completed
 echo "Done!"
 echo "The SYSROOT is: ${BOARD_ROOT}"
