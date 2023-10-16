@@ -25,8 +25,6 @@ DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
   "The destination dir for build output and state."
 DEFINE_string trunk "${GCLIENT_ROOT}" \
   "The source trunk to bind mount within the chroot." "s"
-DEFINE_string build_number "" \
-  "The build-bot build number (when called by buildbot only)." "b"
 DEFINE_string chrome_root "" \
   "The root of your chrome browser source. Should contain a 'src' subdir."
 DEFINE_string chrome_root_mount "/home/${SUDO_USER}/chrome_root" \
@@ -634,7 +632,6 @@ else
 fi
 
 CHROOT_PASSTHRU=(
-  "BUILDBOT_BUILD=${FLAGS_build_number}"
   "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
   "EXTERNAL_TRUNK_PATH=${FLAGS_trunk}"
 
