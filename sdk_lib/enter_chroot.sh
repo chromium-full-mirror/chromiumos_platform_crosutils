@@ -381,12 +381,13 @@ setup_env() {
     # Make the lockfile writable for backwards compatibility.
     chown "${SUDO_UID}:${SUDO_GID}" "${LOCKFILE}"
 
-    # Refresh /etc/resolv.conf and /etc/hosts in the chroot.
-    install -C -m644 /etc/resolv.conf "${FLAGS_chroot}/etc/resolv.conf"
-    install -C -m644 /etc/hosts "${FLAGS_chroot}/etc/hosts"
-
     debug "Mounting chroot environment."
     mapfile -t MOUNT_CACHE < <(awk '{print $2}' /proc/mounts)
+
+    # Refresh /etc/resolv.conf and /etc/hosts in the chroot.
+    setup_mount /etc/resolv.conf /etc/resolv.conf --bind -o ro
+    setup_mount /etc/hosts /etc/hosts --bind -o ro
+
     # We shouldn't need access to any /run state, so don't mount it.  Some
     # distros (e.g. Ubuntu) might have /dev/shm symlinked to /run/shm.
     local run_shm="${FLAGS_chroot}/run/shm"
