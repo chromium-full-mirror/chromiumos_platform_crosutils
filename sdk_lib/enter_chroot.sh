@@ -37,7 +37,6 @@ DEFINE_string working_dir "" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
 
-DEFINE_boolean ssh_agent "${FLAGS_TRUE}" "Import ssh agent."
 DEFINE_boolean early_make_chroot "${FLAGS_FALSE}" \
   "Internal flag.  If set, the command is run as root without sudo."
 DEFINE_boolean verbose "${FLAGS_FALSE}" "Print out actions taken"
@@ -456,25 +455,23 @@ setup_env() {
         "/home/${SUDO_USER}/.cidb_creds"
     fi
 
-    if [[ "${FLAGS_ssh_agent}" -eq "${FLAGS_TRUE}" ]]; then
-      if [[ -n "${SSH_AUTH_SOCK}" ]] && [[ -d "${SUDO_HOME}/.ssh" ]]; then
-        local target_ssh="/home/${SUDO_USER}/.ssh"
-        TARGET_DIR="${FLAGS_chroot}${target_ssh}"
-        user_mkdir "${TARGET_DIR}"
+    if [[ -n "${SSH_AUTH_SOCK}" ]] && [[ -d "${SUDO_HOME}/.ssh" ]]; then
+      local target_ssh="/home/${SUDO_USER}/.ssh"
+      TARGET_DIR="${FLAGS_chroot}${target_ssh}"
+      user_mkdir "${TARGET_DIR}"
 
-        local known_hosts="${SUDO_HOME}/.ssh/known_hosts"
-        if [[ -e ${known_hosts} ]]; then
-          # Ensure there is a file to bind mount onto for setup_mount.
-          touch "${TARGET_DIR}/known_hosts"
-          setup_mount "${known_hosts}" "${target_ssh}/known_hosts"
-        fi
-        copy_ssh_config "${TARGET_DIR}"
-        chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
+      local known_hosts="${SUDO_HOME}/.ssh/known_hosts"
+      if [[ -e ${known_hosts} ]]; then
+        # Ensure there is a file to bind mount onto for setup_mount.
+        touch "${TARGET_DIR}/known_hosts"
+        setup_mount "${known_hosts}" "${target_ssh}/known_hosts"
+      fi
+      copy_ssh_config "${TARGET_DIR}"
+      chown -R "${SUDO_UID}:${SUDO_GID}" "${TARGET_DIR}"
 
-        if [ -S "${SSH_AUTH_SOCK}" ]; then
-          touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
-          setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
-        fi
+      if [ -S "${SSH_AUTH_SOCK}" ]; then
+        touch "${FLAGS_chroot}/tmp/ssh-auth-sock"
+        setup_mount "${SSH_AUTH_SOCK}" "/tmp/ssh-auth-sock"
       fi
     fi
 
