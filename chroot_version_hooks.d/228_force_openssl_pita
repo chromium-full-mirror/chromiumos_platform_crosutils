@@ -13,7 +13,7 @@ case "${exit_code}" in
   0 )
     # Purge old packages.
     sudo emerge --rage-clean \
-      '=dev-libs/openssl-1.1.1u-r2' \
+      '<=dev-libs/openssl-1.1.1u-r2' \
       'dev-lang/python:3.6'
     # Force update for packages that use openssl-3.
     exec sudo emerge -j2 -gu --verbose-conflicts \
