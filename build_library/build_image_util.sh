@@ -57,6 +57,10 @@ get_images_to_build() {
         IMAGES_TO_BUILD="${IMAGES_TO_BUILD} \
           ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"
         ;;
+      \'factory\' )
+        IMAGES_TO_BUILD="${IMAGES_TO_BUILD} \
+          ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"
+        ;;
       * )
         die "${image_to_build} is not an image specification."
         ;;
