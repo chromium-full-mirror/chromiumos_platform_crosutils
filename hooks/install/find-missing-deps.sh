@@ -11,7 +11,7 @@
 # b/301462588 - The bazel stage2 tarball doesn't include `equery`, so skip this
 # hook.
 if [[ "${PV}" == "9999" ]] && type -P equery >/dev/null; then
-  args=()
+  args=( --format=pretty )
   if [[ "${SYSROOT}" == "/build/"* ]]; then
     args+=( "--board=${SYSROOT##*/}" )
   else
