@@ -33,7 +33,7 @@ DEFINE_string cache_dir "" "Directory to use for caching."
 DEFINE_string goma_dir "" "Goma installed directory."
 DEFINE_string reclient_dir "" "Reclient binaries installed directory."
 DEFINE_string reproxy_cfg_file "" "Config file for re-client's reproxy."
-DEFINE_string working_dir "" \
+DEFINE_string working_dir "${CHROOT_TRUNK_DIR}/src/scripts" \
   "The working directory relative to ${CHROOT_TRUNK_DIR} for the command in \
 chroot, must start with '/' if set."
 
@@ -673,17 +673,36 @@ fi
 # build_image.sh).
 
 if [ "${FLAGS_early_make_chroot}" -eq "${FLAGS_TRUE}" ]; then
-  cmd=( /bin/bash -l -c 'env "$@"' -- )
+  cmd=( env -C "${FLAGS_working_dir}" )
 elif [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
   # Complain that sudo is missing.
   error "Failing since the chroot lacks sudo."
   error "Requested enter_chroot command was: $*"
   exit 127
 else
-  cmd=( sudo -i -u "${SUDO_USER}" )
+  cmd=( sudo -u "${SUDO_USER}" )
+  if [[ $# -gt 0 ]]; then
+    # TODO(b/307703861): Drop -i here.
+    cmd+=( -i -- env -C "${FLAGS_working_dir}" )
+  else
+    cmd+=( -i )
+  fi
 fi
 
-cmd+=( "${CHROOT_PASSTHRU[@]}" "$@" )
+cmd+=( "${CHROOT_PASSTHRU[@]}" )
+
+# We need to strip '--' between environment variables and the command.  env(1)
+# doesn't support that.
+while [[ "$1" == *=* ]]; do
+  cmd+=("$1")
+  shift
+done
+
+if [[ "$1" == "--" ]]; then
+  shift
+fi
+
+cmd+=("$@")
 
 if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
   # See pivot_root(8) man page for the safe usage of pivot_root.
