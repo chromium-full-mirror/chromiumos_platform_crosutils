@@ -256,7 +256,6 @@ known_bad_pkg() {
   chromeos-base/croscomp:0.1.0|\
   chromeos-base/crosh:0.24.52|\
   chromeos-base/crostini_client:0.1.0|\
-  chromeos-base/ec-devutils:0.0.2|\
   chromeos-base/ec-utils:0.0.2|\
   chromeos-base/ec-utils-test:0.0.1|\
   chromeos-base/factory:0.2.0|\
