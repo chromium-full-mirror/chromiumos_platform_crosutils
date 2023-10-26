@@ -412,7 +412,6 @@ known_bad_pkg() {
   net-misc/rmtfs:0.3_p20210408|\
   net-misc/socat:1.7.3.2|\
   net-misc/sslh:1.18|\
-  net-misc/tlsdate:0.0.5|\
   net-misc/uftp:4.10.1|\
   net-misc/usbip:4.19|\
   net-print/cups-filters:1.28.7|\
