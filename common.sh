@@ -131,7 +131,23 @@ error() {
 # Useful for long running commands that often need debugging from builders.
 info_run() {
   info "Running: $*"
-  "$@"
+  local rc=0
+
+  local -i start_time="${EPOCHSECONDS}"
+  "$@" || rc="$?"
+  local -i end_time="${EPOCHSECONDS}"
+
+  local -i elapsed_seconds=$(( end_time - start_time ))
+  local -i minutes=$(( elapsed_seconds / 60 ))
+  local -i seconds=$(( elapsed_seconds % 60 ))
+
+  if [[ "${rc}" -eq 0 ]]; then
+    info "Command complete in ${minutes}m ${seconds}s"
+  else
+    warn "Command failed in ${minutes}m ${seconds}s (rc=${rc})"
+  fi
+
+  return "${rc}"
 }
 
 # For all die functions, they must explicitly force set +eu;
