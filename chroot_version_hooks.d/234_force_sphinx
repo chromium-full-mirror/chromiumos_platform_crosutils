@@ -4,4 +4,4 @@
 
 # Force an update of dev-python/sphinx, as it's required by LLVM,
 # which may be satisfied with an old package installed for Python 3.6.
-sudo emerge -gu -j8 dev-python/sphinx
+sudo emerge --newuse -gu -j8 dev-python/sphinx
