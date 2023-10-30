@@ -672,6 +672,19 @@ fi
 # the source trunk for scripts that may need to print it (e.g.
 # build_image.sh).
 
+# Split the command into environment variables and the command to run.
+env_vars=( "${CHROOT_PASSTHRU[@]}" )
+while [[ "$1" == *=* ]]; do
+  env_vars+=("$1")
+  shift
+done
+
+if [[ "$1" == "--" ]]; then
+  shift
+fi
+
+# $@ should now be the command to run without environment variables.
+
 if [ "${FLAGS_early_make_chroot}" -eq "${FLAGS_TRUE}" ]; then
   cmd=( env -C "${FLAGS_working_dir}" )
 elif [ ! -x "${FLAGS_chroot}/usr/bin/sudo" ]; then
@@ -689,20 +702,7 @@ else
   fi
 fi
 
-cmd+=( "${CHROOT_PASSTHRU[@]}" )
-
-# We need to strip '--' between environment variables and the command.  env(1)
-# doesn't support that.
-while [[ "$1" == *=* ]]; do
-  cmd+=("$1")
-  shift
-done
-
-if [[ "$1" == "--" ]]; then
-  shift
-fi
-
-cmd+=("$@")
+cmd+=( "${env_vars[@]}" "$@" )
 
 if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
   # See pivot_root(8) man page for the safe usage of pivot_root.
