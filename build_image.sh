@@ -108,7 +108,8 @@ load_board_specific_script "board_specific_setup.sh"
 # TODO: <prebuild hook>
 
 # Create the base image.
-create_base_image "${PRISTINE_IMAGE_NAME}" "${FLAGS_enable_rootfs_verification}"
+info_run create_base_image "${PRISTINE_IMAGE_NAME}" \
+    "${FLAGS_enable_rootfs_verification}"
 
 # Running board-specific setup if any exists.
 if type board_setup &>/dev/null; then
@@ -119,11 +120,11 @@ fi
 if should_build_image "${CHROMEOS_DEVELOPER_IMAGE_NAME}" \
     "${CHROMEOS_TEST_IMAGE_NAME}"; then
   copy_image "${CHROMEOS_BASE_IMAGE_NAME}" "${CHROMEOS_DEVELOPER_IMAGE_NAME}"
-  install_dev_packages "${CHROMEOS_DEVELOPER_IMAGE_NAME}"
+  info_run install_dev_packages "${CHROMEOS_DEVELOPER_IMAGE_NAME}"
 fi
 
 # From a developer image create a test image.
 if should_build_image "${CHROMEOS_TEST_IMAGE_NAME}"; then
   copy_image  "${CHROMEOS_DEVELOPER_IMAGE_NAME}" "${CHROMEOS_TEST_IMAGE_NAME}"
-  mod_image_for_test  "${CHROMEOS_TEST_IMAGE_NAME}"
+  info_run mod_image_for_test  "${CHROMEOS_TEST_IMAGE_NAME}"
 fi
