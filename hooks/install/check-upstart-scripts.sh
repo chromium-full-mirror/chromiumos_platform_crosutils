@@ -95,7 +95,6 @@ known_bad_oom() {
   chromeos-base/cros-disks|\
   chromeos-base/crosdns|\
   chromeos-base/croslog|\
-  chromeos-base/debugd|\
   chromeos-base/diagnostics|\
   chromeos-base/disk_updater|\
   chromeos-base/dlcservice|\
