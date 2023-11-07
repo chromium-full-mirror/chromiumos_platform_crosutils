@@ -15,11 +15,6 @@ SCRIPT_ROOT=$(readlink -f "$(dirname "$0")/..")
 
 ENTER_CHROOT=$(readlink -f "$(dirname "$0")/enter_chroot.sh")
 
-if [ -n "${USE}" ]; then
-  echo "$SCRIPT_NAME: Building with a non-empty USE: ${USE}"
-  echo "This modifies the expected behaviour and can fail."
-fi
-
 # Check if the host machine architecture is supported.
 ARCHITECTURE="$(uname -m)"
 if [[ "$ARCHITECTURE" != "x86_64" ]]; then
@@ -38,10 +33,6 @@ DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
 DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
   "The destination dir for build output and state."
-DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
-  "Skip automatic SDK/toolchain upgrade."
-DEFINE_boolean usepkg $FLAGS_TRUE "Use binary packages to bootstrap."
-DEFINE_integer jobs -1 "How many packages to build in parallel at maximum."
 DEFINE_string cache_dir "" "Directory to store caches within."
 
 # Parse command line flags.
@@ -63,19 +54,6 @@ switch_to_strict_mode
 
 # shellcheck source=make_conf_util.sh
 . "${SCRIPT_ROOT}"/sdk_lib/make_conf_util.sh
-
-USEPKG=""
-USEPKGONLY=""
-if [[ $FLAGS_usepkg -eq $FLAGS_TRUE ]]; then
-  # Use binary packages. Include all build-time dependencies,
-  # so as to avoid unnecessary differences between source
-  # and binary builds.
-  USEPKG="--getbinpkg --usepkg --with-bdeps y"
-  # Use --usepkgonly to avoid building toolchain packages from source.
-  USEPKGONLY="--usepkgonly"
-fi
-
-EMERGE_CMD="${CHROOT_TRUNK_DIR}/chromite/bin/parallel_emerge"
 
 ENTER_CHROOT_ARGS=(
   CROS_WORKON_SRCROOT="${CHROOT_TRUNK_DIR}"
@@ -155,58 +133,6 @@ create_bootstrap_host_setup "${FLAGS_chroot}"
 
 # Run all the init stuff to setup the env.
 init_setup
-
-if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
-  info "Updating portage"
-  early_enter_chroot emerge -uNv --quiet --ignore-world portage
-fi
-
-if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
-  # Now that many of the fundamental packages should be in a good state, update
-  # the host toolchain. We have to do this step by step ourselves to avoid
-  # races when building tools that are actively used (e.g. updating the
-  # assembler while also compiling other packages that use the assembler).
-  # https://crbug.com/715788
-  info "Updating host toolchain"
-  TOOLCHAIN_ARGS=( --deleteold )
-  if [[ "${FLAGS_usepkg}" == "${FLAGS_FALSE}" ]]; then
-    TOOLCHAIN_ARGS+=( --nousepkg )
-  fi
-  # First the low level compiler tools. These should be fairly independent of
-  # the C library, so we can do it first.
-  early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
-    sys-devel/binutils
-  # Next the C library. The compilers often use newer features,
-  # but the C library is often designed to work with older compilers.
-  early_enter_chroot ${EMERGE_CMD} -uNv ${USEPKG} ${USEPKGONLY} ${EMERGE_JOBS} \
-    sys-kernel/linux-headers sys-libs/glibc
-
-  # Next libcxx and libunwind. This is required due to the migration to LLVM
-  # runtime builds.
-  early_enter_chroot ${EMERGE_CMD} -uN --nodeps ${USEPKG} \
-    sys-libs/llvm-libunwind sys-libs/libcxx
-
-  # Now we can let the rest of the compiler packages build in parallel as they
-  # don't generally rely on each other.
-  # Note: early_enter_chroot executes as root.
-  early_enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/cros_setup_toolchains" \
-      --hostonly "${TOOLCHAIN_ARGS[@]}"
-
-  # Update chroot.
-  # Skip toolchain update because it already happened above, and the chroot is
-  # not ready to emerge all cross toolchains.
-  UPDATE_ARGS=( --skip-toolchain-update --no-eclean )
-  if [[ "${FLAGS_usepkg}" == "${FLAGS_TRUE}" ]]; then
-    UPDATE_ARGS+=( --usepkg )
-  else
-    UPDATE_ARGS+=( --no-usepkg )
-  fi
-  if [[ "${FLAGS_jobs}" -ne -1 ]]; then
-    UPDATE_ARGS+=( --jobs="${FLAGS_jobs}" )
-  fi
-  enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/update_chroot" \
-    "${UPDATE_ARGS[@]}"
-fi
 
 # The java-config package atm does not support $ROOT.  Select a default
 # VM ourselves until that gets fixed upstream.
