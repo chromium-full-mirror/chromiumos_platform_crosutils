@@ -37,7 +37,7 @@ assert_root_user
 DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
 DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
-  "Skip automatic SDK/toolchain upgrade. Will eventually break as ToT moves on."
+  "Skip automatic SDK/toolchain upgrade."
 DEFINE_boolean usepkg $FLAGS_TRUE "Use binary packages to bootstrap."
 DEFINE_integer jobs -1 "How many packages to build in parallel at maximum."
 DEFINE_string cache_dir "" "Directory to store caches within."
@@ -202,8 +202,6 @@ if [[ "${FLAGS_skip_chroot_upgrade}" -eq "${FLAGS_FALSE}" ]]; then
   fi
   enter_chroot "${CHROOT_TRUNK_DIR}/chromite/bin/update_chroot" \
     "${UPDATE_ARGS[@]}"
-else
-  warn "SDK and toolchain update were skipped. It will eventually stop working."
 fi
 
 # The java-config package atm does not support $ROOT.  Select a default
