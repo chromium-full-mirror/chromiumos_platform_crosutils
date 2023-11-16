@@ -586,19 +586,15 @@ setup_env() {
     chmod 1777 "${FLAGS_chroot}/dev/shm"
 
     # gsutil uses boto config to store settings and credentials. Copy
-    # user's own boto file into the chroot if it exists. Also copy it
-    # to /root for sudoed invocations.
+    # user's own boto file into the chroot if it exists.
     chroot_user_boto="${FLAGS_chroot}/home/${SUDO_USER}/.boto"
-    chroot_root_boto="${FLAGS_chroot}/root/.boto"
     if [ -f "${SUDO_HOME}/.boto" ]; then
       # Pass --remote-destination to overwrite a symlink.
       user_cp "--remove-destination" "${SUDO_HOME}/.boto" "${chroot_user_boto}"
-      cp "--remove-destination" "${chroot_user_boto}" "${chroot_root_boto}"
     elif [ -f "/etc/boto.cfg" ]; then
       # For GCE instances, the non-chroot .boto file is not deployed so
       # use the system /etc/boto.cfg if it exists.
       user_cp "--remove-destination" "/etc/boto.cfg" "${chroot_user_boto}"
-      cp "--remove-destination" "${chroot_user_boto}" "${chroot_root_boto}"
     fi
 
     # If user doesn't have a boto file, check if the private overlays
@@ -607,9 +603,6 @@ setup_env() {
     if [ -s "${FLAGS_trunk}/${boto}" ]; then
       if [ ! -e "${chroot_user_boto}" ]; then
         user_symlink "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_user_boto}"
-      fi
-      if [ ! -e "${chroot_root_boto}" ]; then
-        ln -sf "${CHROOT_TRUNK_DIR}/${boto}" "${chroot_root_boto}"
       fi
     fi
 
