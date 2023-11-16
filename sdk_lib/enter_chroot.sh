@@ -105,7 +105,7 @@ CHROME_ROOT_CONFIG="/var/cache/chrome_root"   # inside chroot
 
 # We can't use /var/lock because that might be a symlink to /run/lock outside
 # of the chroot.  Or /run on the host system might not exist.
-LOCKFILE="${FLAGS_chroot}/.enter_chroot.lock"
+LOCKFILE="${FLAGS_out_dir}/.enter_chroot.lock"
 MOUNTED_PATH=$(readlink -f "${FLAGS_chroot}")
 
 # Writes stdin to the given file name as the sudo user in overwrite mode.
@@ -137,13 +137,6 @@ user_mkdir() {
 user_symlink() {
   ln -sfT "$1" "$2"
   chown -h "${SUDO_UID}:${SUDO_GID}" "$2"
-}
-
-# Return 0 if $1 is mounted read-only.
-mount_is_ro() {
-  awk -v mount="$1" '
-    $5 == mount && ","$6"," ~ /,ro,/ { exit 1 }
-  ' /proc/self/mountinfo && return 1 || return 0
 }
 
 setup_mount() {
@@ -621,16 +614,7 @@ setup_env() {
   unset -v LANGUAGE ${!LC_*}
 }
 
-# We might have a read-only chroot mount, to help enforce state separation in
-# the SDK; if so, temporarily remount it read/write some ephemeral and
-# regularly-synced pieces of the environment.
-if mount_is_ro "${FLAGS_chroot}"; then
-  mount -o bind,remount,rw "${FLAGS_chroot}"
-  setup_env
-  mount -o bind,remount,ro "${FLAGS_chroot}"
-else
-  setup_env
-fi
+setup_env
 
 CHROOT_PASSTHRU=(
   "CHROMEOS_RELEASE_APPID=${CHROMEOS_RELEASE_APPID:-{DEV-BUILD}}"
