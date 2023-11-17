@@ -36,6 +36,8 @@ assert_root_user
 
 DEFINE_string chroot "$DEFAULT_CHROOT_DIR" \
   "Destination dir for the chroot environment."
+DEFINE_string out_dir "${DEFAULT_OUT_DIR}" \
+  "The destination dir for build output and state."
 DEFINE_boolean skip_chroot_upgrade "${FLAGS_FALSE}" \
   "Skip automatic SDK/toolchain upgrade."
 DEFINE_boolean usepkg $FLAGS_TRUE "Use binary packages to bootstrap."
@@ -85,7 +87,8 @@ ENTER_CHROOT_ARGS=(
 enter_chroot() {
   echo "$(date +%H:%M:%S) [enter_chroot] $*"
   "${ENTER_CHROOT}" --cache_dir "${FLAGS_cache_dir}" --chroot \
-    "${FLAGS_chroot}" --nopivot_root -- "${ENTER_CHROOT_ARGS[@]}" "$@"
+    "${FLAGS_chroot}" --out_dir "${FLAGS_out_dir}" --nopivot_root -- \
+    "${ENTER_CHROOT_ARGS[@]}" "$@"
 }
 
 # Invoke enter_chroot running the command as root, and w/out sudo.
@@ -93,7 +96,8 @@ enter_chroot() {
 early_env=()
 early_enter_chroot() {
   echo "$(date +%H:%M:%S) [early_enter_chroot] $*"
-  "${ENTER_CHROOT}" --chroot "${FLAGS_chroot}" --early_make_chroot \
+  "${ENTER_CHROOT}" --chroot "${FLAGS_chroot}" \
+    --out_dir "${FLAGS_out_dir}" --early_make_chroot \
     --cache_dir "${FLAGS_cache_dir}" --nopivot_root \
     -- "${ENTER_CHROOT_ARGS[@]}" "${early_env[@]}" "$@"
 }
