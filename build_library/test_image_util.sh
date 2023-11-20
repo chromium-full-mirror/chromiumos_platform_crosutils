@@ -26,7 +26,7 @@ mod_image_for_test () {
   mount_image "${BUILD_DIR}/${image_name}" "${root_fs_dir}" "${stateful_fs_dir}"
 
   if type board_finalize_test_image &>/dev/null; then
-    board_finalize_test_image
+    board_finalize_test_image || die "board_finalize_test_image failed"
   fi
 
   emerge_chromeos_test

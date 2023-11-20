@@ -596,7 +596,7 @@ create_base_image() {
 
   # Run board-specific build image function, if available.
   if type board_finalize_base_image &>/dev/null; then
-    board_finalize_base_image
+    board_finalize_base_image || die "board_finalize_base_image failed"
   fi
 
   # Clean up symlinks so they work on a running target rooted at "/".
