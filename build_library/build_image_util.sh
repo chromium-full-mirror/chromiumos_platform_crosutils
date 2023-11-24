@@ -21,7 +21,7 @@ make_salt() {
   # to be different for each release. The purpose of the salt is just to ensure
   # that if someone collides a block in one release, they can't reuse it in
   # future releases.
-  xxd -l 32 -p -c 32 /dev/urandom
+  od -A none -N 32 -t x1 -w32 /dev/urandom | tr -d ' '
 }
 
 # Create a boot.desc file containing flags used to create this image.
