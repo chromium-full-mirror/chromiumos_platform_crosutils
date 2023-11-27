@@ -144,7 +144,7 @@ info_run sudo -E "${EMERGE_CMD}" "${EMERGE_FLAGS[@]}" virtual/target-sdk world
 if [ "${FLAGS_usepkg}" -eq "${FLAGS_TRUE}" ]; then
   # Update "post-cross" packages.
   # Use --usepkgonly to ensure that packages are not built from source.
-  EMERGE_FLAGS=( -uNv --with-bdeps=y --oneshot --getbinpkg --deep )
+  EMERGE_FLAGS=( -uNv --oneshot --getbinpkg --deep )
   EMERGE_FLAGS+=( --usepkgonly --rebuilt-binaries=n )
   EMERGE_FLAGS+=(
     $("${CHROMITE_BIN}/cros_setup_toolchains" --show-packages host-post-cross)
