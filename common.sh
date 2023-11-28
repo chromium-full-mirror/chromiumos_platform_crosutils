@@ -136,10 +136,18 @@ info_run() {
   local cmd
   cmd=$(basename "$1")
 
+  # The timer id prevents collisions, e.g. `info_run sudo ...` always has sudo
+  # parsed as the command, which frequently happens multiple times in a script.
+  local timer_id
+  timer_id=$(uuidgen)
+  emit_build_metric "start-timer" "timer.${cmd}" "${timer_id}"
+
   local start_time
   start_time="$(date +%s)"
   "$@" || rc="$?"
   print_time_elapsed "" "${cmd}"
+
+  emit_build_metric "stop-timer" "timer.${cmd}" "${timer_id}"
   if [[ "${rc}" != "0" ]]; then
     warn "Command (${cmd}) failed (rc=${rc})"
   fi
