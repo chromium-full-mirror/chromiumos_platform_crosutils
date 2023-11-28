@@ -549,6 +549,17 @@ setup_symlinks_on_root() {
   sudo ln -s "${var_target}" "${dev_image_root}/var"
 }
 
+emit_build_metric() {
+  # Emit a build metric, see emit_metric for details.
+  local emit_metric="/mnt/host/source/chromite/bin/emit_metric"
+  if [[ -n "${CROS_METRICS_DIR}" ]] && [[ -e "${emit_metric}" ]] ; then
+    local operation=$1
+    local metric=$2
+    local key=${3:-${metric}}
+    "${emit_metric}" "${operation}" "${metric}" "${key}"
+  fi
+}
+
 # Get current timestamp. Assumes common.sh runs at startup.
 start_time=$(date +%s)
 
