@@ -699,6 +699,8 @@ fi
 
 cmd+=( "${env_vars[@]}" "$@" )
 
+sdk_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+
 if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
   # See pivot_root(8) man page for the safe usage of pivot_root.
   # See also pivot_root(".", ".") section of pivot_roo(2) man page.
@@ -708,12 +710,15 @@ if [[ "${FLAGS_pivot_root}" -eq "${FLAGS_TRUE}" ]]; then
   # so we don't rely on the host distro's PATH bleeding in and requiring it be
   # compatible. Once PATH has changed, force bash to clear its lookup cache
   # just in case a program later is installed differently.
-  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/bin"
+  PATH="${sdk_path}"
   hash -r
   umount -l .
   chroot="."
 else
   chroot=${FLAGS_chroot}
+  # Hardcode the path to `env` and have it set PATH to the proper SDK value.
+  # See b:313668679 for the early_enter_chroot failure.
+  cmd=( /usr/bin/env PATH="${sdk_path}" "${cmd[@]}" )
 fi
 
 exec chroot "${chroot}" "${cmd[@]}"
