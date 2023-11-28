@@ -265,8 +265,8 @@ install_libc_for_abi() {
       'lib*/libnss_'{compat,db,hesiod,nis,nisplus}'*.so*'
       # This is only for very old packages which we don't have.
       'lib*/libBrokenLocale*.so*'
-   )
-   if [[ "${exclude_gconv}" == true ]]; then
+    )
+    if [[ "${exclude_gconv}" == true ]]; then
       pkg_excludes+=(
         'usr/lib/gconv'
         'usr/lib64/gconv'
