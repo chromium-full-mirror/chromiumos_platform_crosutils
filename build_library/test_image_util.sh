@@ -26,10 +26,10 @@ mod_image_for_test () {
   mount_image "${BUILD_DIR}/${image_name}" "${root_fs_dir}" "${stateful_fs_dir}"
 
   if type board_finalize_test_image &>/dev/null; then
-    board_finalize_test_image || die "board_finalize_test_image failed"
+    info_run board_finalize_test_image || die "board_finalize_test_image failed"
   fi
 
-  emerge_chromeos_test
+  info_run emerge_chromeos_test
 
   local mod_test_script="${SCRIPTS_DIR}/mod_for_test_scripts/test_setup.sh"
   # Run test setup script to modify the image
@@ -48,7 +48,7 @@ mod_image_for_test () {
 
   # Move DLC images to the /var/cache directory. The dlc-images directory will
   # hold DLC(s) that dlcservice will leverage for testing/provisioning.
-  build_dlc --sysroot="${BOARD_ROOT}" \
+  info_run build_dlc --sysroot="${BOARD_ROOT}" \
     --install-root-dir="${root_fs_dir}/var/cache/dlc-images" \
     --preload --rootfs="${root_fs_dir}" --board="${BOARD}"
 
@@ -58,7 +58,7 @@ mod_image_for_test () {
   if [[ ${skip_kernelblock_install} -ne 1 ]]; then
     # Now make it bootable with the flags from build_image.
     if should_build_image ${image_name}; then
-      "${SCRIPTS_DIR}/bin/cros_make_image_bootable" "${BUILD_DIR}" \
+      info_run "${SCRIPTS_DIR}/bin/cros_make_image_bootable" "${BUILD_DIR}" \
          ${image_name} --force_developer_mode
     fi
   fi

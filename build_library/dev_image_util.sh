@@ -6,6 +6,15 @@
 # images from base images.  The main function for export in this
 # library is 'install_dev_packages'.
 
+emerge_chromeos_dev() {
+  # Wrap the emerge_to_image calls to easily identify timer.
+  local root_fs_dir="$1"
+  local root_dev_dir="$2"
+  # Install dev-specific init scripts into / from chromeos-dev-root.
+  emerge_to_image --root="${root_fs_dir}" chromeos-dev-root
+  # Install developer packages.
+  emerge_to_image --root="${root_dev_dir}" virtual/target-os-dev
+}
 
 # Modifies an existing image to add development packages.
 # Takes as an arg the name of the image to be created.
@@ -28,11 +37,7 @@ install_dev_packages() {
   sudo ln -s ../../../etc/group "${root_dev_dir}/etc/group"
   sudo ln -s ../../../etc/pam.d "${root_dev_dir}/etc/pam.d"
 
-  # Install dev-specific init scripts into / from chromeos-dev-root.
-  emerge_to_image --root="${root_fs_dir}" chromeos-dev-root
-
-  # Install developer packages.
-  emerge_to_image --root="${root_dev_dir}" virtual/target-os-dev
+  info_run emerge_chromeos_dev "${root_fs_dir}" "${root_dev_dir}"
 
   # Run depmod to recalculate the kernel module dependencies.
   run_depmod "${BOARD_ROOT}" "${root_fs_dir}"

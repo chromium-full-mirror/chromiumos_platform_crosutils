@@ -381,14 +381,14 @@ create_base_image() {
   if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
     # Install our custom factory install kernel with the appropriate use flags
     # to the image.
-    emerge_custom_kernel "${root_fs_dir}"
+    info_run emerge_custom_kernel "${root_fs_dir}"
   fi
 
   # We "emerge --root=${root_fs_dir} --root-deps=rdeps --usepkgonly" all of the
   # runtime packages for chrome os. This builds up a chrome os image from
   # binary packages with runtime dependencies only.  We use INSTALL_MASK to
   # trim the image size as much as possible.
-  emerge_to_image --root="${root_fs_dir}" ${BASE_PACKAGE}
+  info_run emerge_to_image --root="${root_fs_dir}" ${BASE_PACKAGE}
 
   # Inject scudo system wide if system_wide_scudo is enabled.
   if has "system_wide_scudo" in "$(portageq-"${BOARD}" envvar USE)"; then
@@ -497,7 +497,7 @@ create_base_image() {
   # Get the build info of ARC if available.
   if type get_arc_build_info &>/dev/null; then
     # This will set CHROMEOS_ARC_*.
-    get_arc_build_info "${root_fs_dir}"
+    info_run get_arc_build_info "${root_fs_dir}"
   fi
   local arc_flags=()
   if [[ -n "${CHROMEOS_ARC_VERSION}" ]]; then
@@ -596,7 +596,7 @@ create_base_image() {
 
   # Run board-specific build image function, if available.
   if type board_finalize_base_image &>/dev/null; then
-    board_finalize_base_image || die "board_finalize_base_image failed"
+    info_run board_finalize_base_image || die "board_finalize_base_image failed"
   fi
 
   # Clean up symlinks so they work on a running target rooted at "/".
