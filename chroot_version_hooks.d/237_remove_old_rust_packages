@@ -19,7 +19,7 @@ do_clean() {
   else
     emerge_command=( "emerge${suffix}" )
   fi
-  "${emerge_command[@]}" --rage "${depends[@]}"
+  "${emerge_command[@]}" --rage-clean "${depends[@]}"
 }
 
 do_clean
