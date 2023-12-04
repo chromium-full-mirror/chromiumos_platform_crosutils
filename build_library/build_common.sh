@@ -85,6 +85,10 @@ emerge_custom_kernel() {
   # prebuilts can be uploaded in parallel.
   # TODO(davidjames): Implement ABI deps so that chromeos-initramfs will be
   # rebuilt automatically when its dependencies change.
+  # Pretend to allow parsing the package data.
+  sudo -E PKGDIR="${tmp_pkgdir}" ${EMERGE_BOARD_CMD} -1 --pretend \
+    chromeos-base/chromeos-initramfs || die "Cannot emerge chromeos-initramfs"
+  # Actual install.
   sudo -E PKGDIR="${tmp_pkgdir}" ${EMERGE_BOARD_CMD} -1 \
     chromeos-base/chromeos-initramfs || die "Cannot emerge chromeos-initramfs"
 
@@ -101,6 +105,10 @@ emerge_custom_kernel() {
   # initramfs from there. But we don't actually install the kernel to the
   # standard root, because that'll muck up the kernel debug symbols there,
   # which we want to upload in parallel.
+  # Pretend to allow parsing the package data.
+  sudo -E PKGDIR="${tmp_pkgdir}" ${EMERGE_BOARD_CMD} --buildpkgonly --pretend \
+    ${kernel} || die "Cannot emerge kernel"
+  # Actual install.
   sudo -E PKGDIR="${tmp_pkgdir}" ${EMERGE_BOARD_CMD} --buildpkgonly \
     ${kernel} || die "Cannot emerge kernel"
 
