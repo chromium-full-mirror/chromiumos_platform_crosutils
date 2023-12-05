@@ -122,7 +122,7 @@ install_grub_efi_template() {
   grub_args=(
     -p /efi/boot
     part_gpt gptpriority test fat ext2 normal boot chain
-    efi_gop configfile linux
+    efi_gop configfile linux search
     # For more context on SBAT, see chromiumos-overlay/sys-boot/grub/README.md
     -s "${SRC_ROOT}/third_party/chromiumos-overlay/sys-boot/grub/files/sbat.csv"
   )
