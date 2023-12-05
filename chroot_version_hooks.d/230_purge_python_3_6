@@ -10,4 +10,4 @@ pkgs=(
   dev-python/contextvars
   dev-python/dataclasses
 )
-sudo emerge --rage -q "${pkgs[@]}"
+sudo emerge --rage-clean -q "${pkgs[@]}"

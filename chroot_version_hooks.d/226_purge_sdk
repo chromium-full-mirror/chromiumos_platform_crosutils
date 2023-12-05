@@ -90,5 +90,5 @@ pkgs=(
 )
 mapfile -t installed_pkgs < <(qlist -eICS "${pkgs[@]}" || :)
 if [[ ${#installed_pkgs[@]} -gt 0 ]]; then
-  sudo emerge --rage -q "${installed_pkgs[@]}"
+  sudo emerge --rage-clean -q "${installed_pkgs[@]}"
 fi
