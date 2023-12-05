@@ -10,4 +10,7 @@ pkgs=(
   dev-python/contextvars
   dev-python/dataclasses
 )
-sudo emerge --rage-clean -q "${pkgs[@]}"
+mapfile -t installed_pkgs < <(qlist -IC "${pkgs[@]}" || :)
+if [[ ${#installed_pkgs[@]} -gt 0 ]]; then
+  sudo emerge --rage-clean -q "${installed_pkgs[@]}"
+fi
