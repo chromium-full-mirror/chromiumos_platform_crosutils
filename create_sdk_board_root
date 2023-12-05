@@ -99,7 +99,7 @@ info_run cros_sysroot_utils create-wrappers --sysroot="${BOARD_ROOT}" \
   --friendlyname="${BOARD}"
 
 # Choose the profile.
-if ! info_run cros_choose_profile --profile "${FLAGS_profile}" \
+if ! cros_choose_profile --profile "${FLAGS_profile}" \
       --board-root "${BOARD_ROOT}" --board "${BOARD}"; then
   info_run sudo rm -rf --one-file-system "${BOARD_ROOT}"
   die "Selecting profile failed, removing incomplete board directory!"

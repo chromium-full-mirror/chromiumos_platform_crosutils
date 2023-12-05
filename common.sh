@@ -149,7 +149,7 @@ info_run() {
 
   emit_build_metric "stop-timer" "timer.${cmd}" "${timer_id}"
   if [[ "${rc}" != "0" ]]; then
-    warn "Command (${cmd}) failed (rc=${rc})"
+    die "Command (${cmd}) failed (rc=${rc})"
   fi
 
   return "${rc}"
