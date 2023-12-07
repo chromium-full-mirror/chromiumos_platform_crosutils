@@ -536,5 +536,6 @@ esac
 # Allow for people to run manually for testing/debugging.
 if [[ $# -ne 0 ]]; then
   eqawarn() { echo " * $*"; }
+  die() { echo "$*"; exit 1; }
   check_lfs "$@"
 fi
