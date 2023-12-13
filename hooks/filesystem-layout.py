@@ -115,8 +115,6 @@ BAD_VAR_PACKAGES = {
     "app-crypt/mit-krb5",
     "app-crypt/trousers",
     "app-emulation/containerd",
-    # TODO(b/315858975): Remove after `app-emulation/lxc` has been deleted.
-    "app-emulation/lxc",
     "chromeos-base/chromeos-initramfs",
     "dev-python/django",
     "media-gfx/sane-backends",  # nocheck
