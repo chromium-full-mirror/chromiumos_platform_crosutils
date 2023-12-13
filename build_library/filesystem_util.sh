@@ -117,6 +117,28 @@ fs_mount() {
       sudo unsquashfs -dest "${mount_point}" -no-progress -force "${part_dev}"
     fi
     ;;
+  erofs)
+    if [[ "${ro_rw}" == "ro" ]]; then
+      sudo mount "${part_dev}" "${mount_point}" -o "${all_options}" \
+          -t "${fs_format}"
+    else
+      local sizelimit=$(fs_parse_option "${mount_options}" sizelimit)
+      if [[ -n "${sizelimit}" ]]; then
+        local losetup_opts=( --show --read-only --sizelimit "${sizelimit}" )
+        part_dev=$(sudo losetup "${losetup_opts[@]}" -f "${part_dev}")
+      fi
+
+      sudo fsck.erofs --overwrite --preserve --extract="${mount_point}" \
+          "${part_dev}"
+
+      if [[ -n "${sizelimit}" ]]; then
+        # Cleanup the loop device used to extract the filesystem.
+        sudo losetup -d "${part_dev}"
+      fi
+      sudo fsck.erofs --overwrite --preserve --extract="${mount_point}" \
+          "${part_dev}"
+    fi
+    ;;
   *)
     die "Unknown fs format '${fs_format}'";;
   esac
@@ -190,6 +212,19 @@ fs_create() {
     sudo dd if="${squash_file}" of="${part_dev}" bs=4096 status=none
     rm "${squash_file}"
     ;;
+  erofs)
+    # Creates an empty erofs filesystem so that extraction works.
+    local erofs_dir="$(mktemp -d --suffix=.erofs)"
+    local erofs_file="$(mktemp --suffix=.erofs)"
+    # Make sure / has the right permission.
+    chmod 0755 "${erofs_dir}"
+    # If there are errors in mkfs.erofs they are sent to stderr, but in the
+    # normal case a lot of useless information is sent to stdout.
+    mkfs.erofs -z lz4hc "${erofs_file}" "${erofs_dir}" >/dev/null
+    rmdir "${erofs_dir}"
+    sudo dd if="${erofs_file}" of="${part_dev}" bs=4096 status=none
+    rm "${erofs_file}"
+    ;;
   btrfs)
     sudo mkfs.${fs_format} -b "$((fs_bytes))" -d single -m single -M \
       -L "${fs_label}" -O "${fs_options_arr[@]}" "${part_dev}"
@@ -259,6 +294,34 @@ fs_umount() {
     sudo dd if="${squash_file}" of="${part_dev}" bs=8M \
         oflag=seek_bytes conv=notrunc status=none
     sudo rm -f "${squash_file}"
+    ;;
+  erofs)
+    # Unmount anything else that could be mounted in the filesystem before
+    # re-compressing.
+    safe_umount_tree "${mount_point}"
+
+    # Compress the filesystem to a temporary file.
+    local erofs_file="$(mktemp --suffix=.erofs)"
+    local fs_options_arr=(${fs_options})
+    # If there are errors in mkfs.erofs they are sent to stderr, but in the
+    # normal case a lot of useless information is sent to stdout.
+    sudo mkfs.erofs -z lz4hc "${erofs_file}" "${mount_point}" >/dev/null
+
+    local sizelimit=$(fs_parse_option "${mount_options}" sizelimit)
+    local compressed_size=$(stat -c%s "${erofs_file}")
+
+    if [[ -n "${sizelimit}" && "${sizelimit}" -lt "${compressed_size}" ]]; then
+      sudo rm -f "${erofs_file}"
+      die "The erofs filesystem mounted at ${mount_point} is "\
+"${compressed_size} bytes but the sizelimit is ${sizelimit} bytes, about "\
+"$(( (compressed_size - sizelimit) / 1024 )) KiB smaller. Please increase the "\
+"size of your filesystem or remove some files from it."
+    fi
+
+    # Use bigger block size to increase speed.
+    sudo dd if="${erofs_file}" of="${part_dev}" bs=8M \
+        oflag=seek_bytes conv=notrunc status=none
+    sudo rm -f "${erofs_file}"
     ;;
   *)
     die "Unknown fs format '${fs_format}'";;
