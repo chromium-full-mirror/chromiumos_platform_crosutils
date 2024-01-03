@@ -11,8 +11,11 @@
 # are placed in a "netboot" subfolder.
 
 SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
+
+# shellcheck source=common.sh
+. "${SCRIPT_ROOT}/common.sh" || exit 1
 # shellcheck source=build_library/build_common.sh
-. "${SCRIPT_ROOT}/build_library/build_common.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/build_common.sh" || exit 1
 
 # Script must be run inside the chroot.
 restart_in_chroot_if_needed "$@"

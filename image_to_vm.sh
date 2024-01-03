@@ -11,7 +11,7 @@ SCRIPT_ROOT=$(dirname "$(readlink -f "$0")")
 # shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
 # shellcheck source=build_library/ext2_sb_util.sh
-. "${SCRIPT_ROOT}/build_library/ext2_sb_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/ext2_sb_util.sh" || exit 1
 
 # Need to be inside the chroot to load chromeos-common.sh
 assert_inside_chroot
@@ -137,7 +137,7 @@ fi
 # shellcheck source=build_library/board_options.sh
 . "${BUILD_LIBRARY_DIR}/board_options.sh" || exit 1
 # shellcheck source=build_library/disk_layout_util.sh
-. "${SCRIPT_ROOT}/build_library/disk_layout_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/disk_layout_util.sh" || exit 1
 
 # Memory units are in MBs
 TEMP_IMG="$(dirname "${SRC_IMAGE}")/vm_temp_image.bin"

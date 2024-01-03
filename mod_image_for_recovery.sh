@@ -10,10 +10,14 @@
 # create a Chromium OS recovery image.
 
 SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
+
+# shellcheck source=common.sh
+. "${SCRIPT_ROOT}/common.sh" || exit 1
+
 # shellcheck source=/build_library/build_common.sh
-. "${SCRIPT_ROOT}/build_library/build_common.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/build_common.sh" || exit 1
 # shellcheck source=build_library/disk_layout_util.sh
-. "${SCRIPT_ROOT}/build_library/disk_layout_util.sh" || exit 1
+. "${BUILD_LIBRARY_DIR}/disk_layout_util.sh" || exit 1
 
 # Default recovery kernel name.
 RECOVERY_KERNEL_NAME=recovery_vmlinuz.image
@@ -549,7 +553,6 @@ IMAGE_DIR="$(dirname "${FLAGS_image}")"
 RECOVERY_IMAGE="${FLAGS_to:-${IMAGE_DIR}/${CHROMEOS_RECOVERY_IMAGE_NAME}}"
 RECOVERY_KERNEL_IMAGE=\
 "${FLAGS_kernel_outfile:-${IMAGE_DIR}/${RECOVERY_KERNEL_NAME}}"
-SCRIPTS_DIR="${SCRIPT_ROOT}"
 RECOVERY_DEV=""
 IMAGE_DEV=""
 
