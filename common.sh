@@ -33,7 +33,7 @@ V_BOLD_GREEN=
 V_BOLD_YELLOW=
 V_VIDOFF=
 
-if [[ -t 1 ]]; then
+if [[ -t 1 && -z ${NOCOLOR} ]]; then
   # order matters: we want VIDOFF last so that when we trace with `set -x`,
   # our terminal doesn't bleed colors as bash dumps the values of vars.
   V_BOLD_RED=$'\e[1;31m'
