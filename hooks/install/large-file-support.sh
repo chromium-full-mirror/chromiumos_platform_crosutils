@@ -379,7 +379,7 @@ known_bad_pkg() {
   media-sound/sound_card_init:*|\
   media-video/yavta:0.0.1|\
   net-analyzer/netcat:110.20180111|\
-  net-analyzer/netdata:1.34.1|\
+  net-analyzer/netdata:1.43.0|\
   net-analyzer/netperf:2.7.0|\
   net-analyzer/tcpdump:4.9.3|\
   net-analyzer/traceroute:2.1.0|\
