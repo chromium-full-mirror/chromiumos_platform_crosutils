@@ -169,8 +169,8 @@
       },
       {
         "num": 3,
-        "size": "480 MiB",
-        "fs_size": "460 MiB",
+        "size": "500 MiB",
+        "fs_size": "480 MiB",
         "fs_options": {
           "ext2": "-i 32768"
         }
