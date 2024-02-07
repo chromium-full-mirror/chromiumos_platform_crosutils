@@ -94,6 +94,12 @@ get_block_size() {
   cgpt_py readblocksize "${DISK_LAYOUT_PATH}"
 }
 
+get_verity_hash_algo() {
+  get_disk_layout_path
+
+  cgpt_py readverityhashalgo "${DISK_LAYOUT_PATH}"
+}
+
 get_image_types() {
   get_disk_layout_path
 

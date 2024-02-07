@@ -57,8 +57,9 @@ DEFINE_integer verity_error_behavior 3 \
 (Default: 3)"
 DEFINE_integer verity_max_ios -1 \
   "Optional number of outstanding I/O operations. (Default: -1)"
-DEFINE_string verity_hash_alg "sha256" \
-  "Cryptographic hash algorithm used for dm-verity. (Default: sha256)"
+DEFINE_string verity_hash_alg "" \
+  "Cryptographic hash algorithm used for dm-verity. Empty means board's \
+default (Default: \"\")"
 DEFINE_string verity_salt "" \
   "Salt to use for rootfs hash (Default: \"\")"
 DEFINE_boolean enable_rootfs_verification "${FLAGS_TRUE}" \
@@ -179,10 +180,15 @@ with --rootfs_image_size."
   root_fs_blocks=$((root_fs_size / 4096))
   info "rootfs is ${root_fs_blocks} blocks of 4096 bytes."
 
+  verity_hash_alg=${FLAGS_verity_hash_alg}
+  if [[ -z "${verity_hash_alg}" ]]; then
+    verity_hash_alg=$(get_verity_hash_algo)
+  fi
+
   info "Generating root fs hash tree (salt '${FLAGS_verity_salt}')."
   # Runs as sudo in case the image is a block device.
   table=$(sudo verity --mode=create \
-                      --alg="${FLAGS_verity_hash_alg}" \
+                      --alg="${verity_hash_alg}" \
                       --payload="${FLAGS_rootfs_image}" \
                       --payload_blocks="${root_fs_blocks}" \
                       --hashtree="${FLAGS_rootfs_hash}" \
