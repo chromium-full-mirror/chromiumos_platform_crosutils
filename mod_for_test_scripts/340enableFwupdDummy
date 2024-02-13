@@ -45,6 +45,7 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
         <checksum type="sha256" filename="fakedevice124.bin" target="content">4a4782bef39a8082e2c298301d24cdf91e6b874a9e4a2faa920b29e634a8b736</checksum>
         <description>
           <p>Fixes another bug with the flux capacitor to prevent time going backwards.</p>
+          <p>Test firmware with Signed Report tested by Google on Chromeos<br/>Trusted flag should show</p>
         </description>
         <size type="installed">10</size>
         <size type="download">24493</size>
@@ -58,12 +59,96 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
             <size type="download">24493</size>
             <testing>
               <test_result date="2023-06-22">
-                <vendor_name id="1">LVFS</vendor_name>
-                <device>Google Voxel</device>
-                <os version="113">chromeos</os>
+                <vendor_name id="16">Google</vendor_name>
+                <device>Redrix device</device>
+                <os>chromeos</os>
                 <previous_version>1.2.3</previous_version>
                 <custom>
                   <value key="RuntimeVersion(org.freedesktop.fwupd)">1.8.12</value>
+                </custom>
+              </test_result>
+            </testing>
+          </artifact>
+        </artifacts>
+      </release>
+
+      <!--
+           Fake firmware releases below.
+           DO NOT TRY TO UPDATE TO THESE VERSIONS
+
+           These values are fixed for test expectations
+           DO NOT UPDATE THESE VALUES without consulting chromeos-fwupd@
+      -->
+
+      <release version="1.2.5" timestamp="1497484800" urgency="medium">
+        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice125.cab</location>
+        <description>
+          <p>Test firmware with Signed Report tested by Google but not on Chromeos<br/>Trusted flag should NOT show</p>
+        </description>
+        <artifacts>
+          <artifact type="binary">
+            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice125.cab</location>
+            <filename>fakedevice125.cab</filename>
+            <checksum type="sha1">d5ee72e34056e1d9269ab69b29f19f3cd586c617</checksum>
+            <checksum type="sha256">13af2ee71cdb2a0eab2ea826206e3a64d1b88d3d0c471a27d76649c45542d2be</checksum>
+            <testing>
+              <test_result date="2024-01-22">
+                <vendor_name id="16">Google</vendor_name>
+                <device>HP test device</device>
+                <os>Intel i5</os>
+                <previous_version>1.2.4</previous_version>
+                <custom>
+                  <value key="RuntimeVersion(org.freedesktop.fwupd)">1.9.1</value>
+                </custom>
+              </test_result>
+            </testing>
+          </artifact>
+        </artifacts>
+      </release>
+      <release version="1.2.6" timestamp="1497484800" urgency="medium">
+        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice126.cab</location>
+        <description>
+          <p>Test firmware with Signed Report tested by a Person/Vendor who is not Google/Allion or the OEM itself on Chromeos<br/>Trusted flag should NOT show</p>
+        </description>
+        <artifacts>
+          <artifact type="binary">
+            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice126.cab</location>
+            <filename>fakedevice126.cab</filename>
+            <checksum type="sha1">56f92655407ac1abc4d2d432fcd4cfa656794757</checksum>
+            <checksum type="sha256">1929b267df83483ef22f8c12df6cf517740da42f09b0336752e04facb6e6f760</checksum>
+            <testing>
+              <test_result date="2024-01-22">
+                <vendor_name id="10">Random Intruder</vendor_name>
+                <device>Redrix device</device>
+                <os>chromeos</os>
+                <previous_version>1.2.5</previous_version>
+                <custom>
+                  <value key="RuntimeVersion(org.freedesktop.fwupd)">1.9.0</value>
+                </custom>
+              </test_result>
+            </testing>
+          </artifact>
+        </artifacts>
+      </release>
+      <release version="1.2.7" timestamp="1497484800" urgency="medium">
+        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice127.cab</location>
+        <description>
+          <p>Test firmware with Signed Report tested by Allion on Chromeos<br/>Trusted flag should show</p>
+        </description>
+        <artifacts>
+          <artifact type="binary">
+            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice127.cab</location>
+            <filename>fakedevice127.cab</filename>
+            <checksum type="sha1">d5a91e0f15e60dbbfa33fbb6a4623decf205136d</checksum>
+            <checksum type="sha256">3acd408dfd2dab938fa70c679fa9a70c9ab3786c7464e3c44827fa69a87f6623</checksum>
+            <testing>
+              <test_result date="2024-01-22">
+                <vendor_name id="1923">Allion</vendor_name>
+                <device>Redrix device</device>
+                <os>chromeos</os>
+                <previous_version>1.2.6</previous_version>
+                <custom>
+                  <value key="RuntimeVersion(org.freedesktop.fwupd)">1.9.0</value>
                 </custom>
               </test_result>
             </testing>
