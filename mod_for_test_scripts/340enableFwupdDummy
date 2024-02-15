@@ -80,10 +80,10 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
            DO NOT UPDATE THESE VALUES without consulting chromeos-fwupd@
       -->
 
-      <release version="1.2.5" timestamp="1497484800" urgency="medium">
+      <release version="1.2.1" timestamp="1497484800" urgency="medium">
         <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice125.cab</location>
         <description>
-          <p>Test firmware with Signed Report tested by Google but not on Chromeos<br/>Trusted flag should NOT show</p>
+          <p>Older than current test firmware with Signed Report tested by Google but not on Chromeos<br/>Trusted flag should NOT show</p>
         </description>
         <artifacts>
           <artifact type="binary">
@@ -96,7 +96,7 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
                 <vendor_name id="16">Google</vendor_name>
                 <device>HP test device</device>
                 <os>Intel i5</os>
-                <previous_version>1.2.4</previous_version>
+                <previous_version>1.2.0</previous_version>
                 <custom>
                   <value key="RuntimeVersion(org.freedesktop.fwupd)">1.9.1</value>
                 </custom>
