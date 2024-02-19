@@ -34,6 +34,14 @@ create_boot_desc() {
     enable_rootfs_verification_flag="--enable_rootfs_verification"
   fi
 
+  verity_hash_alg=${FLAGS_verity_hash_alg}
+  if [[ -z "${verity_hash_alg}" ]]; then
+    verity_hash_alg=${FLAGS_verity_algorithm}
+  fi
+  if [[ -z "${verity_hash_alg}" ]]; then
+    verity_hash_alg=$(get_verity_hash_algo)
+  fi
+
   [ -z "${FLAGS_verity_salt}" ] && FLAGS_verity_salt=$(make_salt)
   cat <<EOF > ${BUILD_DIR}/boot.desc
   --board=${BOARD}
@@ -42,7 +50,7 @@ create_boot_desc() {
   --keys_dir="${VBOOT_DEVKEYS_DIR}"
   --boot_args="${FLAGS_boot_args}"
   --nocleanup_dirs
-  --verity_algorithm=sha256
+  --verity_algorithm=${verity_hash_alg}
   --enable_serial="${FLAGS_enable_serial}"
   --loglevel="${FLAGS_loglevel}"
   ${enable_rootfs_verification_flag}

@@ -98,8 +98,9 @@ DEFINE_integer verity_error_behavior 3 \
   "Kernel verified boot error behavior (0: I/O errors, 1: reboot, 2: nothing)"
 DEFINE_integer verity_max_ios -1 \
   "Number of outstanding I/O operations dm-verity caps at."
-DEFINE_string verity_algorithm "sha256" \
-  "Cryptographic hash algorithm used for kernel vboot."
+DEFINE_string verity_algorithm "" \
+  "Cryptographic hash algorithm used for dm-verity. Empty means board's \
+default (Default: \"\")"
 DEFINE_string verity_salt "" \
   "Salt for rootfs hash tree."
 
@@ -206,6 +207,11 @@ build_img() {
   # instead to reduce its size.
   lsb_hash_base64=$(echo "${lsb_hash_raw}" | xxd -r -p | base64)
 
+  verity_hash_alg=${FLAGS_verity_algorithm}
+  if [[ -z "${verity_hash_alg}" ]]; then
+    verity_hash_alg=$(get_verity_hash_algo)
+  fi
+
   "${SCRIPTS_DIR}"/build_kernel_image.sh \
     --board="${FLAGS_board}" \
     --arch="${FLAGS_arch}" \
@@ -217,7 +223,7 @@ build_img() {
     --rootfs_image="${root_dev}" \
     --rootfs_image_size="${root_dev_size}" \
     --rootfs_hash="${FLAGS_rootfs_hash}" \
-    --verity_hash_alg="${FLAGS_verity_algorithm}" \
+    --verity_hash_alg="${verity_hash_alg}" \
     --verity_max_ios="${FLAGS_verity_max_ios}" \
     --verity_error_behavior="${FLAGS_verity_error_behavior}" \
     --verity_salt="${FLAGS_verity_salt}" \
