@@ -646,9 +646,11 @@ reinterpret_path_for_chroot() {
   fi
 }
 
-# Echo a list of cross-* ebuilds to exclude from eclean.
+# Echo a list of cross-* categories to exclude from eclean.
 get_eclean_exclusions() {
-  qlist -IC ^cross-
+  grep -s -h '^cross-' \
+    /mnt/host/source/src/third_party/toolchains-overlay/profiles/categories \
+    /usr/local/portage/crossdev/profiles/categories | sort -u
 }
 
 switch_to_strict_mode() {
