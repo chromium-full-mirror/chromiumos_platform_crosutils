@@ -16,7 +16,10 @@ sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${CONFIG_FILE}"
 
 echo "Enabling dummy fwupd remote for tests."
 
+# DEPRECATED: TODO(rishabhagr) Remove after b/326502550 is fixed
 sed -e 's/^\(DisabledPlugins=\).*/\1/' -i "${CONFIG_FILE}"
+
+echo "TestDevices=true" >> "${CONFIG_FILE}"
 
 cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -38,9 +41,9 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
     <developer_name>ACME Corp</developer_name>
     <releases>
       <release version="1.2.4" timestamp="1497484800" urgency="medium">
-        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice124.cab</location>
-        <checksum type="sha1" filename="3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice124.cab" target="container">cffec02f8094d10552b68967425613d72d72ac02</checksum>
-        <checksum type="sha256" filename="3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice124.cab" target="container">3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f</checksum>
+        <location>https://fwupd.org/downloads/a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab</location>
+        <checksum type="sha1" filename="a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab" target="container">cffec02f8094d10552b68967425613d72d72ac02</checksum>
+        <checksum type="sha256" filename="a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab" target="container">a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa</checksum>
         <checksum type="sha1" filename="fakedevice124.bin" target="content">2f822cbe6280d4472272fe0c2a3cb8b7f5dbd327</checksum>
         <checksum type="sha256" filename="fakedevice124.bin" target="content">4a4782bef39a8082e2c298301d24cdf91e6b874a9e4a2faa920b29e634a8b736</checksum>
         <description>
@@ -51,10 +54,10 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
         <size type="download">24493</size>
         <artifacts>
           <artifact type="binary">
-            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice124.cab</location>
+            <location>https://fwupd.org/downloads/a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab</location>
             <filename>fakedevice124.cab</filename>
             <checksum type="sha1">cffec02f8094d10552b68967425613d72d72ac02</checksum>
-            <checksum type="sha256">3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f</checksum>
+            <checksum type="sha256">a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa</checksum>
             <size type="installed">10</size>
             <size type="download">24493</size>
             <testing>
@@ -81,14 +84,14 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
       -->
 
       <release version="1.2.1" timestamp="1497484800" urgency="medium">
-        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice125.cab</location>
+        <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice121.cab</location>
         <description>
           <p>Older than current test firmware with Signed Report tested by Google but not on Chromeos<br/>Trusted flag should NOT show</p>
         </description>
         <artifacts>
           <artifact type="binary">
-            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice125.cab</location>
-            <filename>fakedevice125.cab</filename>
+            <location>https://fwupd.org/downloads/3fab34cfa1ef97238fb24c5e40a979bc544bb2b0967b863e43e7d58e0d9a923f-fakedevice121.cab</location>
+            <filename>fakedevice121.cab</filename>
             <checksum type="sha1">d5ee72e34056e1d9269ab69b29f19f3cd586c617</checksum>
             <checksum type="sha256">13af2ee71cdb2a0eab2ea826206e3a64d1b88d3d0c471a27d76649c45542d2be</checksum>
             <testing>
