@@ -16,9 +16,6 @@ sed -e 's/^\(VerboseDomains=\).*/\1*/' -i "${CONFIG_FILE}"
 
 echo "Enabling dummy fwupd remote for tests."
 
-# DEPRECATED: TODO(rishabhagr) Remove after b/326502550 is fixed
-sed -e 's/^\(DisabledPlugins=\).*/\1/' -i "${CONFIG_FILE}"
-
 echo "TestDevices=true" >> "${CONFIG_FILE}"
 
 cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
