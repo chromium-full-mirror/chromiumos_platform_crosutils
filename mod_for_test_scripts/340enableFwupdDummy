@@ -37,41 +37,6 @@ cat > "${ROOT_FS_DIR}/usr/share/fwupd/remotes.d/vendor/fwupd-tests.xml" <<EOF
     <project_license>GPL-2.0+</project_license>
     <developer_name>ACME Corp</developer_name>
     <releases>
-      <release version="1.2.4" timestamp="1497484800" urgency="medium">
-        <location>https://fwupd.org/downloads/a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab</location>
-        <checksum type="sha1" filename="a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab" target="container">cffec02f8094d10552b68967425613d72d72ac02</checksum>
-        <checksum type="sha256" filename="a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab" target="container">a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa</checksum>
-        <checksum type="sha1" filename="fakedevice124.bin" target="content">2f822cbe6280d4472272fe0c2a3cb8b7f5dbd327</checksum>
-        <checksum type="sha256" filename="fakedevice124.bin" target="content">4a4782bef39a8082e2c298301d24cdf91e6b874a9e4a2faa920b29e634a8b736</checksum>
-        <description>
-          <p>Fixes another bug with the flux capacitor to prevent time going backwards.</p>
-          <p>Test firmware with Signed Report tested by Google on Chromeos<br/>Trusted flag should show</p>
-        </description>
-        <size type="installed">10</size>
-        <size type="download">24493</size>
-        <artifacts>
-          <artifact type="binary">
-            <location>https://fwupd.org/downloads/a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa-fakedevice124.cab</location>
-            <filename>fakedevice124.cab</filename>
-            <checksum type="sha1">cffec02f8094d10552b68967425613d72d72ac02</checksum>
-            <checksum type="sha256">a92d4f433e925ea8e4a10d25dfa58e64ba1e68d07ee963605a2ccbaa2e3185aa</checksum>
-            <size type="installed">10</size>
-            <size type="download">24493</size>
-            <testing>
-              <test_result date="2023-06-22">
-                <vendor_name id="16">Google</vendor_name>
-                <device>Redrix device</device>
-                <os>chromeos</os>
-                <previous_version>1.2.3</previous_version>
-                <custom>
-                  <value key="RuntimeVersion(org.freedesktop.fwupd)">1.8.12</value>
-                </custom>
-              </test_result>
-            </testing>
-          </artifact>
-        </artifacts>
-      </release>
-
       <!--
            Fake firmware releases below.
            DO NOT TRY TO UPDATE TO THESE VERSIONS
