@@ -189,6 +189,7 @@ known_bad_pkg() {
   chromeos-base/ippusb_bridge:*|\
   chromeos-base/hwsec-utils:*|\
   chromeos-base/resourced:*|\
+  dev-lang/rust-dylibs:*|\
   media-gfx/deqp-runner:*|\
   media-sound/adhd:*|\
   media-sound/audio_processor:*|\
