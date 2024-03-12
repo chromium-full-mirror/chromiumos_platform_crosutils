@@ -247,10 +247,6 @@ install_libc_for_abi() {
       export LIBC_DECOMPRESSOR="${pkg_decompressor}"
     fi
 
-    if [[ ! -e "${pkg_path}" ]]; then
-      sudo emerge --nodeps -gf "=${pkg_atom}"
-    fi
-
     # Strip out files we don't need in the final image at runtime.
     pkg_excludes=(
       # Compile-time headers.
