@@ -17,6 +17,9 @@ fi
 
 shopt -s nullglob
 if [[ -n "${D}" ]]; then
+  # Ignore files ended with .bpf.policy since they are already compiled. See
+  # https://crrev.com/c/5320180 for the discussion.
+  GLOBIGNORE=("${D}"/usr/share/policy/*.bpf.policy)
   set -- "${D}"/usr/share/policy/*.policy \
     "${D}"/opt/google/touch/policies/*.policy
 fi
