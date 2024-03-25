@@ -464,7 +464,7 @@ known_bad_pkg() {
   sys-devel/flex:2.6.4|\
   sys-devel/gdb:9.2.20200923|\
   sys-devel/llvm:12.0.1|\
-  sys-devel/llvm-img:9.0.0|\
+  sys-devel/llvm-img:10.0.0|\
   sys-fs/btrfs-progs:5.4.1|\
   sys-fs/e2fsprogs:1.47.0|\
   sys-fs/fuse:2.9.8|\
