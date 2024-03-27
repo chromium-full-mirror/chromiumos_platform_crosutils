@@ -177,7 +177,6 @@ known_bad_oom() {
   sys-apps/mimo-monitor|\
   sys-apps/moblab|\
   sys-apps/satlab|\
-  sys-apps/upstart|\
   sys-apps/usbguard|\
   sys-apps/viking-cleanup-logs|\
   sys-firmware/viking-firmware|\
