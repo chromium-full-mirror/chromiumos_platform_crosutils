@@ -32,6 +32,18 @@
         "type": "rootfs"
       },
       {
+        # Unused partition, reserved for RW FW Slot A, no file system.
+        "num": 13,
+        "label": "RWFW-A",
+        "type": "firmware"
+      },
+      {
+        # Unused partition, reserved for RW FW Slot B, no file system.
+        "num": 14,
+        "label": "RWFW-B",
+        "type": "firmware"
+      },
+      {
         # Board specific files, mostly unused.
         "num": 8,
         "label": "OEM",

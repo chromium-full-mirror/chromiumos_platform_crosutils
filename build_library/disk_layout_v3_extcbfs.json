@@ -1,0 +1,20 @@
+{
+  # See README.disk_layout.
+  "parent": "disk_layout_v3.json",
+
+  "layouts": {
+    # Used for installs on main device with increased RWFW partition size.
+    "base": [
+      {
+        # RW FW Slot A, no file system.
+        "num": 13,
+        "size": "16 MiB"
+      },
+      {
+        # RW FW Slot B, no file system.
+        "num": 14,
+        "size": "16 MiB"
+      }
+    ]
+  }
+}
