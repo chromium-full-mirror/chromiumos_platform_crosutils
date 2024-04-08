@@ -322,6 +322,9 @@ fs_umount() {
     sudo dd if="${erofs_file}" of="${part_dev}" bs=8M \
         oflag=seek_bytes conv=notrunc status=none
     sudo rm -f "${erofs_file}"
+
+    # Cleanup mountpoint for subsequent invocations of mount/unmount.
+    sudo rm -rf "${mount_point}/*"
     ;;
   *)
     die "Unknown fs format '${fs_format}'";;
