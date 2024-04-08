@@ -114,7 +114,6 @@ fs_mount() {
         # Cleanup the loop device used to unsquash the filesystem.
         sudo losetup -d "${part_dev}"
       fi
-      sudo unsquashfs -dest "${mount_point}" -no-progress -force "${part_dev}"
     fi
     ;;
   erofs)
@@ -135,8 +134,6 @@ fs_mount() {
         # Cleanup the loop device used to extract the filesystem.
         sudo losetup -d "${part_dev}"
       fi
-      sudo fsck.erofs --overwrite --preserve --extract="${mount_point}" \
-          "${part_dev}"
     fi
     ;;
   *)
