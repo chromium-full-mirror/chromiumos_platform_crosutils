@@ -184,25 +184,6 @@ create_dev_install_lists() {
   rm -r "${pkgs_out}"
 }
 
-# Load a single variable from a bash file.
-# $1 - Path to the file.
-# $2 - Variable to get.
-_get_variable() {
-  local filepath=$1
-  local variable=$2
-  local lockfile="${filepath}.lock"
-
-  if [[ -e "${filepath}" ]]; then
-    (
-      flock 201
-      . "${filepath}"
-      if [[ "${!variable+set}" == "set" ]]; then
-        echo "${!variable}"
-      fi
-    ) 201>"${lockfile}"
-  fi
-}
-
 install_libc_for_abi() {
   # We need to install libc manually from the cross toolchain.
   # TODO: Improve this? It would be ideal to use emerge to do this.
@@ -211,7 +192,6 @@ install_libc_for_abi() {
   PKGDIR="/var/lib/portage/pkgs"
 
   local pkgs=( "glibc" )
-  local pkg_ver_str=( "LIBC_VERSION" )
   local exclude_gconv=false
   if [[ "$3" == "--copy-cxx-runtime" ]]; then
     # Normally only glibc gets installed here since it is not built per board
@@ -222,7 +202,6 @@ install_libc_for_abi() {
     # cross-<abi>/<library> packages and not rely on ebuilds.
     # This is a bit hacky but is only for a "short" while.
     pkgs+=( "llvm-libunwind" "libcxx" )
-    pkg_ver_str+=("LIBGCC_VERSION" "LIBCXX_VERSION")
     # gconv_strip.py does not like two set of gconv files but for
     # arm32 + aarch64 multilib for NaCl, we have two set of files.
     # As long as the second set for extra ABI is not needed for NaCl, we can
@@ -230,12 +209,11 @@ install_libc_for_abi() {
     exclude_gconv=true
   fi
 
-  local idx pkg pkg_version pkg_atom pkg_path pkg_excludes pkg_comp
+  local idx pkg pkg_cp pkg_atom pkg_path pkg_excludes
   for (( idx = 0; idx < ${#pkgs[@]}; idx++ )); do
     pkg="${pkgs[${idx}]}"
-    pkg_version="$(_get_variable "${BOARD_ROOT}/${SYSROOT_SETTINGS_FILE}" \
-      "${pkg_ver_str[${idx}]}")"
-    pkg_atom="cross-${abi}/${pkg}-${pkg_version}"
+    pkg_cp="cross-${abi}/${pkg}"
+    pkg_atom="$(info_run portageq match / "${pkg_cp}")"
     pkg_path="${PKGDIR}/${pkg_atom}.tbz2"
     pkg_decompressor="$(detect_decompression_tool "${pkg_path}")"
     if [[ "${pkg}" == "glibc" ]]; then

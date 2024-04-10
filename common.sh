@@ -348,7 +348,6 @@ CHROMEOS_RECOVERY_IMAGE_NAME="recovery_image.bin"
 CHROMEOS_TEST_IMAGE_NAME="chromiumos_test_image.bin"
 CHROMEOS_FACTORY_INSTALL_SHIM_NAME="factory_install_shim.bin"
 FLEXOR_KERNEL_NAME="flexor_vmlinuz"
-SYSROOT_SETTINGS_FILE="/var/cache/edb/chromeos"
 
 # -----------------------------------------------------------------------------
 # Functions
