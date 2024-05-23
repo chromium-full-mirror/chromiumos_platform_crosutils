@@ -303,35 +303,6 @@ kernel_image="${FLAGS_vmlinuz}"
 info "Saving kernel as ${FLAGS_working_dir}/vmlinuz.bin"
 cp "${kernel_image}" "${FLAGS_working_dir}/vmlinuz.bin"
 
-for image_type in $(get_image_types); do
-  already_seen_rootfs=0
-  for partition in $(get_partitions "${image_type}"); do
-    format=$(get_format "${image_type}" "${partition}")
-    if [[ "${format}" == "ubi" ]]; then
-      type=$(get_type "${image_type}" "${partition}")
-      # cgpt.py ensures that the rootfs partitions are compatible, in that if
-      # one is ubi then both are, and they have the same number of reserved
-      # blocks. We only want to attach one of them in boot to save time, so
-      # attach %P and get the information for whichever rootfs comes first.
-      if [[ "${type}" == "rootfs" ]]; then
-        if [[ "${already_seen_rootfs}" -ne 0 ]]; then
-          continue
-        fi
-        already_seen_rootfs=1
-        partname='%P'
-      else
-        partname="${partition}"
-      fi
-      reserved=$(get_reserved_erase_blocks "${image_type}" "${partition}")
-      echo "ubi.mtd=${partname},0,${reserved},${partname}" >> "${config}"
-      fs_format=$(get_filesystem_format "${image_type}" "${partition}")
-      if [[ "${fs_format}" != "ubifs" ]]; then
-        echo "ubi.block=${partname},0" >> "${config}"
-      fi
-    fi
-  done
-done
-
 (
   # Run in a subshell so we know build_kernel_image.sh can't set env vars.
   load_board_specific_script "build_kernel_image.sh"
