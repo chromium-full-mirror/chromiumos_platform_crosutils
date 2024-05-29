@@ -130,14 +130,6 @@ get_filesystem_options() {
   cgpt_py readfsoptions "${image_type}" "${DISK_LAYOUT_PATH}" "${part_id}"
 }
 
-get_format() {
-  local image_type=$1
-  local part_id=$2
-  get_disk_layout_path
-
-  cgpt_py readformat "${image_type}" "${DISK_LAYOUT_PATH}" "${part_id}"
-}
-
 get_partitions() {
   local image_type=$1
   get_disk_layout_path
@@ -190,22 +182,6 @@ get_layout_partition_number() {
   get_disk_layout_path
 
   cgpt_py readnumber "${image_type}" "${DISK_LAYOUT_PATH}" "${part_label}"
-}
-
-get_reserved_erase_blocks() {
-  local image_type=$1
-  local part_id=$2
-  get_disk_layout_path
-
-  cgpt_py readreservederaseblocks "${image_type}" "${DISK_LAYOUT_PATH}" \
-    ${part_id}
-}
-
-check_valid_layout() {
-  local image_type=$1
-  get_disk_layout_path
-
-  cgpt_py validate "${image_type}" "${DISK_LAYOUT_PATH}" > /dev/null
 }
 
 get_disk_layout_type() {

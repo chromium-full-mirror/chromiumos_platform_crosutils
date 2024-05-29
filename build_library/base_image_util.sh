@@ -320,9 +320,6 @@ create_base_image() {
     fi
   fi
 
-  check_valid_layout "base"
-  check_valid_layout "${image_type}"
-
   info "Using image type ${image_type}"
   get_disk_layout_path
   info "Using disk layout ${DISK_LAYOUT_PATH}"
