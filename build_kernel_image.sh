@@ -290,7 +290,6 @@ if [[ "${FLAGS_arch}" == "x86" || "${FLAGS_arch}" == "amd64" ]]; then
 add_efi_memmap
 noresume
 i915.modeset=1
-kvm.tdp_mmu=0
 EOF
 elif [[ "${FLAGS_arch}" != "arm" && "${FLAGS_arch}" != "mips"  && "${FLAGS_arch}" != "arm64" ]]; then
   error "Unknown arch: ${FLAGS_arch}"
