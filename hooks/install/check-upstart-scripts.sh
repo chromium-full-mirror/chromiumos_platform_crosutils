@@ -237,7 +237,7 @@ check() {
     : $(( ret_oom += $? ))
   done
 
-  "${CROS_COMMAND}" lint --relaxed "$@"
+  "${CROS_COMMAND}" --disable-telemetry lint --relaxed "$@"
   : $(( ret_lint += $? ))
 
   if [[ ${ret_oom} -eq 0 ]]; then
