@@ -17,11 +17,10 @@ esac
 DEFAULT_PRIVATE_KEY="${GCLIENT_ROOT}/chromite/ssh_keys/testing_rsa"
 PARTNER_PRIVATE_KEY="${GCLIENT_ROOT}/sshkeys/partner_testing_rsa"
 
-DEFINE_string remote "" "remote hostname/IP of running Chromium OS instance"
+DEFINE_string remote "" "remote hostname/IP of device"
 DEFINE_string private_key "$DEFAULT_PRIVATE_KEY" \
   "Private key of root account on remote host"
-DEFINE_integer ssh_port 0 \
-  "SSH port of the remote machine running Chromium OS instance"
+DEFINE_integer ssh_port 0 "SSH port of the remote device"
 DEFINE_integer ssh_connect_timeout 30 \
   "SSH connect timeout in seconds"
 DEFINE_integer ssh_connection_attempts 4 \
@@ -290,7 +289,7 @@ remote_access_init() {
   TMP_CONTROL_FILE="${TMP}/ssh_control-%C"
 
   if [ -z "$FLAGS_remote" ]; then
-    echo "Please specify --remote=<IP-or-hostname> of the Chromium OS instance"
+    echo "Please specify --remote=<IP-or-hostname> of the device" >&2
     exit 1
   fi
 
