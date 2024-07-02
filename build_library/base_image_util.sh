@@ -315,7 +315,7 @@ create_base_image() {
   if [[ "${FLAGS_disk_layout}" != "default" ]]; then
     image_type="${FLAGS_disk_layout}"
   else
-    if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+    if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
       image_type="factory_install"
     fi
   fi
@@ -349,7 +349,7 @@ create_base_image() {
   # install libc
   install_libc "${root_fs_dir}"
 
-  if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+  if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
     # Install our custom factory install kernel with the appropriate use flags
     # to the image.
     info_run emerge_custom_kernel "${root_fs_dir}"
@@ -599,7 +599,7 @@ create_base_image() {
     info_run sudo tar -cf "${BOARD_ROOT}/packages/dev-only-extras.tar.xz" \
       -I 'xz -9 -T0' --exclude=var -C "${root_fs_dir}/usr/local" .
 
-    if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+    if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
       info "Skipping dev-install lists for factory shim images."
     else
       create_dev_install_lists "${root_fs_dir}"
@@ -608,7 +608,7 @@ create_base_image() {
 
   # Generate DLCs and copy their metadata to the rootfs + factory install DLC
   # images into stateful partition.
-  if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+  if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
     info "Skipping DLC copying for factory shim images."
   else
     info_run build_dlc --sysroot="${BOARD_ROOT}" --rootfs="${root_fs_dir}" \
@@ -665,7 +665,7 @@ create_base_image() {
   trap - EXIT
 
   USE_DEV_KEYS=
-  if should_build_image ${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}; then
+  if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
     USE_DEV_KEYS="--use_dev_keys"
   fi
 
@@ -677,7 +677,9 @@ create_base_image() {
   fi
 
   # Build minios kernel and put it in the MINIOS-A partition of the image.
-  if has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
+  if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
+    info "Skipping minios for factory shim images."
+  elif has "minios" "$(portageq-"${BOARD}" envvar USE)"; then
     info_run build_minios --board "${BOARD}" \
       --image "${BUILD_DIR}/${image_name}" \
       --version "${CHROMEOS_VERSION_STRING}"
