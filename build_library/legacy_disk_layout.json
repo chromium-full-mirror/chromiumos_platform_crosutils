@@ -159,13 +159,23 @@
     ],
     # Used for factory install images.
     "factory_install": [
+      # Factory kernels are a bit larger, and we don't need to retain backward
+      # compatibility. Bump them up a bit for some headroom.
       {
-        "num": 12,
+        "num": 2,
         "size": "32 MiB"
       },
       {
+        "num": 4,
+        "size": "32 MiB"
+      },
+      {
+        "num": 12,
+        "size": "64 MiB"
+      },
+      {
         "num": 5,
-        "size": "2 MiB"
+        "size": "1"
       },
       {
         "num": 3,
