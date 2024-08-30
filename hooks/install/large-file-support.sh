@@ -326,7 +326,7 @@ known_bad_pkg() {
   dev-libs/protobuf:3.19.3|\
   dev-libs/tinyxml2:8.0.0|\
   dev-python/grpcio:1.43.*|\
-  dev-python/numpy:1.19.4|\
+  dev-python/numpy:1.24.4|\
   dev-python/python-uinput:0.11.2|\
   dev-python/selenium:3.0.2|\
   dev-rust/bindgen:0.59.2|\
