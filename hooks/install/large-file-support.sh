@@ -394,7 +394,7 @@ known_bad_pkg() {
   net-firewall/ebtables:2.0.11|\
   net-libs/grpc:1.16.*|\
   net-libs/grpc:1.43.*|\
-  net-libs/libiio:0.23|\
+  net-libs/libiio:0.2*|\
   net-libs/libnetfilter_conntrack:1.0.6|\
   net-libs/libnsl:1.2.0|\
   net-libs/libsoup:2.58.2|\
