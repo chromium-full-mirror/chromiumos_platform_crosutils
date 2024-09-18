@@ -153,6 +153,14 @@ get_bootargs() {
     remote_sh dump_kernel_config "${FLAGS_partition}"
     printf '%s' "${REMOTE_OUT}"
   else
+    if grep -q "root=/dev/dm-[0-9]" "${local_config}"; then
+      read -r -p "Reenabling rootfs verification, are you sure (y/N)? " SURE
+      SURE="${SURE:0:1}"
+      if [ "${SURE}" != "y" ] ; then
+        exit 1
+      fi
+    fi
+
     if [ -n "${FLAGS_rootoff}" ]; then
       sed "s/PARTNROFF=1/PARTNROFF=${FLAGS_rootoff}/" "${local_config}"
     else
