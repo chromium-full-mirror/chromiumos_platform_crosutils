@@ -460,6 +460,7 @@ known_bad_pkg() {
   sys-apps/usbutils:014|\
   sys-auth/nss-mdns:0.13|\
   sys-auth/pam_pwdfile:0.99|\
+  sys-block/thin-provisioning-tools:1.*|\
   sys-cluster/libqb:0.17.2|\
   sys-devel/bc:1.07.1|\
   sys-devel/flex:2.6.4|\
