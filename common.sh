@@ -58,6 +58,7 @@ _dump_trace() {
 
   error "$(date)"
   error "$(ps f -o pgid,ppid,pid,etime,cputime,%cpu,command)"
+  error "$(df -h)"
 
   # Frame 0 is ourselves so it's always suppressed / does not count.
   for (( n = ${#FUNCNAME[@]}; n > hidden_frames; --n )); do
