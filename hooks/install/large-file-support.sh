@@ -271,7 +271,6 @@ known_bad_pkg() {
   chromeos-base/libevdev:0.0.1|\
   chromeos-base/libhwsec:0.0.1|\
   chromeos-base/manatee-runtime:0.1.0|\
-  chromeos-base/memd:0.1.0|\
   chromeos-base/mttools:0.0.1|\
   chromeos-base/perfetto:29.0|\
   chromeos-base/perfetto_simple_producer:0.0.1|\
