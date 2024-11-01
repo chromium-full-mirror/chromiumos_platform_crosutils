@@ -438,6 +438,7 @@ mk_fs() {
     # These rootfs mount points are necessary to mount data from other
     # partitions onto the rootfs. These are used by both build and run times.
     cmds+=("sudo mkdir -p '${mount_dir}/mnt/stateful_partition'"
+           "sudo mkdir -p '${mount_dir}/mnt/chromeos_metadata_partition'"
            "sudo mkdir -p '${mount_dir}/usr/local'"
            "sudo mkdir -p '${mount_dir}/usr/share/oem'"
            "sudo mkdir '${mount_dir}/var'"
