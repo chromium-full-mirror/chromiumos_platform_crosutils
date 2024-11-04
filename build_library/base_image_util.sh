@@ -337,6 +337,10 @@ create_base_image() {
   info "Syncing ${BUILD_DIR}/${image_name}."
   sync -f "${BUILD_DIR}/${image_name}"
 
+  if has "default_key_stateful" "$(portageq-"${BOARD}" envvar USE)"; then
+    create_developer_tools_image "${image_name}"
+  fi
+
   trap "check_full_disk ; unmount_image ; delete_prompt" EXIT
   mount_image "${BUILD_DIR}/${image_name}" "${root_fs_dir}" \
     "${stateful_fs_dir}" "${esp_fs_dir}"

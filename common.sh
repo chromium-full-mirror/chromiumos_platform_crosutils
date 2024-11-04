@@ -472,6 +472,8 @@ safe_umount_tree() {
   # Well that didn't work, so lazy unmount remaining ones.
   warn "Failed to unmount ${mounts[@]}, these are the processes using the" \
     "mount points."
+  sudo mount || true
+  sudo losetup || true
   sudo fuser -vm "${mount_point}" || true
 
   warn "Doing a lazy unmount"

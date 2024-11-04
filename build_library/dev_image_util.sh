@@ -16,6 +16,39 @@ emerge_chromeos_dev() {
   emerge_to_image --root="${root_dev_dir}" virtual/target-os-dev
 }
 
+# Gets the filesystem space in a given path.
+get_dir_size() {
+  local path="$1"
+  local block_size total_blocks
+
+  block_size="$(stat -f -c "%S" "${path}")"
+  total_blocks="$(stat -f -c "%b" "${path}")"
+
+  echo "$(( block_size * total_blocks ))"
+}
+
+# Modifies an existing image to add developer tools image file.
+# The image file is used as a sparse ext4 filesystem and can
+# be sized up to 95% of the underlying partition's size, leaving
+# some space for runtime usage.
+create_developer_tools_image() {
+  local image_name=$1
+  local filesystem_size
+
+  trap "unmount_image ; delete_prompt" EXIT
+  mount_image "${BUILD_DIR}/${image_name}" "${root_fs_dir}" \
+    "${stateful_fs_dir}" ""
+
+  filesystem_size=$(get_dir_size "${stateful_fs_dir}")
+
+  sudo mkdir -p "${stateful_fs_dir}/unencrypted"
+  sudo truncate -s $(( 95 * filesystem_size / 100 )) \
+    "${stateful_fs_dir}/unencrypted/dev_image.block"
+  sudo mkfs.ext4 "${stateful_fs_dir}/unencrypted/dev_image.block"
+  unmount_image
+  trap - EXIT
+}
+
 # Modifies an existing image to add development packages.
 # Takes as an arg the name of the image to be created.
 install_dev_packages() {

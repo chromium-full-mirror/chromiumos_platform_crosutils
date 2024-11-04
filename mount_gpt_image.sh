@@ -200,7 +200,7 @@ unmount_image() {
   # Unmount in reverse order: EFI, OEM, stateful and rootfs.
   local var_name mountpoint fs_format fs_options
   local part_label part_num part_loop
-  for part_label in EFI_SYSTEM OEM STATE ROOT_A; do
+  for part_label in EFI_SYSTEM OEM ROOT_A STATE; do
     var_name="${part_label}_MOUNTPOINT"
     mountpoint="${!var_name}"
     [[ -n "${mountpoint}" ]] || continue
@@ -395,6 +395,19 @@ mount_image() {
   }
   mkdir_and_mount "${FLAGS_stateful_mountpt}" \
     "${FLAGS_rootfs_mountpt}/mnt/stateful_partition"
+
+  if [[ -f "${FLAGS_stateful_mountpt}/unencrypted/dev_image.block" ]]; then
+    sudo mkdir -p "${FLAGS_stateful_mountpt}/developer_tools"
+    sudo mount "${FLAGS_stateful_mountpt}/unencrypted/dev_image.block" \
+      "${FLAGS_stateful_mountpt}/developer_tools"
+
+    mkdir_and_mount  "${FLAGS_stateful_mountpt}/developer_tools/var_overlay" \
+      "${FLAGS_stateful_mountpt}/var_overlay"
+
+    mkdir_and_mount  "${FLAGS_stateful_mountpt}/developer_tools/dev_image" \
+      "${FLAGS_stateful_mountpt}/dev_image"
+  fi
+
   mkdir_and_mount "${FLAGS_stateful_mountpt}/var_overlay" \
     "${FLAGS_rootfs_mountpt}/var"
   mkdir_and_mount "${FLAGS_stateful_mountpt}/dev_image" \
