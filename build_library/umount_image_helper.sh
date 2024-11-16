@@ -30,7 +30,7 @@ main() {
   # See if any paths exist to avoid errors with missing paths.
   set -- dir_[0-9]*
   if [[ $# -gt 1 || "$1" != "dir_[0-9]*" ]]; then
-    sudo umount -r dir_[0-9]*
+    sudo umount -R dir_[0-9]*
     rmdir dir_[0-9]*
   fi
 }

@@ -348,6 +348,29 @@ if ! "\${m[@]}"; then
     exit 0
   fi
 fi
+EOF
+      if [[ "${label}" == "STATE" ]]; then
+        cat <<-EOF >>"${mount}"
+if [[ -e "${dir}/unencrypted/dev_image.block" ]]; then
+  m=( sudo mount "${dir}/unencrypted/dev_image.block" "${dir}/developer_tools" )
+  if ! "\${m[@]}"; then
+    if ! "\${m[@]}" -o ro; then
+      exit 0
+    fi
+  fi
+  m=( sudo mount --bind "${dir}/developer_tools/dev_image" "${dir}/dev_image" )
+  if ! "\${m[@]}"; then
+    exit 0
+  fi
+  m=( sudo mount --bind "${dir}/developer_tools/var_overlay" "${dir}/var_overlay" )
+  if ! "\${m[@]}"; then
+    exit 0
+  fi
+fi
+
+EOF
+      fi
+      cat <<EOF >>"${mount}"
 ln -sfT ${dir} "${dir}_${label}"
 ) &
 EOF
