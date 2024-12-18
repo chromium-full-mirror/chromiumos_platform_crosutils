@@ -315,7 +315,7 @@ known_bad_pkg() {
   dev-libs/libpcre2:10.34|\
   dev-libs/libpcre:8.44|\
   dev-libs/libunistring:0.9.10|\
-  dev-libs/libusb:1.0.27|\
+  dev-libs/libusb:1.0.26|\
   dev-libs/libverto:0.3.0|\
   dev-libs/libxslt:1.1.35|\
   dev-libs/nettle:3.7.3|\
