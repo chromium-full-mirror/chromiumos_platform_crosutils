@@ -224,11 +224,9 @@ known_bad_pkg() {
   app-crypt/nss:3.68.2|\
   app-crypt/tpm-tools:1.3.9.1|\
   app-crypt/trousers:0.3.3|\
-  app-editors/qemacs:0.4.1_pre20170225|\
   app-editors/vim-core:9.0.*|\
   app-emulation/lx[cd]:3.*|\
   app-emulation/lx[cd]:4.0.*|\
-  app-misc/ckermit:9.0.302|\
   app-misc/edid-decode:20210514|\
   app-misc/evtest:1.35|\
   app-misc/figlet:2.2.5|\
@@ -239,22 +237,18 @@ known_bad_pkg() {
   app-mobilephone/dfu-util:0.9|\
   app-shells/dash:0.5.9.1|\
   app-text/ghostscript-gpl:9.55.0|\
-  app-text/htmltidy:20090325|\
   app-text/libpaper:1.1.28|\
   app-text/poppler:22.03.0|\
   chromeos-base/arc-key"ma"ster:0.0.1|\
   chromeos-base/audiotest:0.0.1|\
   chromeos-base/autotest-deps:0.0.4|\
-  chromeos-base/autotest-deps-cellular:0.0.1|\
   chromeos-base/autotest-tests:0.0.4|\
   chromeos-base/autotest-tests-graphics:0.0.1|\
   chromeos-base/chromeos-chrome:*|\
   chromeos-base/chromeos-cr50-dev:0.0.1|\
   chromeos-base/crash-reporter:0.0.1|\
-  chromeos-base/cronista:0.24.52|\
   chromeos-base/cros-camera:0.0.1|\
   chromeos-base/cros-camera-libs:0.0.1|\
-  chromeos-base/croscomp:0.1.0|\
   chromeos-base/crosh:0.24.52|\
   chromeos-base/crostini_client:0.1.0|\
   chromeos-base/ec-utils:0.0.2|\
@@ -266,21 +260,17 @@ known_bad_pkg() {
   chromeos-base/glbench:0.0.1|\
   chromeos-base/google-breakpad:2022.*|\
   chromeos-base/google-breakpad:2023.0[12]*|\
-  chromeos-base/hps-firmware-tools:0.0.1|\
   chromeos-base/infineon-firmware-updater:1.1.2459.0|\
   chromeos-base/libevdev:0.0.1|\
   chromeos-base/libhwsec:0.0.1|\
-  chromeos-base/manatee-runtime:0.1.0|\
   chromeos-base/mttools:0.0.1|\
   chromeos-base/perfetto:29.0|\
   chromeos-base/perfetto_simple_producer:0.0.1|\
   chromeos-base/pixart_tpfwup:0.0.3|\
   chromeos-base/pixart_tpfwup:0.0.6|\
-  chromeos-base/sirenia:0.24.52|\
   chromeos-base/sommelier:0.0.1|\
   chromeos-base/tast-local-helpers-cros:0.0.1|\
   chromeos-base/telemetry:0.0.1|\
-  chromeos-base/tensorflow-internal:2.8.0|\
   chromeos-base/termina_container_tools:0.0.1|\
   chromeos-base/toolchain-tests:0.0.1|\
   chromeos-base/tpm2-simulator:0.0.1|\
@@ -296,7 +286,6 @@ known_bad_pkg() {
   dev-libs/confuse:2.7|\
   dev-libs/flatbuffers:2.0.0|\
   dev-libs/fribidi:1.0.9|\
-  dev-libs/iniparser:3.1|\
   dev-libs/json-c:0.14|\
   dev-libs/leveldb:1.23|\
   dev-libs/libconfig:1.5|\
@@ -332,12 +321,9 @@ known_bad_pkg() {
   dev-util/android-tools:9.0.0_p3|\
   dev-util/apitrace:9.0|\
   dev-util/hdctools:0.0.1|\
-  dev-rust/manatee-client:0.24.52|\
   dev-util/perf:5.15*|\
   dev-util/rt-tests:2.2|\
-  dev-util/xdelta:3.0.11|\
   dev-util/xxd:1.10|\
-  games-util/joystick:1.4.2|\
   gnome-base/librsvg:2.40.21|\
   media-fonts/font-util:1.3.2|\
   media-gfx/deqp-runner:0.13.1|\
@@ -358,8 +344,6 @@ known_bad_pkg() {
   media-libs/libv4lplugins:0.0.1|\
   media-libs/libvorbis:1.3.7|\
   media-libs/libyuv-test:1774|\
-  media-libs/mali-drivers:1.20|\
-  media-libs/mali-drivers-bin:1.20*|\
   media-libs/mali-drivers-bifrost:32.0|\
   media-libs/mali-drivers-bifrost-bin:32.0*|\
   media-libs/mali-drivers-valhall:32.0|\
@@ -368,7 +352,6 @@ known_bad_pkg() {
   media-libs/opencl-cts:0.0.1|\
   media-libs/opencv:4.5.5|\
   media-libs/qti-7c-camera-bins:20220401|\
-  media-libs/rockchip-isp1-3a-libs-bin:2018.06.28|\
   media-libs/sbc:1.3|\
   media-libs/shaderc:2022.1|\
   media-libs/skia:106|\
@@ -395,7 +378,6 @@ known_bad_pkg() {
   net-libs/grpc:1.43.*|\
   net-libs/libiio:0.2*|\
   net-libs/libnetfilter_conntrack:1.0.6|\
-  net-libs/libnsl:1.2.0|\
   net-libs/libsoup:2.58.2|\
   net-libs/libtirpc:1.0.2|\
   net-libs/libvncserver:0.9.13|\
@@ -419,7 +401,6 @@ known_bad_pkg() {
   net-print/epson-inkjet-printer-escpr:1.7.18|\
   net-print/hplip:3.21.8|\
   net-print/starcupsdrv:3.11.0|\
-  net-proxy/tinyproxy:1.10.0|\
   net-vpn/openvpn:2.4.4|\
   net-vpn/strongswan:5.9.4|\
   net-vpn/wireguard-tools:1.0.20200319|\
@@ -430,7 +411,6 @@ known_bad_pkg() {
   net-wireless/iw:5.19|\
   net-wireless/wireless-tools:30_pre9|\
   net-wireless/wpa_supplicant-cros:2.11_pre|\
-  sci-geosciences/gpsd:3.17|\
   sci-libs/tensorflow:2.8.0|\
   sys-apps/coreboot-utils:0.0.1|\
   sys-apps/debianutils:4.4|\
@@ -445,7 +425,6 @@ known_bad_pkg() {
   sys-apps/i2c-tools:4.0|\
   sys-apps/install-xattr:0.5|\
   sys-apps/iotools:1.5|\
-  sys-apps/kbd:1.15.5|\
   sys-apps/keyutils:1.6.3|\
   sys-apps/less:590|\
   sys-apps/lshw:02.19.2b_p20210121|\
@@ -477,7 +456,6 @@ known_bad_pkg() {
   sys-libs/mtdev:1.1.2|\
   sys-libs/pam:1.3.1|\
   sys-process/audit:3.0.6|\
-  sys-process/htop:1.0.2|\
   sys-process/numactl:2.0.14|\
   sys-process/psmisc:23.3|\
   sys-process/time:1.9|\
