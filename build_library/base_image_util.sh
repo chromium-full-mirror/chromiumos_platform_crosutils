@@ -447,6 +447,7 @@ create_base_image() {
   local path python_paths=(
     "/etc/env.d/python"
     "${pyversions[@]/#//usr/lib/python}"
+    "/usr/lib/python"
     "/usr/lib/python-exec"
     "/usr/lib/portage"
     "/usr/bin/python"
