@@ -12,7 +12,7 @@ generate_licensing()
   # Run FEATURES='noclean' emerge-x86-alex libc-bench to prevent having the
   # directory cleaned up if you are debugging.
   einfo "Generating license for ${PKG} in ${PORTAGE_BUILDDIR:-}"
-  python3.8 \
+  python3.11 \
   /mnt/host/source/chromite/licensing/ebuild_license_hook \
       --builddir "${PORTAGE_BUILDDIR}" || die "
 Failed Generating Licensing for ${PKG}
