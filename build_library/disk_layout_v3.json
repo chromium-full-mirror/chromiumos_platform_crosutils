@@ -11,7 +11,9 @@
     # common is the standard layout template.
     "common": [
       {
-        # MiniOS A partition.
+        # MiniOS A partition. This must always be the first partition since the
+        # recovery code does not assume the GPT is correct and hence checks for
+        # miniOS partition either at the beginning or at the end of the disk.
         "num": 9,
         "label": "MINIOS-A",
         "type": "minios",
@@ -117,7 +119,9 @@
         "uuid": "random"
       },
       {
-        # MiniOS B partition.
+        # MiniOS B partition. This must always be the last partition since the
+        # recovery code does not assume the GPT is correct and hence checks for
+        # miniOS partition either at the beginning or at the end of the disk.
         "num": 10,
         "label": "MINIOS-B",
         "type": "minios",
