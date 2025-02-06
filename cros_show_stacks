@@ -9,14 +9,11 @@
 SCRIPT_ROOT="$(dirname "$(readlink -f "$0")")"
 # shellcheck source=common.sh
 . "${SCRIPT_ROOT}/common.sh" || exit 1
-# shellcheck source=remote_access.sh
-. "${SCRIPT_ROOT}/remote_access.sh" || exit 1
 
 assert_inside_chroot
 
 MINIDUMP_DUMP=minidump_dump
 MINIDUMP_STACKWALK=minidump_stackwalk
-USING_REMOTE=0
 
 DEFINE_string board "${DEFAULT_BOARD}" \
     "The board for which you are building autotest"
@@ -24,6 +21,8 @@ DEFINE_string breakpad_root "" \
     "Path to root of breakpad symbols if pre-existing symbols should be used"
 DEFINE_boolean clean ${FLAGS_FALSE} \
     "Remove crash reports from remote system after showing stacks"
+DEFINE_string remote "" "remote hostname/IP of device"
+DEFINE_integer ssh_port 0 "SSH port of the remote device"
 
 usage() {
   echo "usage: $(basename $0) [--remote=<IP>] [dump...]"
@@ -34,7 +33,6 @@ usage() {
 
 # Clean up remote access and temp files.
 cleanup() {
-  [ ${USING_REMOTE} -eq 1 ] && cleanup_remote_access
   rm -rf "${TMP}"
 }
 
@@ -86,6 +84,27 @@ generate_symbols() {
   fi
 }
 
+cros_cp() {
+  local remote="${FLAGS_remote}"
+  local port=()
+  if [[ "${FLAGS_ssh_port}" != "0" ]]; then
+    port+=( --port="${FLAGS_ssh_port}" )
+  elif [[ "${FLAGS_remote}" == *:* ]]; then
+    port+=( --port="${FLAGS_remote##*:}" )
+    remote=${FLAGS_remote%:*}
+  fi
+
+  cros cp "${port[@]}" "${remote}:$1" "$2"
+}
+
+learn_board() {
+  FLAGS_board=$(
+    cros_cp "/etc/lsb-release" - | \
+      awk -F= '$1 == "CHROMEOS_RELEASE_BOARD" {print $2}'
+  )
+  info "Target reports board is ${FLAGS_board}"
+}
+
 main() {
   FLAGS "$@" || usage
   eval set -- "${FLAGS_ARGV}"
@@ -94,8 +113,6 @@ main() {
   TMP=$(mktemp -d /tmp/${basename}.XXXX)
   trap cleanup EXIT INT TERM
   if [ -n "${FLAGS_remote}" ]; then
-    remote_access_init
-    USING_REMOTE=1
     learn_board
     local crashes=""
     # File spec of all interesting crashes.  /home/chronos... is
@@ -115,8 +132,11 @@ main() {
     for remote_crash_dir in "${remote_crash_dirs[@]}"; do
       remote_crash_patterns+=( "${remote_crash_dir}/*.{dmp,kcrash}" )
     done
-    remote_sh "ls -1 ${remote_crash_patterns[*]}" 2> /dev/null
-    local crashes=${REMOTE_OUT}
+    local crashes
+    crashes=$(
+      cros shell "${FLAGS_remote}" \
+        ls -1 "${remote_crash_patterns[@]}" "2>/dev/null"
+    )
     # Remove duplicates.
     local unique_crashes=""
     local crash_count=0
@@ -133,16 +153,15 @@ main() {
     fi
     info "Copying back ${crash_count} crashes."
     crashes="${unique_crashes}"
-    local filesfrom="${TMP}/filesfrom"
     declare -a dumps
+    local remote_crashes=()
     for crash in ${crashes}; do
-      echo "${crash}" >> "${filesfrom}"
+      cros_cp "${crash}" "${TMP}"
       dumps+=( "${TMP}/$(basename "${crash}")" )
     done
     set -- "$@" "${dumps[@]}"
-    remote_rsync_from "${filesfrom}" "${TMP}"
     if [ ${FLAGS_clean} -eq ${FLAGS_TRUE} ]; then
-      remote_sh "rm -rf ${remote_crash_dirs[*]}"
+      cros shell "${FLAGS_remote}" rm -rf "${remote_crash_dirs[@]}"
     fi
   else
     [[ $# -gt 0 ]] || usage

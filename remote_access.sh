@@ -6,7 +6,7 @@
 # Library for setting up remote access and running remote commands.
 
 case ${SCRIPT_NAME} in
-cros_show_stacks|update_kernel.sh)
+update_kernel.sh)
   ;;
 *)
   echo "remote_access.sh: This script will be removed by July 2023." >&2
