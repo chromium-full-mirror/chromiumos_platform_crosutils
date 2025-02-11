@@ -9,7 +9,7 @@ case ${SCRIPT_NAME} in
 update_kernel.sh)
   ;;
 *)
-  echo "remote_access.sh: This script will be removed by July 2023." >&2
+  echo "remote_access.sh: Use cros subcoommands instead." >&2
   exit 1
   ;;
 esac

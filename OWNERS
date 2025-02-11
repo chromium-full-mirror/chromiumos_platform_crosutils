@@ -1,5 +1,3 @@
 per-file update_kernel.sh = file:chromiumos/owners:v1:/kernel/OWNERS.build
-# remote_access.sh is mostly used by update_kernel.sh.
-per-file remote_access.sh = file:chromiumos/owners:v1:/kernel/OWNERS.build
 
 include chromiumos/owners:v1:/infra/OWNERS.build
