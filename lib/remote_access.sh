@@ -239,9 +239,10 @@ _check_if_rebooted() {
 #
 remote_reboot() {
   info "Rebooting ${FLAGS_remote}..."
+  remote_sh touch /tmp/awaiting_reboot
   # 'reboot' is ran in background to make sure the command completes before
-  # sshd is terminated.
-  remote_sh_raw "touch /tmp/awaiting_reboot; reboot &"
+  # sshd is terminated. Ignore the error of this command.
+  remote_sh_raw "reboot &" || true
   local start_time=${SECONDS}
 
   # Wait for five seconds before we start polling
