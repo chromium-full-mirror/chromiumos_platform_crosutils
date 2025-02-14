@@ -162,6 +162,14 @@ info_run() {
 die_err_trap() {
   local result=${1:-$?}
   local command=${2:-${BASH_COMMAND:-command unknown}}
+
+  if [[ ! -o errexit ]]; then
+    # Ignore the error trap when errexit is not set
+    # Let callers able to use 'set +e' / 'set -e' to wrap codes where the
+    # errors are expected to be ignored and prevent from dying.
+    return 0
+  fi
+
   set +e +u
 
   if [[ ${result} == "0" ]]; then
@@ -642,7 +650,7 @@ reinterpret_path_for_chroot() {
 switch_to_strict_mode() {
   # Set up strict execution mode; note that the trap
   # must follow switch_to_strict_mode, else it will have no effect.
-  set -e
+  set -e -E
   trap 'die_err_trap' ERR
   if [[ $# -ne 0 ]]; then
     set "$@"
