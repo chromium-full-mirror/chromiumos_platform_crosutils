@@ -50,6 +50,7 @@ mod_image_for_test () {
   # hold DLC(s) that dlcservice will leverage for testing/provisioning.
   info_run build_dlc --sysroot="${BOARD_ROOT}" \
     --install-root-dir="${root_fs_dir}/var/cache/dlc-images" \
+    --stateful="${stateful_fs_dir}" \
     --preload --rootfs="${root_fs_dir}" --board="${BOARD}"
 
   unmount_image
