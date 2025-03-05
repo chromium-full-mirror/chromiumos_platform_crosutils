@@ -109,11 +109,8 @@ known_bad_oom() {
   chromeos-base/imageloader|\
   chromeos-base/infineon-firmware-updater|\
   chromeos-base/ip-peripheral|\
-  chromeos-base/ippusb_bridge|\
-  chromeos-base/ippusb_manager|\
   chromeos-base/kerberos|\
   chromeos-base/libhwsec-foundation|\
-  chromeos-base/lorgnette|\
   chromeos-base/metrics|\
   chromeos-base/midis|\
   chromeos-base/modemfwd|\
@@ -145,7 +142,6 @@ known_bad_oom() {
   chromeos-base/userfeedback|\
   chromeos-base/viking-hid|\
   chromeos-base/virtual-file-provider|\
-  chromeos-base/virtual-usb-printer|\
   dev-util/hdctools|\
   media-libs/arc-camera-service|\
   media-libs/cros-camera-libcab|\
