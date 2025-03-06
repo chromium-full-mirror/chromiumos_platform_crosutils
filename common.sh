@@ -256,15 +256,6 @@ get_gclient_root() {
   fi
 }
 
-# Populate the ENVIRONMENT_WHITELIST array.
-load_environment_whitelist() {
-  set -f
-  ENVIRONMENT_WHITELIST=(
-    $("${GCLIENT_ROOT}/chromite/scripts/cros_env_whitelist")
-  )
-  set +f
-}
-
 # Find root of source tree
 get_gclient_root
 
