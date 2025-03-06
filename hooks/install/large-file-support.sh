@@ -279,7 +279,6 @@ known_bad_pkg() {
   dev-util/apitrace:9.0|\
   dev-util/hdctools:0.0.1|\
   dev-util/perf:5.15*|\
-  dev-util/rt-tests:2.2|\
   gnome-base/librsvg:2.40.21|\
   media-fonts/font-util:1.3.2|\
   media-gfx/qrencode:3.4.4|\
