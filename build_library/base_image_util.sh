@@ -337,8 +337,12 @@ create_base_image() {
   info "Syncing ${BUILD_DIR}/${image_name}."
   sync -f "${BUILD_DIR}/${image_name}"
 
-  if has "default_key_stateful" "$(portageq-"${BOARD}" envvar USE)"; then
-    create_developer_tools_image "${image_name}"
+  if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
+    info "Skip creating dev_image.blocks in factory shim environment."
+  else
+    if has "default_key_stateful" "$(portageq-"${BOARD}" envvar USE)"; then
+      create_developer_tools_image "${image_name}"
+    fi
   fi
 
   trap "check_full_disk ; unmount_image ; delete_prompt" EXIT
