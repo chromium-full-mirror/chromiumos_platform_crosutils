@@ -225,8 +225,8 @@ _check_if_rebooted() {
     # from these parameters. These values produce a ~10 second wait.
     # (in a subshell to avoid clobbering the global settings)
     SSH_CONNECT_SETTINGS="$(sed \
-      -e 's/\(ConnectTimeout\)=[0-9]*/\1=2/' \
-      -e 's/\(ConnectionAttempts\)=[0-9]*/\1=2/' \
+      -e 's/\(ConnectTimeout\)=[0-9]*/\1=10/' \
+      -e 's/\(ConnectionAttempts\)=[0-9]*/\1=1/' \
       <<<"$(ssh_connect_settings ssh)")"
     remote_sh_allow_changed_host_key -q -- '[ ! -e /tmp/awaiting_reboot ]'
   )
