@@ -276,6 +276,7 @@ fi
 
 cat <<EOF - "${FLAGS_working_dir}/boot.config" >> "${config}"
 loglevel=${FLAGS_loglevel}
+console_msg_format=syslog
 init=/sbin/init
 cros_secure
 drm.trace=0x106
