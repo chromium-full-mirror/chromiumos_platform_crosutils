@@ -94,20 +94,25 @@ ALLOWLIST=(
   "unencrypted/dlc-factory-images"
 )
 
-calculate_kernel_hash() {
+# Calculates the hash of a partition in an image.
+# Args:
+#  $1: GPT image filename
+#  $2: partition number
+calculate_partition_hash() {
   local img="$1"
+  local part_num="$2"
 
-  local partition_num_kern_a kern_offset kern_size kern_tmp
+  local offset size tmp
 
-  partition_num_kern_a="$(get_image_partition_number "${img}" "KERN-A")"
-  kern_offset="$(partoffset "${img}" "${partition_num_kern_a}")"
-  kern_size="$(partsize "${img}" "${partition_num_kern_a}")"
-  kern_tmp=$(mktemp)
+  offset="$(partoffset "${img}" "${part_num}")"
+  size="$(partsize "${img}" "${part_num}")"
+  tmp=$(mktemp)
+  # Always cleanup our temp file.
+  trap 'rm -f "${tmp}"' RETURN
 
-  dd if="${FLAGS_image}" bs=512 count="${kern_size}" \
-     skip="${kern_offset}" of="${kern_tmp}" 1>&2
-  sha256sum "${kern_tmp}" | cut -f1 -d' '
-  rm "${kern_tmp}"
+  dd if="${img}" bs=512 count="${size}" \
+     skip="${offset}" of="${tmp}" 1>&2
+  sha256sum "${tmp}" | cut -f1 -d' '
 }
 
 create_recovery_kernel_image() {
@@ -131,7 +136,7 @@ create_recovery_kernel_image() {
   # partitions appropriately without needing any external dependencies.)
 
   local kern_hash
-  kern_hash="$(calculate_kernel_hash "${FLAGS_image}")"
+  kern_hash="$(calculate_partition_hash "${FLAGS_image}" 2)"
 
   # TODO(wad) add FLAGS_boot_args support too.
   # shellcheck source=build_kernel_image.sh
@@ -162,7 +167,7 @@ update_efi_partition() {
     "EFI-SYSTEM")
 
   efi_size=$(partsize "${RECOVERY_IMAGE}" "${partition_num_efi_system}")
-  kern_hash="$(calculate_kernel_hash "${RECOVERY_IMAGE}")"
+  kern_hash="$(calculate_partition_hash "${RECOVERY_IMAGE}" 2)"
 
   if [[ ${efi_size} -ne 0 ]]; then
     local efi_dir
