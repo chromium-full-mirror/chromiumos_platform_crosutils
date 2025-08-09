@@ -40,8 +40,6 @@ DEFINE_string to "" \
   "emit recovery image to path/file (${CHROMEOS_RECOVERY_IMAGE_NAME} if empty)"
 DEFINE_boolean kernel_image_only "${FLAGS_FALSE}" \
   "only emit recovery kernel"
-DEFINE_boolean sync_keys "${FLAGS_TRUE}" \
-  "update install kernel with the vblock from stateful"
 DEFINE_boolean minimize_image "${FLAGS_TRUE}" \
   "create a minimized recovery image from source image"
 DEFINE_boolean modify_in_place "${FLAGS_FALSE}" \
@@ -91,32 +89,10 @@ EMERGE_BOARD_CMD="emerge-${BOARD}"
 # Files to preserve from original stateful, if minimize_image is true.
 # If minimize_image is false, everything is always preserved.
 ALLOWLIST=(
-  "vmlinuz_hd.vblock"
+  "vmlinuz_hd.vblock" # Likely not needed.
   "unencrypted/import_extensions"
   "unencrypted/dlc-factory-images"
 )
-
-get_install_vblock() {
-  # If it exists, we need to copy the vblock over to stateful
-  # This is the real vblock and not the recovery vblock.
-  local partition_num_state stateful_mnt out
-
-  partition_num_state=$(get_image_partition_number "${FLAGS_image}" "STATE")
-  IMAGE_DEV=$(loopback_partscan "${FLAGS_image}")
-  stateful_mnt=$(mktemp -d)
-  out=$(mktemp)
-
-  set +e
-  sudo mount "${IMAGE_DEV}"p"${partition_num_state}" "${stateful_mnt}"
-  sudo cp "${stateful_mnt}/vmlinuz_hd.vblock"  "${out}"
-  sudo chown "${USER}" "${out}"
-
-  safe_umount "${stateful_mnt}"
-  rmdir "${stateful_mnt}"
-  loopback_detach "${IMAGE_DEV}"
-  switch_to_strict_mode
-  echo "${out}"
-}
 
 calculate_kernel_hash() {
   local img="$1"
@@ -130,10 +106,6 @@ calculate_kernel_hash() {
 
   dd if="${FLAGS_image}" bs=512 count="${kern_size}" \
      skip="${kern_offset}" of="${kern_tmp}" 1>&2
-  # We're going to use the real signing block.
-  if [[ "${FLAGS_sync_keys}" -eq "${FLAGS_TRUE}" ]]; then
-    dd if="${INSTALL_VBLOCK}" of="${kern_tmp}" conv=notrunc 1>&2
-  fi
   sha256sum "${kern_tmp}" | cut -f1 -d' '
   rm "${kern_tmp}"
 }
@@ -265,13 +237,6 @@ install_recovery_kernel() {
     fi
   fi
 
-  # We're going to use the real signing block.
-  if [ "${FLAGS_sync_keys}" -eq "${FLAGS_TRUE}" ]; then
-    dd if="${INSTALL_VBLOCK}" of="${RECOVERY_IMAGE}" bs=512 \
-       seek="${kern_b_offset}" \
-       conv=notrunc
-  fi
-
   install_recovery_kernel_once "${kern_a_offset}" "${kern_a_size}"
   if [[ "${has_kern_c}" == "true" ]]; then
     install_recovery_kernel_once "${kern_c_offset}" "${kern_c_size}"
@@ -379,8 +344,6 @@ copy_stateful() {
   # Don't bother with ext3 for such a small image.
   /sbin/mkfs.ext2 -F -b 4096 "${small_stateful}" 1>&2
 
-  # If it exists, we need to copy the vblock over to stateful
-  # This is the real vblock and not the recovery vblock.
   new_stateful_mnt=$(mktemp -d)
 
   # Force all of the file writes to complete, in case it's necessary for
@@ -527,7 +490,6 @@ cleanup() {
   if [[ "${FLAGS_image}" != "${RECOVERY_IMAGE}" ]]; then
     rm "${RECOVERY_IMAGE}"
   fi
-  rm "${INSTALL_VBLOCK}"
 }
 
 
@@ -563,11 +525,6 @@ fi
 
 echo "Creating recovery image from ${FLAGS_image}"
 
-INSTALL_VBLOCK=$(get_install_vblock)
-if [ -z "${INSTALL_VBLOCK}" ]; then
-  die "Could not copy the vblock from stateful."
-fi
-
 # shellcheck disable=SC2154
 FACTORY_ROOT="${BOARD_ROOT}/factory-root"
 : "${USE:=}"
@@ -586,7 +543,6 @@ fi
 
 if [ "${FLAGS_kernel_image_only}" -eq "${FLAGS_TRUE}" ]; then
   echo "Kernel emitted. Stopping there."
-  rm "${INSTALL_VBLOCK}"
   exit 0
 fi
 
