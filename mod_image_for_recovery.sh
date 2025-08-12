@@ -138,6 +138,41 @@ create_recovery_kernel_image() {
   local kern_hash
   kern_hash="$(calculate_partition_hash "${FLAGS_image}" 2)"
 
+  local boot_args_list=(
+    "noinitrd"
+    "panic=60"
+    "cros_recovery"
+    "kern_b_hash=${kern_hash}"
+  )
+
+  # Add new partitions here.
+  local part_label_list=(
+    "MINIOS-A"
+    "MINIOS-B"
+  )
+  local cros_part_hash_list=()
+  local part_label
+  for part_label in "${part_label_list[@]}"; do
+    local part_num
+    part_num="$(get_image_partition_number "${FLAGS_image}" "${part_label}")"
+    if [[ -z "${part_num}" ]]; then
+      echo "Partition ${part_label} not found in ${FLAGS_image}, skipping."
+      continue
+    fi
+
+    local cros_part_hash
+    cros_part_hash="$(calculate_partition_hash "${FLAGS_image}" "${part_num}")"
+
+    # Convert to binary format and base64 encode it.
+    cros_part_hash="$(xxd -r -p <<< "${cros_part_hash}" | base64 -w0)"
+
+    cros_part_hash_list+=("${part_num}:${cros_part_hash}")
+  done
+
+  local cros_part_hash_list_str
+  cros_part_hash_list_str="$(IFS=','; echo "${cros_part_hash_list[*]}")"
+  boot_args_list+=("cros_part_hash=${cros_part_hash_list_str}")
+
   # TODO(wad) add FLAGS_boot_args support too.
   # shellcheck source=build_kernel_image.sh
   # shellcheck disable=SC2154
@@ -147,7 +182,7 @@ create_recovery_kernel_image() {
     --to="${RECOVERY_KERNEL_IMAGE}" \
     --vmlinuz="${vmlinuz}" \
     --working_dir="${IMAGE_DIR}" \
-    --boot_args="noinitrd panic=60 cros_recovery kern_b_hash=${kern_hash}" \
+    --boot_args="${boot_args_list[*]}" \
     --enable_serial="${FLAGS_enable_serial}" \
     --keep_work \
     --keys_dir="${FLAGS_keys_dir}" \
