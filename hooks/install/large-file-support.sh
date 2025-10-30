@@ -325,7 +325,6 @@ known_bad_pkg() {
   net-vpn/strongswan:5.9.4|\
   net-vpn/wireguard-tools:1.0.20200319|\
   net-wireless/bluez:5.54|\
-  net-wireless/crda:3.18|\
   net-wireless/floss:0.0.2|\
   net-wireless/wireless-tools:30_pre9|\
   sys-apps/coreboot-utils:0.0.1|\
