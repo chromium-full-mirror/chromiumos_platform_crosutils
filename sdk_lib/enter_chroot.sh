@@ -330,6 +330,17 @@ setup_git() {
       "/home/${SUDO_USER}/.gitconfig"
   local -r chroot_gitconfig="${FLAGS_chroot}/home/${SUDO_USER}/.gitconfig"
 
+  # Mount ~/.git-credential-cache so the refreshed new git cookie is available
+  # (b/445936217#comment18)
+  if [[ -d "${SUDO_HOME}/.git-credential-cache" ]]; then
+    setup_mount "${SUDO_HOME}/.git-credential-cache" "--bind" \
+      "/home/${SUDO_USER}/.git-credential-cache"
+  # Otherwise use the existing .gitcookies file
+  elif [[ -f "${SUDO_HOME}/.gitcookies" ]]; then
+    copy_into_chroot_if_exists ${SUDO_HOME}/.gitcookies \
+      "/home/${SUDO_USER}/.git-credential-cache/cookie"
+  fi
+
   # If the user didn't set up their username in their gitconfig, look
   # at the default git settings for the user.
   if ! git config -f "${chroot_gitconfig}" user.email >& /dev/null; then
@@ -343,20 +354,8 @@ setup_git() {
         "${ident_email}" || :
   fi
 
-  # Copy the gitcookies file, updating the user's gitconfig to point to it.
-  local gitcookies
-  gitcookies="$(git_config_path --file "${chroot_gitconfig}" \
-                  --get http.cookiefile)"
-  if [[ $? -ne 0 ]]; then
-    # Try the default location anyway.
-    gitcookies="${SUDO_HOME}/.gitcookies"
-  fi
-  copy_into_chroot_if_exists "${gitcookies}" "/home/${SUDO_USER}/.gitcookies"
-  local -r chroot_gitcookies="${FLAGS_chroot}/home/${SUDO_USER}/.gitcookies"
-  if [[ -e "${chroot_gitcookies}" ]]; then
-    git config -f "${chroot_gitconfig}" --replace-all http.cookiefile \
-        "/home/${SUDO_USER}/.gitcookies"
-  fi
+  git config -f "${chroot_gitconfig}" --replace-all http.cookiefile \
+      "/home/${SUDO_USER}/.git-credential-cache/cookie"
   # This line must be at the end because using `git config` changes ownership of
   # the .gitconfig.
   chown ${SUDO_UID}:${SUDO_GID} "${chroot_gitconfig}"
