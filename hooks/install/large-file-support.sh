@@ -352,7 +352,6 @@ known_bad_pkg() {
   sys-devel/llvm-img:10.0.0|\
   sys-fs/e2fsprogs:1.47.0|\
   sys-fs/fuse:2.9.8|\
-  sys-libs/gcc-libs:10.2.0|\
   sys-libs/libcap-ng:0.8.2|\
   sys-libs/libselinux:3.0|\
   sys-libs/libsepol:3.0|\
