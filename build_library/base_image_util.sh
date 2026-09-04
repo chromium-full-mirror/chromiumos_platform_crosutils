@@ -189,11 +189,11 @@ install_libc_for_abi() {
   # TODO: Improve this? It would be ideal to use emerge to do this.
   local root_fs_dir="$1"
   local abi="$2"
-  PKGDIR="/var/lib/portage/pkgs"
+  local copy_cxx_runtime="$3"
 
   local pkgs=( "glibc" )
   local exclude_gconv=false
-  if [[ "$3" == "--copy-cxx-runtime" ]]; then
+  if [[ "${copy_cxx_runtime}" == "--copy-cxx-runtime" ]]; then
     # Normally only glibc gets installed here since it is not built per board
     # while other "standard" libraries like the C++ libraries get installed by
     # ebuilds. In the case of NaCl on Arm64, we need to install a second set of
@@ -209,18 +209,44 @@ install_libc_for_abi() {
     exclude_gconv=true
   fi
 
-  local idx pkg pkg_cp pkg_atom pkg_path pkg_excludes
+  local sysroot_tc_dir="${BOARD_ROOT}/var/cache/toolchain-pkgs/cross-${abi}"
+  local manifest="${sysroot_tc_dir}/manifest.json"
+  local pkgdir="${PKGDIR:-/var/lib/portage/pkgs}"
+
+  local idx pkg pkg_cp pkg_atom pkg_path pkg_decompressor pkg_excludes
   for (( idx = 0; idx < ${#pkgs[@]}; idx++ )); do
     pkg="${pkgs[${idx}]}"
     pkg_cp="cross-${abi}/${pkg}"
-    pkg_atom="$(info_run portageq match / "${pkg_cp}")"
-    pkg_path="${PKGDIR}/${pkg_atom}.tbz2"
+    pkg_path=""
+
+    # 1. Check sysroot toolchain cache first (staged by Bazel sysroot_create).
+    if [[ -d "${sysroot_tc_dir}" ]] && [[ -f "${manifest}" ]]; then
+      local matched_file
+      matched_file="$(jq -r --arg pkg "${pkg}" '.[$pkg] // empty' "${manifest}" 2>/dev/null || true)"
+      if [[ -n "${matched_file}" && -f "${sysroot_tc_dir}/${matched_file}" ]]; then
+        pkg_path="${sysroot_tc_dir}/${matched_file}"
+      fi
+    fi
+
+    # 2. Fall back to host SDK PKGDIR if not found in sysroot cache (legacy Portage).
+    if [[ -z "${pkg_path}" ]]; then
+      pkg_atom="$(info_run portageq match / "${pkg_cp}" | tail -n 1)"
+      if [[ -n "${pkg_atom}" && -f "${pkgdir}/${pkg_atom}.tbz2" ]]; then
+        pkg_path="${pkgdir}/${pkg_atom}.tbz2"
+      fi
+    fi
+
+    # 3. Assert package was found.
+    if [[ -z "${pkg_path}" || ! -f "${pkg_path}" ]]; then
+      die "Could not find binary package for ${pkg_cp} (checked cache ${sysroot_tc_dir} and host ${pkgdir})"
+    fi
+
     pkg_decompressor="$(detect_decompression_tool "${pkg_path}")"
     if [[ "${pkg}" == "glibc" ]]; then
-      # LIBC_PATH needs to be export for later use in dev_image_util.sh
+      # LIBC_PATH needs to be exported for later use in dev_image_util.sh
       # to extract debug symbols.
       # TODO(b/223285139): Change to export an array of packages instead
-      # since we should have really extract debug info for all of them.
+      # since we should really extract debug info for all of them.
       export LIBC_PATH="${pkg_path}"
       export LIBC_DECOMPRESSOR="${pkg_decompressor}"
     fi
