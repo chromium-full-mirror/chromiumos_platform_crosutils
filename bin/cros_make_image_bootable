@@ -388,8 +388,8 @@ make_image_bootable() {
   local hash_offset
   hash_offset="$(partoffset "${image}" "${partition_num_root_a}")"
   hash_offset=$((hash_offset + ("${rootfs_fs_size}" / 512)))
-  sudo dd bs=512 \
-          seek="${hash_offset}" \
+  sudo dd bs=1M oflag=seek_bytes \
+          seek="$((hash_offset * 512))" \
           if="${FLAGS_rootfs_hash}" \
           of="${image}" \
           conv=notrunc \
@@ -411,11 +411,11 @@ make_image_bootable() {
   local koffset
   koffset="$(partoffset "${image}" "${partition_num_kern_a}")"
   sudo dd if="${FLAGS_output_dir}/${kern_a_image}" of="${image}" \
-    conv=notrunc bs=512 seek="${koffset}" status=none
+    conv=notrunc bs=1M oflag=seek_bytes seek="$((koffset * 512))" status=none
   if [[ ${need_kern_b} -eq ${FLAGS_TRUE} ]]; then
     koffset="$(partoffset "${image}" "${partition_num_kern_b}")"
     sudo dd if="${FLAGS_output_dir}/${kern_b_image}" of="${image}" \
-      conv=notrunc bs=512 seek="${koffset}" status=none
+      conv=notrunc bs=1M oflag=seek_bytes seek="$((koffset * 512))" status=none
   fi
 
   # Update the bootloaders.  The EFI system partition will be updated.
