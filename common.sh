@@ -611,6 +611,11 @@ command_completed() {
 load_board_specific_script() {
   local file=$1 overlay
   [[ $# -ne 1 ]] && die "load_board_specific_script requires exactly 1 param"
+  # Clear the positional parameters so the sourced script does not inherit
+  # them.  Otherwise top-level code in the overlay script that accidentally
+  # references $1 (e.g. an `echo ... >> "$1"` meant for
+  # modify_kernel_command_line) would silently write to "${file}".
+  shift
   for overlay in ${BOARD_OVERLAY}; do
     local setup_sh="${overlay}/scripts/${file}"
     if [[ -e ${setup_sh} ]]; then
