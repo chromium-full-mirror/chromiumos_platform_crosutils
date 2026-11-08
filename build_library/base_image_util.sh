@@ -631,8 +631,19 @@ create_base_image() {
     # stateful since we created a symlink for those. We ignore the
     # symlink in this package since the directory /usr/local/var
     # exists in the target image when dev_install runs.
+    #
+    # Use -6 --block-size=4MiB instead of -9 so -T0 splits smaller inputs
+    # (~105 MiB on octopus) across threads (~30s -> ~1.6s) rather than
+    # defaulting to 3 * dict (192 MiB at -9, 24 MiB at -6), and avoids -9's
+    # 64 MiB dictionary memory overhead (-6 and -9 produce identical output
+    # with 4 MiB blocks). Resetting the dictionary every 4 MiB increases
+    # archive size (~21 MiB -> ~32 MiB) while enabling parallel xz -d
+    # (~0.55s -> ~0.07s). Thus while the final size is larger, it's OK
+    # for use in initializing developer images, especially since it'll
+    # decompress faster on slower systems.
     info_run sudo tar -cf "${BOARD_ROOT}/packages/dev-only-extras.tar.xz" \
-      -I 'xz -9 -T0' --exclude=var -C "${root_fs_dir}/usr/local" .
+      -I 'xz -6 -T0 --block-size=4MiB' --exclude=var \
+      -C "${root_fs_dir}/usr/local" .
 
     if should_build_image "${CHROMEOS_FACTORY_INSTALL_SHIM_NAME}"; then
       info "Skipping dev-install lists for factory shim images."
