@@ -110,8 +110,12 @@ calculate_partition_hash() {
   # Always cleanup our temp file.
   trap 'rm -f "${tmp}"' RETURN
 
-  dd if="${img}" bs=512 count="${size}" \
-     skip="${offset}" of="${tmp}" 1>&2
+  # partoffset and partsize return 512-byte sector counts; convert to bytes so
+  # dd can read in 1 MiB chunks.
+  dd if="${img}" of="${tmp}" bs=1M \
+     iflag=fullblock,skip_bytes,count_bytes \
+     skip="$(( offset * 512 ))" \
+     count="$(( size * 512 ))" 1>&2
   sha256sum "${tmp}" | cut -f1 -d' '
 }
 
@@ -233,15 +237,17 @@ install_recovery_kernel_once() {
       "larger than kernel partition size ($(( kern_size * 512 / 1048576 )) MiB)"
   fi
 
-  dd if="${RECOVERY_KERNEL_IMAGE}" of="${RECOVERY_IMAGE}" bs=512 \
-     seek="${kern_offset}" \
-     count="${kern_size}" \
+  # kern_offset and kern_size are in 512-byte sectors.
+  dd if="${RECOVERY_KERNEL_IMAGE}" of="${RECOVERY_IMAGE}" bs=1M \
+     iflag=fullblock,count_bytes oflag=seek_bytes \
+     seek="$(( kern_offset * 512 ))" \
+     count="$(( kern_size * 512 ))" \
      conv=notrunc
 }
 
 install_recovery_kernel() {
   local partition_num_kern_a kern_a_offset kern_a_size \
-        partition_num_kern_b kern_b_offset kern_b_size \
+        partition_num_kern_b kern_b_size \
         partition_num_kern_c kern_c_offset kern_c_size \
         has_kern_c
 
@@ -252,7 +258,6 @@ install_recovery_kernel() {
 
   partition_num_kern_b=$(get_image_partition_number "${RECOVERY_IMAGE}" \
     "KERN-B")
-  kern_b_offset=$(partoffset "${RECOVERY_IMAGE}" "${partition_num_kern_b}")
   kern_b_size=$(partsize "${RECOVERY_IMAGE}" "${partition_num_kern_b}")
 
   if [ "${kern_b_size}" -eq 1 ]; then
@@ -375,8 +380,9 @@ copy_stateful() {
 
   # Rebuild the image with stateful partition sized by sectors_needed.
   small_stateful=$(mktemp)
-  dd if=/dev/zero of="${small_stateful}" bs=512 \
-    count="${sectors_needed}" 1>&2
+  # sectors_needed is in 512-byte sectors.
+  dd if=/dev/zero of="${small_stateful}" bs=1M \
+    iflag=fullblock,count_bytes count="$(( sectors_needed * 512 ))" 1>&2
   trap \
     'rm "${small_stateful}"; loopback_detach "${IMAGE_DEV}" || true; cleanup' \
     EXIT
@@ -414,8 +420,12 @@ copy_stateful() {
 
   local dst_start
   dst_start="$(cgpt show -i "${partition_num_state}" -b "${dst_img}")"
-  dd if="${small_stateful}" of="${dst_img}" conv=notrunc bs=512 \
-    seek="${dst_start}" count="${sectors_needed}" status=none
+  # dst_start and sectors_needed are in 512-byte sectors.
+  dd if="${small_stateful}" of="${dst_img}" conv=notrunc bs=1M \
+    iflag=fullblock,count_bytes oflag=seek_bytes \
+    seek="$(( dst_start * 512 ))" \
+    count="$(( sectors_needed * 512 ))" \
+    status=none
   rm "${small_stateful}"
   return 0
 }
@@ -510,8 +520,12 @@ copy_partitions() {
       fi
       local src_start
       src_start="$(cgpt show -i "${part}" -b "${src_img}")"
-      dd if="${src_img}" of="${dst_img}" conv=notrunc bs=512 \
-         skip="${src_start}" seek="${dst_start}" count="${size}" \
+      # src_start, dst_start, and size are in 512-byte sectors.
+      dd if="${src_img}" of="${dst_img}" conv=notrunc bs=1M \
+         iflag=fullblock,skip_bytes,count_bytes oflag=seek_bytes \
+         skip="$(( src_start * 512 ))" \
+         seek="$(( dst_start * 512 ))" \
+         count="$(( size * 512 ))" \
          status=none
       sync
     fi
