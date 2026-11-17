@@ -690,6 +690,12 @@ create_base_image() {
   [ -L "${boot_dir}"/vmlinuz ] && \
     sudo "${cpmv}" "${boot_dir}"/vmlinuz "${BUILD_DIR}/boot_images"
 
+  # Deduplicate identical files on the read-only rootfs after SELinux contexts
+  # are set (--mount skips bind-mounted /usr/local and /var; --respect-xattrs
+  # preserves distinct SELinux labels; skip /boot for UEFI in-place signing).
+  info_run sudo hardlink --mount --respect-xattrs --ignore-time \
+    --exclude-subtree "^${boot_dir}$" "${root_fs_dir}"
+
   # Calculate package sizes within the built rootfs for reporting purposes.
   # Use sudo to access some paths that are unreadable as non-root.
   # shellcheck disable=2154
