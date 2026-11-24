@@ -34,6 +34,23 @@ should_build_image() {
   return 1
 }
 
+# Returns the pv command if it's available, otherwise plain-old cat. Note that
+# this function echoes the command, rather than running it, so it can be used
+# as an argument to other commands (like sudo).
+pv_cat_cmd() {
+  if type -P pv >&/dev/null; then
+    # Limit pv's output to 80 columns, for readability.
+    local term_cols=$(stty size 2>/dev/null | cut -d' ' -f2)
+    if [[ ${term_cols:-0} -gt 80 ]]; then
+      echo pv -w 80 -B 4m
+    else
+      echo pv -B 4m
+    fi
+  else
+    echo cat
+  fi
+}
+
 # Utility function for creating a copy of an image prior to
 # modification from the BUILD_DIR:
 #  $1: source filename
@@ -41,9 +58,9 @@ should_build_image() {
 copy_image() {
   local src="${BUILD_DIR}/$1"
   local dst="${BUILD_DIR}/$2"
-  if should_build_image "$1"; then
-    echo "Creating $2 from $1... This might take a minute to complete."
-    cp "${src}" "${dst}" || die "Cannot copy $1 to $2"
+  if should_build_image $1; then
+    echo "Creating $2 from $1..."
+    $(pv_cat_cmd) "${src}" >"${dst}" || die "Cannot copy $1 to $2"
   else
     mv "${src}" "${dst}" || die "Cannot move $1 to $2"
   fi
